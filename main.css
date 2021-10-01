@@ -97,7 +97,7 @@ div.gnb .menu-wrap .gnb-main {
 }
 
 div.gnb ul.menu-list {
-    height: 100%;
+    height: auto;
     position: absolute;
     top: 56px;
     z-index: -1;
@@ -151,13 +151,29 @@ div .menu-btn {
         flex: 0 1 0%;
     }
 
+    div.gnb ul.menu-list:hover::-webkit-scrollbar{
+        height: 8px;
+    }
+
+    div.gnb ul.menu-list::-webkit-scrollbar{
+        width: 5px;
+        height: 3px;
+        background-color: rgb(231, 231, 231);
+        /*oraddittothetrack*/
+}
+    
+    div.gnb ul.menu-list::-webkit-scrollbar-thumb{
+        background: rgb(170, 170, 170);
+    }
+
     div.gnb ul.menu-list {
         position: static;
         display: flex;
+        height: 80%;
         margin: 0;
         z-index: 0;
         flex: 1 0 0;
-        flex-flow: row wrap;
+        flex-flow: row nowrap;
         box-shadow: none;
         padding: 0;
         transform: none;
@@ -170,6 +186,12 @@ div .menu-btn {
         -moz-transition: none;
         -ms-transition: none;
         -o-transition: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    div.gnb ul.menu-list li{
+        white-space: nowrap;
     }
 }
 
@@ -407,6 +429,7 @@ body {
 
 .wrap .functionWrap {
     font-family: var(--ks-noto-serif);
+    width: 100%;
 }
 
 .wrap .info .title::before {
@@ -429,7 +452,7 @@ body {
 
 .wrap .info div[data-index] .name,
 .wrap .functions .name {
-    width: 15%;
+    /* min-width: 15%; */
     font-weight: 700;
     text-align: center;
     text-transform: capitalize;
@@ -439,6 +462,8 @@ body {
     color: white;
     background-color: rgb(29, 133, 20);
     border-radius: .3rem;
+    font-size: .8rem;
+    padding: .3rem .5rem;
     -webkit-border-radius: .3rem;
     -moz-border-radius: .3rem;
     -ms-border-radius: .3rem;
@@ -448,10 +473,18 @@ body {
 .wrap .info .value,
 .wrap .functions .value {
     font-weight: 300;
+    /* min-width: 160px; */
+}
+
+.wrap .functions .coverTxt{
+    border-left: 3px solid rgb(33, 165, 88);
+    padding: 1rem;
+    margin: 1rem 0;
 }
 
 .wrap .info .value{
     margin-left: 1rem;
+    padding: .3rem .5rem;
 }
 
 .wrap .table {
@@ -468,3 +501,16 @@ body {
 .table tbody tr {
     border-bottom: 1px solid rgba(128, 128, 128, 0.2);
 }
+
+.wrap .functions table thead tr th:nth-child(2) {
+    width: 160px;
+}
+
+.wrap .functions table td {
+    word-break: break-word;
+}
+
+.wrap .functions table thead tr th:last-child {
+    white-space: pre-wrap;
+}
+

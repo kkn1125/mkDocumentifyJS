@@ -1,5 +1,56 @@
+'use strict';
+
 const xhr = new XMLHttpRequest();
 const body = document.body;
+
+const navJS = `
+'use strict';
+let b = 0;
+
+document.body.addEventListener('click', (ev)=>{
+    let target = ev.target;
+    if(target.tagName !== 'BUTTON' || target.className.indexOf('menu-btn')==-1) return;
+    ev.preventDefault();
+
+    if(target.classList.length==1){
+        target.classList.add('open');
+    } else {
+        target.classList.toggle('close');
+        target.classList.toggle('open');
+    }
+
+    target.parentNode.nextElementSibling.classList.toggle("show");
+});
+
+window.addEventListener('scroll', (ev)=>{
+    let target = document.querySelector('.gnb-wrap');
+    if(window.scrollY>100){
+        if(b<window.scrollY){
+            target.style.transform = 'translateY(-100%)';
+            document.querySelector('nav button.menu-btn').classList.replace('open','close');
+            document.querySelector('.menu-list').classList.remove('show');
+        } else {
+            target.style.transform = 'none';
+        }
+        b = window.scrollY;
+    }
+});
+
+window.addEventListener('click', (ev)=>{
+    let target = ev.target;
+    if(target.tagName !== 'BUTTON' || target.className !== 'save') return;
+    ev.preventDefault();
+
+    let outer = document.body.innerHTML;
+    console.log(outer)
+    var blob = new Blob([outer], {type: "text/plain;charset=utf-8"});
+    let an = document.createElement('a');
+    an.download = "test.html";
+    an.href = URL.createObjectURL(blob);
+    document.body.append(an);
+    an.click();
+});
+`;
 
 let list = [];
 let parsingData = [];
@@ -30,19 +81,15 @@ const mkNav = function (url) {
 const DataNodeType = function (type, dataNode) {
     this.type = type;
     this.name = (function(){
-        // dataNode.forEach(x=>{
-            // console.log(x.name)
         for(let x of dataNode){
             if(x.name!=null && x.name.indexOf('function')>-1)
                 return x.value;
             else return 'no name';
         }
-        // });
     })();
     this.dataNode = dataNode;
     this.outText = dataNode.outText || null;
     (function (t) {
-        // dataNode.forEach(x=>x.column='function')
         parsingData.push(t);
     })(this);
 }
@@ -50,7 +97,6 @@ const DataNodeType = function (type, dataNode) {
 const DataNode = function (n, v, i) {
     this.sep = (function () {
         n = n.replace(/[\@]/gm, '');
-        // console.log(n)
         v = v.replace(/[\{\}]/gm, '');
         if (v.indexOf(' ') > -1) {
             return [v.substring(0, v.indexOf(' ')), v.substring(v.indexOf(' '))]
@@ -92,10 +138,11 @@ const parseComment = function (comment) {
                         return new DataNode(y.substring(0, id), y.substring(id + 1), i++);
                 } else if(y.indexOf('example')>-1) {
                     is = true;
-                    let tp = '';
+                    let tp = ' ';
                     if(is){
                         for(let i=ids; i<x.length; i++){
-                            tp += x[i];
+                            tp += x[i].replace('@example','');
+                            
                         }
                         is = false;
                         return new DataNode(y, tp, i++);
@@ -115,7 +162,14 @@ const displayData = function () {
     let infoData = [];
     let funcData = [];
     
-    let template = e => body.innerHTML += `<div class="wrap">${e}</div>`;
+    let template = e => body.innerHTML += `<div class="wrap">${e}</div>`
+    +`<script src="index.js">
+    let userUrl = '';
+    userUrl = 'example.js';
+    </script>
+    <script>
+    ${navJS}
+    </script>`;
     let wrapFunc = e => `
         <div class="functionWrap">
             <div class="title">Functions</div>
@@ -139,11 +193,12 @@ const displayData = function () {
         <td class="value">${sep.value}</td>
         <td class="value">${sep.text==null?'':sep.text}</td>
         </tr>`;
-        if(e.dataNode.outText!=null) return '';
-
+            
         e.dataNode.forEach(sep => {
             if(sep.outText == null)
                 tmp += form(sep);
+            else
+                tmp += `<div class="coverTxt">${sep.outText}</div>`;
         });
         return tmp;
     }
@@ -155,6 +210,9 @@ const displayData = function () {
                 <div class="sticky">
                     <div class="title">JavaScript Info</div>
                     ${innerInfo(sec)}
+                </div>
+                <div>
+                    <button type="button" class="save">Save</button>
                 </div>
             </div>`;
         });
