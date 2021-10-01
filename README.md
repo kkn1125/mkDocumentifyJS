@@ -61,4 +61,4 @@ When you open a saved file, js and css are built-in, so you can use the document
 
 -----
 
-[Kimson Blog](https://kkn1125.github.io/ 'Blog')
+[devkimson Blog](https://kkn1125.github.io/ 'Blog') | [mkDocumentify :: Sample page](https://kkn1125.github.io/mkDocumentifyJS/ 'documentify sample')
