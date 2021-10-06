@@ -341,6 +341,7 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
 
         this.generateDocument = function(manufaturedPack){
             docuPack = manufaturedPack;
+            console.log(docuPack);
             this.clearView();
             this.mkScript();
             this.mkHead();
