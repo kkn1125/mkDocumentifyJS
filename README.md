@@ -40,9 +40,8 @@ And put the script in html.
     </head>
 
     <body>
-        <script src="index.js"></script>
         <script src="documentify.js"></script>
-        <script src="nav.js"></script>
+        <script src="index.js"></script>
     </body>
 
 </html>
@@ -51,8 +50,15 @@ And put the script in html.
 Then, in the `index.js` file, write the path to the js file to be documented in the userUrl variable.
 
 ```javascript
-let userUrl = '';
-userUrl = 'example.js';
+// index.js
+
+// The first is to manually select a file.
+const documentify = Documentify.init();
+
+// The second method is to directly enter the file path.
+const documentify = Documentify.init(
+    {url: 'example.js'}
+);
 ```
 
 `example.js` is documented as an example. And there will be a save button on the left.
