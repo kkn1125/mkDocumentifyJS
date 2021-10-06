@@ -1,10 +1,17 @@
 'use strict';
 
 /**
+ * @author kimson test
+ * @author kimson qwe
+ * @author kimson asd
+ * @author kimson
+ */
+
+/**
  * Returns the name of the type of the given value.
  *
- * @param {any} o
- * @returns {string}
+ * @param {any} o qeqweqwe
+ * @returns {string} qweqwe
  * @example
  * type() === null
  */
@@ -12,10 +19,6 @@ function test(o){
     let tmp = o;
     return tmp;
 }
-
-/**
- * @author kimson
- */
 
 /**
  * @function graphEditor 그래프 에디터

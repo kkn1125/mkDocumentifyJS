@@ -1,2 +1,1 @@
-let userUrl = '';
-userUrl = 'example.js';
+const documentify = Documentify.init();
