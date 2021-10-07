@@ -1,3 +1,3 @@
-const documentify = Documentify.init({
-    url: "blahblah"
-});
+const documentify = Documentify.init(
+    {url: 'example.js'}
+);
