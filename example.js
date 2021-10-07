@@ -1,8 +1,10 @@
 'use strict';
 
 /**
- * @author kimson test
- * @author kimson qwe
+ * This file is an example file.
+ * 
+ * @author kimson,minji Who made Documentify JS
+ * @description kimson qwe
  * @author kimson asd
  * @author kimson
  */
@@ -39,6 +41,7 @@ function test(o){
  * @param {string} column graph name
  * @param {int} value graph percent value
  * @param {array} graphList array of graph object
+ * @requires (qwe) qwe
  * @returns {boolean} result of validation
  */
 
