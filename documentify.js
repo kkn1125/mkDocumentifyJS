@@ -15,7 +15,6 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
                 uiElem.file.addEventListener('change', this.fileUploadHandler);
             if(userUrl)
                 window.addEventListener('load', this.getFileHandler.bind(this));
-            // window.addEventListener('click', this.lineMoveHandler);
             window.addEventListener('click', this.fileSaveHandler);
         }
 
@@ -25,14 +24,6 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
 
             moduleModel.fileSaveHandler(ev);
         }
-
-        // this.lineMoveHandler = function(ev){
-        //     let target = ev.target;
-        //     let check = document.querySelector('.check');
-        //     if(check) check.classList.remove('check');
-        //     if(target.tagName !== 'A' || target.dataset.type !== 'lineNum') return;
-        //     moduleModel.lineMoveHandler(ev);
-        // }
 
         this.fileUploadHandler = function(ev){
             let file = this.files;
@@ -79,19 +70,6 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
             moduleView.fileSaveHandler(ev);
         }
 
-        // this.lineMoveHandler = function(ev){
-        //     let target = ev.target;
-        //     let lineNum = target.href.split('#')[1];
-        //     let line = document.querySelector(`#line-${lineNum}`);
-        //     line.scrollIntoView({
-        //         behavior: "smooth", block: "center", inline: "nearest"
-        //     });
-        //     line.classList.add('mark-line', 'check');
-        //     setTimeout(()=>{
-        //         line.classList.remove('mark-line')
-        //     }, 10000);
-        // }
-
         this.parseToComments = function(comments, file){
             let regex = /\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm;
             let originLines = comments.split('\n');
@@ -103,51 +81,63 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
         }
 
         this.manufactureToData = function(originLines, file, parseData){
-            parseData = parseData.map(x => x.replace(/\s\*\s/gi, '')
+            
+            parseData = parseData.map(originLine => originLine.replace(/\s\*\s/gi, '')
             .replace(/\/*\*\*|\s\*\//gim, '')
             .replace(/\r/gm, '')
             .split('\n')
-            .filter(x=>x!=''))
-            .map(x=>{
+            .filter(mayBeBlank => mayBeBlank != ''))
+            .map(commentBundle => {
                 let lines = 0;
-
+                console.log(commentBundle)
                 for(let line in originLines){
-                    if(originLines[line].match(x[0])){
+                    if(originLines[line].match(commentBundle[0])){
                         lines = line;
                         break;
                     }
                 }
 
-                x = x.map(y=>{
+                let classifiedComment = commentBundle.map(comment => {
                     let [tag, type, name, desc] = ['','','',''];
                     
-                    if(!y.match(/@/gm)){
-                        [tag, type, name, desc] = ['','','',y];
-                    } else if(y.match(/@/gm)){
-                        let split = y.split(' ');
-                        if(y.match(/param/gm)){
-                            let idx = y.indexOf(split[2])+split[2].length+1;
+                    let commentForm = ({tag, type, name, desc, line}) => {
+                        return {
+                            tag: tag,
+                            type: type,
+                            name: name,
+                            desc: desc,
+                            line: line,
+                        }
+                    }
+
+                    if(!comment.match(/@/gm)){
+                        return commentForm({tag: '', type: '', name: '', desc: comment, line: originLines.indexOf(comment)+1});
+                    } 
+                    else if(comment.match(/@/gm)){
+                        let split = comment.split(' ');
+                        if(comment.match(/param/gm)){
+                            let idx = comment.indexOf(split[2])+split[2].length+1;
                             let slice = split.slice(0,3);
 
-                            [tag, type, name, desc] = [...slice, y.substring(idx)];
-                        } else if(y.match(/return|var/gm)){
-                            let idx = y.indexOf(split[1])+split[1].length+1;
+                            commentForm({...slice, desc: comment.substring(idx)});
+                        } else if(comment.match(/return|var/gm)){
+                            let idx = comment.indexOf(split[1])+split[1].length+1;
                             let slice = split.slice(0, 2);
                             
-                            [tag, type, name, desc] = [...slice, '', y.substring(idx)];
+                            [tag, type, name, desc] = [...slice, '', comment.substring(idx)];
                         } else {
                             if(split.length==1)
                                 [tag, name, type, desc] = [split[0], '', '', ''];
                             else{
-                                let idx = y.indexOf(split[1])+split[1].length+1;
+                                let idx = comment.indexOf(split[1])+split[1].length+1;
                                 let slice = split.slice(0, 2);
-                                [tag, name, type, desc] = [...slice, '', y.substring(idx)];
+                                [tag, name, type, desc] = [...slice, '', comment.substring(idx)];
                             }
                         }
                     }
                     return {tag, type, name, desc};
                 });
-               
+                console.log(classifiedComment)
                 let dataForm = ({name, props, line}) => {
                     return {
                         name: name,
@@ -156,24 +146,24 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
                     }
                 }
 
-                let ns = '';
+                let nameSpace = '';
 
-                for(let y of x){
-                    if(y.tag.match(/var|return|function|param|example/gm)){
-                        if(y.tag.match(/function/gm)){
-                            ns = y.name;
+                for(let commentObj of classifiedComment){
+                    if(commentObj.tag.match(/var|return|function|param|example/gm)){
+                        if(commentObj.tag.match(/function/gm)){
+                            nameSpace = commentObj.name;
                             break;
                         } else {
-                            ns = 'function';
+                            nameSpace = 'function';
                             break;
                         }
-                    } else if(y.tag.match(/@/gm)){
-                        ns = 'information';
+                    } else if(commentObj.tag.match(/@/gm)){
+                        nameSpace = 'information';
                         break;
                     }
                 }
 
-                return dataForm({name: ns, props: x, line: lines});
+                return dataForm({name: nameSpace, props: classifiedComment, line: lines});
             });
 
             let sources = (inf, ...method) => {
