@@ -80,7 +80,7 @@ const Documentify = (function(){
         }
 
         this.parseToComments = function(comments, file){
-            let regex = /\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm;
+            let regex = /\/\*\*+[\s\S]+?\*\//gm;
             let originLines = comments.split('\n');
             let parseData = comments.match(regex); // 주석 묶음 배열
             
@@ -97,63 +97,83 @@ const Documentify = (function(){
             .replace(/\r/gm, '')
             .split('\n')
             .filter(mayBeBlank => mayBeBlank != ''))
+            .map(isTrimed => isTrimed.map(text=>text.trim())
+            .filter(mayBeBlank => mayBeBlank != ''))
             .map(commentBundle => {
                 let lines = 0;
-                console.log(commentBundle)
                 for(let line in originLines){
-                    if(originLines[line].match(commentBundle[0])){
-                        lines = line;
+                    if(originLines[line].indexOf(commentBundle[0])>-1){
+                        lines = parseInt(line)-1;
+                        if(lines==-1) lines = 0;
                         break;
                     }
                 }
 
                 let classifiedComment = commentBundle.map(comment => {
-                    let [tag, type, name, desc] = ['','','',''];
                     
-                    let commentForm = ({tag, type, name, desc, line}) => {
+                    let commentForm = ({tag, type, name, desc}) => {
+                        let commentSpot = 0;
+                        for(let valid in originLines){
+                            if(originLines[valid].indexOf(comment)>-1) {
+                                commentSpot = parseInt(valid)+1;
+                                break;
+                            }
+                        }
                         return {
                             tag: tag,
                             type: type,
                             name: name,
                             desc: desc,
-                            line: line,
+                            line: commentSpot,
                         }
                     }
 
                     if(!comment.match(/@/gm)){
-                        return commentForm({tag: '', type: '', name: '', desc: comment, line: originLines.indexOf(comment)+1});
-                    } 
-                    else if(comment.match(/@/gm)){
+                        return commentForm({tag: '', type: '', name: '', desc: comment});
+                    } else if(comment.match(/@/gm)){
                         let split = comment.split(' ');
-                        if(comment.match(/param/gm)){
-                            let idx = comment.indexOf(split[2])+split[2].length+1;
-                            let slice = split.slice(0,3);
+                        let baseIdx = 1;
+                        let idx = index => comment.indexOf(split[index])+split[index].length+1;
 
-                            commentForm({...slice, desc: comment.substring(idx)});
-                        } else if(comment.match(/return|var/gm)){
-                            let idx = comment.indexOf(split[1])+split[1].length+1;
-                            let slice = split.slice(0, 2);
-                            
-                            [tag, type, name, desc] = [...slice, '', comment.substring(idx)];
+                        let sliceTag = bsi => {
+                            let result = split.slice(0, bsi+1);
+                            if(result.length==3){
+                                return {tag: result[0], type: result[1], name: result[2]};
+                            } else {
+                                return {tag: result[0], name: result[1]=='' && result[0].match(/function/gim)?'function':result[1]};
+                            }
+                        };
+                        
+                        if(comment.match(/param|var/gm) && split.length>1){
+                            baseIdx = 2;
+                            return commentForm({
+                                ...sliceTag(baseIdx), desc: comment.substring(idx(baseIdx))
+                            });
+                        } else if(comment.match(/return/gm) && split.length>1){
+                            return commentForm({
+                                ...sliceTag(baseIdx), name:'', desc: comment.substring(idx(baseIdx))
+                            });
                         } else {
-                            if(split.length==1)
-                                [tag, name, type, desc] = [split[0], '', '', ''];
+                            if(split.length==1){
+                                return commentForm({
+                                    tag:split[0], type:'', name:'', desc:''
+                                });
+                            }
                             else{
-                                let idx = comment.indexOf(split[1])+split[1].length+1;
-                                let slice = split.slice(0, 2);
-                                [tag, name, type, desc] = [...slice, '', comment.substring(idx)];
+                                let description = split[baseIdx]==''?'':comment.substring(idx(baseIdx));
+                                return commentForm({
+                                    ...sliceTag(baseIdx), type:'', desc: description
+                                });
                             }
                         }
                     }
-                    
-                    return {tag, type, name, desc};
                 });
-                console.log(classifiedComment)
+
                 let dataForm = ({name, props, line}) => {
                     return {
                         name: name,
                         props: props,
-                        line: line,
+                        bundleLine: line,
                     }
                 }
 
@@ -162,7 +182,7 @@ const Documentify = (function(){
                 for(let commentObj of classifiedComment){
                     if(commentObj.tag.match(/var|return|function|param|example/gm)){
                         if(commentObj.tag.match(/function/gm)){
-                            nameSpace = commentObj.name;
+                            nameSpace = commentObj.name==''?'function':commentObj.name;
                             break;
                         } else {
                             nameSpace = 'function';
@@ -217,7 +237,7 @@ const Documentify = (function(){
          * @requires (ui) ui 객체가 있어야한다.
          */
         this.init = function(ui){
-            uiElem = ui;
+            uiElem = ui; 
         }
 
         /**
@@ -255,8 +275,6 @@ const Documentify = (function(){
             li.remove();
 
             let css = this.getFileContents('./main.css');
-            let kim = this.getFileContents('./img/kim.jpg');
-            let oho = this.getFileContents('./img/oho.jpg');
             let saveAsName = 'index.html';
             let saveContents = `<!DOCTYPE html>
             <html>
@@ -267,7 +285,6 @@ const Documentify = (function(){
                     ${document.body.innerHTML}
                 </body>
             </html>`;
-
             
             let z = new Zip('documentify');
             let filesArray = [
@@ -279,8 +296,6 @@ const Documentify = (function(){
             z.fecth2zip(filesArray, 'public/');
             z.str2zip(saveAsName, saveContents, 'public/');
             z.str2zip('main.css', css, 'public/');
-            z.str2zip('kim.jpg', kim, 'public/img/');
-            z.str2zip('oho.jpg', oho, 'public/img/');
             z.makeZip();
             parent.append(clone);
         }
@@ -323,7 +338,7 @@ const Documentify = (function(){
             let tmp = '';
             tmp += `<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
                 <div class="container-fluid">
-                <a class="navbar-brand" href="#">${fileName}</a>
+                <a class="navbar-brand" href="#">${fileName.replace(/^\.\/|^\//gm,'')}</a>
                 <button class="navbar-toggler p-0 border-0" type="button" id="navbarSideCollapse" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -371,21 +386,21 @@ const Documentify = (function(){
             <nav class="nav nav-underline" aria-label="Secondary navigation">`;
             tmp += origin;
 
-            let li = d=>{
-                if(id==0) id = 1;
-                return `<a class="nav-link${id==0?' active':''}" ${id==0?'aria-current="page"':''} href="#${d.name}">${d.name}</a>`;
+            let li = partOfPackage => {
+                return `<a class="nav-link${id==0?' active':''}" ${id==0?'aria-current="page"':''} href="#${partOfPackage.name}">${partOfPackage.name}</a>`;
             };
 
-            docuPack.repository.packageInfos.forEach(data=>{
-                tmp += li(data);
+            docuPack.repository.packageInfos.forEach(partOfPackage => {
+                tmp += li(partOfPackage);
+                if(id == 0) id = 1;
             });
-            docuPack.repository.packageMethods.forEach(data=>{
-                tmp += li(data);
+            docuPack.repository.packageMethods.forEach(partOfPackage => {
+                tmp += li(partOfPackage);
             });
 
             tmp += `</nav>
             </div>`;
-            console.log(docuPack)
+            // console.log(docuPack);
             return tmp;
         }
     
@@ -411,7 +426,7 @@ const Documentify = (function(){
                 <h6 class="border-bottom pb-2 mb-0">Recent updates</h6>
                 <div class="d-flex text-muted pt-3">
                     <div style="padding-right:.5rem; flex: 0 0 42px; width: 42px; height: 42px; overflow: hidden;">
-                        <img class="img-fluid bd-placeholder-img" style="border-radius: .3rem;" src="img/kim.jpg" alt="">
+                        <img class="img-fluid bd-placeholder-img" style="border-radius: .3rem;" src="https://avatars.githubusercontent.com/u/71887242?v=4" alt="">
                     </div>
             
                     <p class="pb-3 mb-0 small lh-sm border-bottom">
@@ -422,7 +437,7 @@ const Documentify = (function(){
                 </div>
                 <div class="d-flex text-muted pt-3">
                     <div style="padding-right:.5rem; flex: 0 0 42px; width: 42px; height: 42px; overflow: hidden;">
-                        <img class="img-fluid bd-placeholder-img" style="border-radius: .3rem;" src="img/oho.jpg" alt="">
+                        <img class="img-fluid bd-placeholder-img" style="border-radius: .3rem;" src="https://avatars.githubusercontent.com/u/77590526?v=4" alt="">
                     </div>
             
                     <p class="pb-3 mb-0 small lh-sm border-bottom">
@@ -437,20 +452,22 @@ const Documentify = (function(){
             </div>`;
 
             Object.entries(docuPack.repository).forEach(([key, value])=>{
-                value.forEach(pr=>{
+                value.forEach(packageMethod=>{
                     tmp += 
                     `<div class="my-3 p-3 bg-body rounded shadow-sm">
-                        <h6 class="border-bottom pb-2 mb-0" id="${pr.name}">${pr.name}</h6>`;
+                        <h6 class="border-bottom pb-2 mb-0" id="${packageMethod.name}">${packageMethod.name}</h6>`;
 
-                    pr.props.forEach(p=>{
-                        let desc = p.desc!==''||p.desc!==null?`<span class="d-block mt-3"><span class="badge bg-light text-dark me-3">desc</span>${p.desc}</span>`:`<span class="d-block mt-3"><span class="badge bg-light text-muted me-3">desc</span>No Descriptions</span>`;
+                    packageMethod.props.forEach(methodProperty=>{
+                        let {tag:propTag, type:propType, name:propName, desc:propDesc, line:propLine} = {...methodProperty};
+
+                        let desc = propDesc!==''||propDesc!==null?`<span class="d-block mt-3"><span class="badge bg-light text-dark me-3">desc</span>${propDesc}</span>`:`<span class="d-block mt-3"><span class="badge bg-light text-muted me-3">desc</span>No Descriptions</span>`;
                         
-                        let badgeFont = p.tag!==''?p.tag.replace(/\@/gm, '').charAt():'?';
-                        if(p.tag.match(/example/)) badgeFont = 'ex';
-                        if(p.tag =='' && p.name == '' && p.type == '' && p.desc.match(/type|\=/gm)){
+                        let badgeFont = propTag!==''?propTag.replace(/\@/gm, '').charAt():'?';
+                        if(propTag.match(/example/)) badgeFont = 'ex';
+                        if(propTag =='' && propName == '' && propType == '' && propDesc.match(/type|\=/gm)){
                             badgeFont = 'tp';
                         }
-                        if(p.tag.match(/require/gm)){
+                        if(propTag.match(/require/gm)){
                             badgeFont = 'rq';
                         }
 
@@ -464,11 +481,11 @@ const Documentify = (function(){
                         <div class="badge-font ${badgeColor=='light'?'text-dark':''}">${badgeFont}</div>
                         </div>`;
 
-                        if(p.tag =='' && p.name == '' && p.type == '' && !p.desc.match(/[\(\)\=]/gm)){
-                            tmp += `<div class="desc">${p.desc}</div>`;
-                        } else if(p.tag =='' && p.name == '' && p.type == '' && p.desc.match(/type|\=/gim)){
-                            tmp += `<div class="exam-type">${p.desc}</div>`;
-                        } else if(p.tag.match(/param/gm)){
+                        if(propTag =='' && propName == '' && propType == '' && !propDesc.match(/[\(\)\=]/gm)){
+                            tmp += `<div class="desc">${propDesc}</div>`;
+                        } else if(propTag =='' && propName == '' && propType == '' && propDesc.match(/type|\=/gim)){
+                            tmp += `<div class="exam-type">${propDesc}</div>`;
+                        } else if(propTag.match(/param|var/gm)){
                             tmp += `<div class="d-flex text-muted pt-3">
 
                                 ${svg}
@@ -476,12 +493,12 @@ const Documentify = (function(){
                                 <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <strong class="text-gray-dark">${p.tag.replace('@','')}</strong>
+                                            <strong class="text-gray-dark">${propTag.replace('@','')}</strong>
                                             <span class="text-muted">
-                                             ${p.type} → ${p.name}
+                                             ${propType} → ${propName}
                                             </span>
                                         </div>
-                                        <a href="#">mark</a>
+                                        <a href="#${propLine}" data-type="lineNum">line : ${propLine}</a>
                                     </div>
                                     ${desc}
                                 </div>
@@ -495,21 +512,21 @@ const Documentify = (function(){
                                 <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <strong class="text-gray-dark">${p.tag.replace('@','')}</strong>
-                                            <!--<span class="text-muted">${p.type}</span>-->
+                                            <strong class="text-gray-dark">${propTag.replace('@','')}</strong>
+                                            <!--<span class="text-muted">${propType}</span>-->
                                         </div>
-                                        <a href="#">mark</a>
+                                        <a href="#${propLine}" data-type="lineNum">line : ${propLine}</a>
                                     </div>
-                                    <span class="d-block">${p.name.match(/\,/gm)?p.name.replace(/\,/gm, ' '):p.name}</span>
+                                    <span class="d-block">${propName.match(/\,/gm)?propName.replace(/\,/gm, ' '):propName}</span>
                                     ${desc}
                                 </div>
                             </div>`;
                         }
                     });
-
+                    
                     tmp += 
                     `<small class="d-block text-end mt-3">
-                        <a href="#${pr.line}" data-type="lineNum">line : ${pr.line} ${docuPack.file.name}</a>
+                        <a href="#${packageMethod.bundleLine+1}" data-type="lineNum">line : ${packageMethod.bundleLine+1} ${docuPack.file.name.replace(/^\.\/|^\//gm,'')}</a>
                         </small>
                     </div>`;
                 });
@@ -531,8 +548,12 @@ const Documentify = (function(){
         this.mkOriginLines = function(){
             let tmp = ``;
             docuPack.originLines.forEach((line, i)=>{
-                tmp += `<div class="border-bottom" id="line-${i+1}"><span class="d-inline-block me-3 text-end" style="width: 2rem;">${i+1}</span><span>${line}</span></div>`;
+                let escape = document.createElement('textarea');
+                escape.textContent = line;
+                let escapeTag = escape.innerHTML;
+                tmp += `<div class="border-bottom" id="line-${i+1}"><span class="d-inline-block me-3 text-end" style="width: 2rem;">${i+1}</span><span>${escapeTag}</span></div>`;
             });
+
             uiElem.body.innerHTML += `<div class="container" id="originlines">
                 <div class="border rounded p-5">
                     <div class="mb-3 h3">${docuPack.file.name}</div>
@@ -591,8 +612,6 @@ const Documentify = (function(){
 
                 document.querySelector('#dcPopup').addEventListener('click', (ev)=>{
                     let target = ev.target;
-                    // console.log(target.tagName)
-                    // console.log(target.id)
                     if(target.tagName !== 'BUTTON' && target.id !== 'dcPopup' && target.tagName !== 'I') return;
                     let pop = document.querySelector('[data-dc-type="popup"]');
                     if(pop.classList.contains('show')){
@@ -634,7 +653,6 @@ const Documentify = (function(){
 
         this.generateDocument = function(manufaturedPack){
             docuPack = manufaturedPack;
-            // console.log(docuPack);
             this.clearView();
             this.mkHead();
             this.mkBody();
