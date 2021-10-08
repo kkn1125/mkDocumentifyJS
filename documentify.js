@@ -1,21 +1,28 @@
 'use strict';
 
-const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효과
+// 즉시실행 후 내부 함수 숨기는 효과
+const Documentify = (function(){ 
 
-    function Controller(){ // 이벤트 조작
+    // 이벤트 조작
+    function Controller(){ 
         let moduleModel = null;
         let uiElem = null;
         let userUrl = null;
 
+        /**
+         * @param {*} model 
+         * @param {*} ui 
+         * @param {*} url 
+         */
         this.init = function(model, ui, url){
             moduleModel = model;
             uiElem = ui;
             userUrl = url;
+
             if(uiElem.file)
                 uiElem.file.addEventListener('change', this.fileUploadHandler);
             if(userUrl)
                 window.addEventListener('load', this.getFileHandler.bind(this));
-            // window.addEventListener('click', this.lineMoveHandler);
             window.addEventListener('click', this.fileSaveHandler);
         }
 
@@ -25,14 +32,6 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
 
             moduleModel.fileSaveHandler(ev);
         }
-
-        // this.lineMoveHandler = function(ev){
-        //     let target = ev.target;
-        //     let check = document.querySelector('.check');
-        //     if(check) check.classList.remove('check');
-        //     if(target.tagName !== 'A' || target.dataset.type !== 'lineNum') return;
-        //     moduleModel.lineMoveHandler(ev);
-        // }
 
         this.fileUploadHandler = function(ev){
             let file = this.files;
@@ -68,7 +67,8 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
         }
     }
 
-    function Model(){ // 객체 조작
+    // 객체 조작
+    function Model(){ 
         let moduleView = null;
 
         this.init = function(view){
@@ -79,72 +79,66 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
             moduleView.fileSaveHandler(ev);
         }
 
-        // this.lineMoveHandler = function(ev){
-        //     let target = ev.target;
-        //     let lineNum = target.href.split('#')[1];
-        //     let line = document.querySelector(`#line-${lineNum}`);
-        //     line.scrollIntoView({
-        //         behavior: "smooth", block: "center", inline: "nearest"
-        //     });
-        //     line.classList.add('mark-line', 'check');
-        //     setTimeout(()=>{
-        //         line.classList.remove('mark-line')
-        //     }, 10000);
-        // }
-
+        /**
+         * main
+         * @param {string} comments 
+         * @param {*} file 
+         */
         this.parseToComments = function(comments, file){
             let regex = /\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm;
             let originLines = comments.split('\n');
-            let parseData = comments.match(regex);
+            let parseData = comments.match(regex); // 주석 묶음 배열
+            
             let manufaturedPack = this.manufactureToData(originLines, file[0], parseData);
             this.clearView();
             
             moduleView.generateDocument(manufaturedPack);
         }
-
+        
         this.manufactureToData = function(originLines, file, parseData){
-            parseData = parseData.map(x => x.replace(/\s\*\s/gi, '')
+            parseData = parseData.map(x => 
+            x.replace(/\s\*\s/gi, '') // 공백*공백 을 제거
             .replace(/\/*\*\*|\s\*\//gim, '')
             .replace(/\r/gm, '')
             .split('\n')
-            .filter(x=>x!=''))
-            .map(x=>{
+            .filter(modifiedComments => modifiedComments != ''))
+            .map(commentsBundle=>{
                 let lines = 0;
 
-                for(let line in originLines){
-                    if(originLines[line].match(x[0])){
+                for(let line in originLines){ // 오류
+                    if(originLines[line].match(commentsBundle[0])){
                         lines = line;
                         break;
                     }
                 }
-
-                x = x.map(y=>{
+                
+                commentsBundle = commentsBundle.map(comment=>{
                     let [tag, type, name, desc] = ['','','',''];
                     
-                    if(!y.match(/@/gm)){
-                        [tag, type, name, desc] = ['','','',y];
-                    } else if(y.match(/@/gm)){
-                        let split = y.split(' ');
-                        if(y.match(/param/gm)){
-                            let idx = y.indexOf(split[2])+split[2].length+1;
+                    if(!comment.match(/@/gm)){
+                        [tag, type, name, desc] = ['','','',comment];
+                    } else if(comment.match(/@/gm)){
+                        let split = comment.split(' ');
+                        if(comment.match(/param|var/gm)){
+                            let idx = comment.indexOf(split[2]) + split[2].length+1;
                             let slice = split.slice(0,3);
-
-                            [tag, type, name, desc] = [...slice, y.substring(idx)];
-                        } else if(y.match(/return|var/gm)){
-                            let idx = y.indexOf(split[1])+split[1].length+1;
+                            [tag, type, name, desc] = [...slice, comment.substring(idx)];
+                        } else if(comment.match(/return/gm)){
+                            let idx = comment.indexOf(split[1])+split[1].length+1;
                             let slice = split.slice(0, 2);
                             
-                            [tag, type, name, desc] = [...slice, '', y.substring(idx)];
+                            [tag, type, name, desc] = [...slice, '', comment.substring(idx)];
                         } else {
                             if(split.length==1)
                                 [tag, name, type, desc] = [split[0], '', '', ''];
                             else{
-                                let idx = y.indexOf(split[1])+split[1].length+1;
+                                let idx = comment.indexOf(split[1])+split[1].length+1;
                                 let slice = split.slice(0, 2);
-                                [tag, name, type, desc] = [...slice, '', y.substring(idx)];
+                                [tag, name, type, desc] = [...slice, '', comment.substring(idx)];
                             }
                         }
                     }
+                    
                     return {tag, type, name, desc};
                 });
                
@@ -156,26 +150,27 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
                     }
                 }
 
-                let ns = '';
+                let nameSpace = '';
 
-                for(let y of x){
+                for(let y of commentsBundle){
                     if(y.tag.match(/var|return|function|param|example/gm)){
                         if(y.tag.match(/function/gm)){
-                            ns = y.name;
+                            nameSpace = y.name;
+                            if(y.name=='') nameSpace = 'function';
                             break;
                         } else {
-                            ns = 'function';
+                            nameSpace = 'function';
                             break;
                         }
                     } else if(y.tag.match(/@/gm)){
-                        ns = 'information';
+                        nameSpace = 'information';
                         break;
                     }
                 }
 
-                return dataForm({name: ns, props: x, line: lines});
+                return dataForm({name: nameSpace, props: commentsBundle, line: lines});
             });
-
+            
             let sources = (inf, ...method) => {
                 return {
                     data: 'parsingData',
@@ -202,14 +197,28 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
         }
     }
 
+    /**
+     * 화면 조작
+     * @function View
+     */
     function View(){
         let uiElem = null;
         let docuPack = null;
 
+        /**
+         * 
+         * @param {object} ui 필요한 Element가 포함된 객체
+         * @requires (ui) ui 객체가 있어야한다.
+         */
         this.init = function(ui){
             uiElem = ui;
         }
 
+        /**
+         * @function getFileContents 상대경로를 참조하여 파일을 읽어 내용을 반환하는 메서드
+         * @param {string} url 내용을 읽을 파일의 상대경로
+         * @returns {string} url을 참조하여 읽은 파일의 내용 반환
+         */
         this.getFileContents = function(url){
             let xhr = new XMLHttpRequest();
             let result = '';
@@ -226,6 +235,10 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
             return result;
         }
 
+        /**
+         * @function fileSaveHandler 파일을 zip으로 저장시키는 메서드
+         * @param {event} ev Controller에서 지정한 addEventListener의 click 타입의 이벤트가 전달
+         */
         this.fileSaveHandler = function(ev){
             let target = ev.target;
 
@@ -266,6 +279,9 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
             parent.append(clone);
         }
 
+        /**
+         * @function mkHead head태그를 생성
+         */
         this.mkHead = function(){
             uiElem.head.innerHTML =  `
             <meta charset="UTF-8">
@@ -292,6 +308,10 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
             uiElem.head.append(s);
         }
 
+        /**
+         * @function mkNav Global Navigation Bar를 생성
+         * @returns {string} 생성된 GNB 반환
+         */
         this.mkNav = function(){
             let fileName = docuPack.file.name;
             let tmp = '';
@@ -362,7 +382,11 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
             console.log(docuPack)
             return tmp;
         }
-
+    
+        /**
+         * @function mkContent 문서화 내용 생성
+         * @returns {string} 문서화된 내용 반환
+         */
         this.mkContent = function(){
             let tmp = `<main class="container">
             <div class="d-flex align-items-center p-3 my-3 text-white bg-purple rounded shadow-sm">
@@ -487,6 +511,9 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
             return tmp+`</main>`;
         }
 
+        /**
+         * @function mkBody body태그 부분을 생성
+         */
         this.mkBody = function(){
             let dom = new DOMParser();
             let contents = null;
@@ -616,6 +643,11 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
     }
 
     return {
+        /**
+         * DocumentifyJS 초기화 메서드
+         * @function init
+         * @param {string} url 문서화 대상 js파일의 경로
+         */
         init: function(url){
             if(!url)
                 this.create();
@@ -637,6 +669,11 @@ const Documentify = (function(){ // 즉시실행 후 내부 함수 숨기는 효
             model.init(view);
             controller.init(model, ui, url);
         },
+
+        /**
+         * Documentify 초기화 시 초기화 메서드 인자로 url옵션을 주지 않을 때 로컬에서 문서화 대상 파일을 찾을 수 있게 화면에 input을 띄어주는 기능
+         * @function create
+         */
         create: function(){
             let input = document.createElement("input");
             Object.assign(input, {
