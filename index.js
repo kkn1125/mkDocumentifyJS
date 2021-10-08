@@ -1,7 +1,7 @@
 const documentify = Documentify.init(
-    {
-        url: './example.js',
-        theme: 'minji',
-        darkmode: true
-    }
+    // {
+    //     url: './example.js',
+    //     theme: 'minji',
+    //     darkmode: true
+    // }
 );
