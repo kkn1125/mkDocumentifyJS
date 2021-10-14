@@ -6,6 +6,7 @@
   - [Structural change](#structural-change)
   - [Change to select file parsing method](#change-to-select-file-parsing-method)
   - [Update Documentify](#update-documentify)
+  - [Fixed Bugs, Update Documentify](#fixed-bugs-update-documentify)
 
 # Update
 
@@ -41,5 +42,17 @@
 7. ReadMe.md에 업데이트 리스트 링크 추가
 
 <span style="color: gray; font-size: .8rem">kimson | 2021-10-07 14:51:02</span>
+
+-----
+
+## Fixed Bugs, Update Documentify
+
+1. parameter 이름 알기쉽게 변경
+2. 라이선스 추가
+3. 가공된 주석 객체에 각 태그별 라인 추가
+4. 띄어쓰기만 있을 때 description등 나머지 내용 안 뜨는 안되는 버그 수정
+5. 컨텐츠 만드는 메서드 구조분해할당으로 코드 정리
+
+<span style="color: gray; font-size: .8rem">kimson | 2021-10-08 16:57:37</span>
 
 -----
