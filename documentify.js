@@ -9,11 +9,6 @@ const Documentify = (function(){
         let uiElem = null;
         let userUrl = null;
 
-        /**
-         * @param {*} model 
-         * @param {*} ui 
-         * @param {*} url 
-         */
         this.init = function(model, ui, url){
             moduleModel = model;
             uiElem = ui;
@@ -84,10 +79,10 @@ const Documentify = (function(){
             let originLines = comments.split('\n');
             let parseData = comments.match(regex); // 주석 묶음 배열
             
-            let manufaturedPack = this.manufactureToData(originLines, file[0], parseData);
+            let manufacturedPack = this.manufactureToData(originLines, file[0], parseData);
             this.clearView();
-            
-            moduleView.generateDocument(manufaturedPack);
+            console.log(manufacturedPack)
+            moduleView.generateDocument(manufacturedPack);
         }
         
         this.manufactureToData = function(originLines, file, parseData){
@@ -169,12 +164,12 @@ const Documentify = (function(){
                     }
                 });
 
-
                 let dataForm = ({name, props, line}) => {
                     return {
                         name: name,
                         props: props,
                         bundleLine: line,
+                        fileName: file.name,
                     }
                 }
 
@@ -194,7 +189,6 @@ const Documentify = (function(){
                         break;
                     }
                 }
-
                 return dataForm({name: nameSpace, props: classifiedComment, line: lines});
             });
             
@@ -239,6 +233,19 @@ const Documentify = (function(){
          */
         this.init = function(ui){
             uiElem = ui; 
+        }
+
+        this.convertTextToElement = function(str){
+            let dom = new DOMParser();
+            return dom.parseFromString(str, 'text/html').body.children;
+        }
+
+        this.convertFileToElements = function(url, obj){
+            const basePath = 'include/';
+            let responseText = this.getFileContents(basePath+url);
+            let parseRegex = regexParser(responseText, obj?obj:docuPack);
+            let elements = this.convertTextToElement(parseRegex);
+            return elements;
         }
 
         /**
@@ -404,7 +411,7 @@ const Documentify = (function(){
             // console.log(docuPack);
             return tmp;
         }
-    
+
         /**
          * @function mkContent 문서화 내용 생성
          * @returns {string} 문서화된 내용 반환
@@ -541,11 +548,52 @@ const Documentify = (function(){
          * @function mkBody body태그 부분을 생성
          */
         this.mkBody = function(){
-            let dom = new DOMParser();
-            let contents = null;
-            contents = dom.parseFromString(this.mkNav(), 'text/html').body.children;
-            uiElem.body.prepend(...contents);
-            uiElem.body.innerHTML += this.mkContent(docuPack);
+            uiElem.body.prepend(...this.convertTextToElement(this.mkNav()));
+
+            let moduleTemplate = this.convertFileToElements(`template.html`);
+
+            let moduleBundle = this.convertFileToElements(`updates.html`);
+            moduleTemplate[0].append(...moduleBundle);
+
+            Object.keys(docuPack.repository).forEach(name=>{
+                docuPack.repository[name].forEach(item=>{
+
+                    moduleBundle = this.convertFileToElements(`function-bundle-part.html`, item);
+
+                    // for bundle inner start
+                    item.props.forEach(props=>{
+                        let {tag, type, name, desc, line} = props;
+                        let rowElement = '';
+
+                        if(tag =='' && name == '' && type == '' && !desc.match(/[\(\)\=]/gm)){
+                            rowElement = this.convertFileToElements(`content-bundle-desc.html`, props);
+                            moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
+                        } else if(tag.match(/param|var/gm)){
+                            rowElement = this.convertFileToElements(`content-bundle-param.html`, props);
+                            moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
+                        } else if(tag =='' && name == '' && type == '' && desc.match(/type|\=/gim)){
+                            rowElement = this.convertFileToElements(`content-bundle-example.html`, props);
+                            moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
+                        } else {
+                            rowElement = this.convertFileToElements(`content-bundle-basic.html`, props);
+                            moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
+                        }
+
+                    })
+
+                    // for bundle inner end
+
+                    moduleTemplate[0].append(...moduleBundle);
+
+                });
+            })
+
+            // let moduleParts = this.convertFileToElements(`content-bundle.html`);
+
+            // console.log(moduleParts[0])
+
+
+            uiElem.body.append(moduleTemplate[0]);
         }
 
         this.mkOriginLines = function(){
@@ -612,7 +660,7 @@ const Documentify = (function(){
                     if(ev.target.id == 'navbarSideCollapse' || ev.target.className == 'navbar-toggler-icon')
                         document.querySelector('.offcanvas-collapse').classList.toggle('open')
                 });
-
+                if(document.querySelector('#dcPopup'))
                 document.querySelector('#dcPopup').addEventListener('click', (ev)=>{
                     let target = ev.target;
                     if(target.tagName !== 'BUTTON' && target.id !== 'dcPopup' && target.tagName !== 'I') return;
@@ -654,13 +702,13 @@ const Documentify = (function(){
             uiElem.body.appendChild(sc2);
         }
 
-        this.generateDocument = function(manufaturedPack){
-            docuPack = manufaturedPack;
+        this.generateDocument = function(manufacturedPack){
+            docuPack = manufacturedPack;
             this.clearView();
             this.mkHead();
             this.mkBody();
-            this.mkOriginLines();
-            this.mkFooter();
+            // this.mkOriginLines();
+            // this.mkFooter();
             this.mkScript();
         }
 

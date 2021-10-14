@@ -7,6 +7,7 @@
   - [Change to select file parsing method](#change-to-select-file-parsing-method)
   - [Update Documentify](#update-documentify)
   - [Fixed Bugs, Update Documentify](#fixed-bugs-update-documentify)
+  - [Update](#update-1)
 
 # Update
 
@@ -54,5 +55,15 @@
 5. 컨텐츠 만드는 메서드 구조분해할당으로 코드 정리
 
 <span style="color: gray; font-size: .8rem">kimson | 2021-10-08 16:57:37</span>
+
+-----
+
+## Update
+
+1. 126 line 코드 삭제
+   - 기존에 리터럴 방식으로 파싱하던 메서드를 mkDocumentifyJS만의 방식으로 {@ ... @} 형식의 예약어 구현하여 파일을 템플릿으로 활용가능
+2. 모바일: Top nav, 웹: Side nav
+
+<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-14 21:36:55</span>
 
 -----
