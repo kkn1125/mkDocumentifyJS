@@ -169,6 +169,7 @@ const Documentify = (function(){
                     }
                 });
 
+
                 let dataForm = ({name, props, line}) => {
                     return {
                         name: name,
@@ -495,7 +496,9 @@ const Documentify = (function(){
                                         <div>
                                             <strong class="text-gray-dark">${propTag.replace('@','')}</strong>
                                             <span class="text-muted">
+                                            
                                              ${propType} → ${propName}
+
                                             </span>
                                         </div>
                                         <a href="#${propLine}" data-type="lineNum">line : ${propLine}</a>
