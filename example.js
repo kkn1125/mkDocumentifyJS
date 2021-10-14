@@ -23,13 +23,19 @@ function test(o){
 }
 
 /**
- * @function graphEditor 그래프 에디터
+ * @function 
+ * @param {string} test 설명
+ * @returns 
  */
+function graphEditor(test){
+    return test.toString();
+}
 
 /**
+ * 어디서 뭘받아오고 구체적으로 뭘 하는 애
  * @function Controller control about model and ui
  */
-    
+
 
 /**
  * @function Exceptionhandler handle of exceptions
@@ -49,3 +55,15 @@ function test(o){
  * @function Model A collection of graph-related functions
  * @var {View} function of 
  */
+
+/**
+ * @var {object} compactData parseData받아서 주석다떼고 객체로만들어 담는 변수
+ * @param {*} originLines 
+ * @param {*} file 
+ * @param {*} parseData 
+ * @returns 
+ */
+function Model(a){
+    var View = null;
+    return View;
+}
