@@ -1,6 +1,6 @@
 const documentify = Documentify.init(
     {
         url: './example.js',
-    //     darkmode: true
+        darkMode: "on",
     }
 );

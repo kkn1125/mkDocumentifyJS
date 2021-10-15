@@ -3,6 +3,7 @@
 let includes = '';
 let docuPack = null;
 let page = null;
+let initOption = null;
 
 window.addEventListener('load', () => {
     let xhr = new XMLHttpRequest();
@@ -21,7 +22,8 @@ window.addEventListener('load', () => {
  * @function regexParser 커스텀 표현식을 분석해서 for, if문을 html에서 사용할 수 있게 하는 기능
  * @var {string} responseText xhr로 읽은 파일 내용 텍스트
  */
-function regexParser(responseText, docuP) {
+function regexParser(responseText, docuP, options) {
+    initOption = options;
     docuPack = docuP;
     let tmp = '';
     tmp = responseText.replace(/\{\@\s*[\s\S]+?\n*\s*\@\}/gim, e => {
@@ -29,8 +31,9 @@ function regexParser(responseText, docuP) {
         if (commend.includes('include')) {
             readInclude(commend.split('include ')[1]);
             return getInclude();
-        } else if (commend == 'site.url') {
-            return location.hostname;
+        } else if (commend.trim() == 'page.url') {
+            if(page.url == "") return location.protocol+'//'+location.host+(page.baseurl!=''?page.baseurl:'/');
+            else return evl(`${commend}`);
         } else {
             return evl(`${commend}`);
         }
