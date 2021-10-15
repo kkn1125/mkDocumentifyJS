@@ -65,6 +65,6 @@
    - mkDocumentifyJS의 mkContent메서드 삭제
    - mkDocumentifyJS의 mkOriginLines메서드 삭제
 
-<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-14 21:36:55</span>
+<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-15 12:42:35</span>
 
 -----
