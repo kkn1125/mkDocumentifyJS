@@ -7,7 +7,8 @@
   - [Change to select file parsing method](#change-to-select-file-parsing-method)
   - [Update Documentify](#update-documentify)
   - [Fixed Bugs, Update Documentify](#fixed-bugs-update-documentify)
-  - [Update](#update-1)
+  - [Update documentify functions and added regexParser](#update-documentify-functions-and-added-regexparser)
+  - [List of updates and some fixed bugs](#list-of-updates-and-some-fixed-bugs)
 
 # Update
 
@@ -58,7 +59,7 @@
 
 -----
 
-## Update
+## Update documentify functions and added regexParser
 
 1. 143 line 코드 삭제
    - 기존에 리터럴 방식으로 파싱하던 메서드를 regexParser 함수로 {@ ... @} 형식의 표현식을 파싱하여 html에서 필요한 객체정보 사용 가능
@@ -66,5 +67,20 @@
    - mkDocumentifyJS의 mkOriginLines메서드 삭제
 
 <span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-15 12:42:35</span>
+
+-----
+
+## List of updates and some fixed bugs
+
+1. regexReader.js를 regexParser.js로 변경
+2. regexParser기능에서 정규식 변경 한 줄에 겹치는 커스텀 표현식을 인식하지 못하는 버그 수정
+3. userData.json 파일 추가
+   - 문서화할 때 작성자 및 문서화 대상 파일의 기본적인 정보를 입력 및 사용할 수 있도록 함
+
+4. updates 영역 드롭다운 변경
+5. footer영역 direct top/down버튼 버그 수정
+
+<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-15 16:46:52</span>
+
 
 -----
