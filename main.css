@@ -169,7 +169,7 @@ div[id^="line-"].mark-line {
 }
 
 .badge-font {
-    color: white;
+    color: inherit;
     font-size: 21.5px;
     font-weight: 700;
     font-family: var(--ks-noto-serif);
@@ -205,4 +205,13 @@ div[id^="line-"].mark-line {
 
 pre div.border-bottom:last-child{
     border-bottom: none !important;
+}
+
+.origin-line:hover{
+    transition: background .3s;
+    background-color: rgba(0,0,0,0.03);
+    -webkit-transition: background .3s;
+    -moz-transition: background .3s;
+    -ms-transition: background .3s;
+    -o-transition: background .3s;
 }
