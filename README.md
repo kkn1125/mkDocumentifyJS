@@ -1,12 +1,8 @@
 # mkDocumentifyJS
 
-<div style="text-align: center;">
-
 [mkDocumentifyJS](#mkdocumentifyjs) | [purpose](#purpose) | [Notice](#notice) | [Usage](#usage)
 
-</div>
-
-## purpose
+## Purpose
 
 make document for js comment only
 
@@ -29,17 +25,19 @@ And put the script in html.
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- your tags -->
-    <link rel="stylesheet" href="main.css" />
-    <title>Documentify</title>
-  </head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="mkZip.js" type="module"></script>
+        <link rel="stylesheet" href="main.css">
+        <title>Documentify</title>
+    </head>
 
-  <body>
-    <script src="documentify.js"></script>
-    <script src="index.js"></script>
+    <body>
+        <script src="regexReader.js"></script>
+        <script src="documentify.js"></script>
+        <script src="index.js"></script>
+    </body>
   </body>
 </html>
 ```
