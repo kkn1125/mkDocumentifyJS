@@ -7,6 +7,7 @@
   - [Change to select file parsing method](#change-to-select-file-parsing-method)
   - [Update Documentify](#update-documentify)
   - [Fixed Bugs, Update Documentify](#fixed-bugs-update-documentify)
+  - [Update](#update-1)
 
 # Update
 
@@ -54,5 +55,16 @@
 5. 컨텐츠 만드는 메서드 구조분해할당으로 코드 정리
 
 <span style="color: gray; font-size: .8rem">kimson | 2021-10-08 16:57:37</span>
+
+-----
+
+## Update
+
+1. 143 line 코드 삭제
+   - 기존에 리터럴 방식으로 파싱하던 메서드를 regexParser 함수로 {@ ... @} 형식의 표현식을 파싱하여 html에서 필요한 객체정보 사용 가능
+   - mkDocumentifyJS의 mkContent메서드 삭제
+   - mkDocumentifyJS의 mkOriginLines메서드 삭제
+
+<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-14 21:36:55</span>
 
 -----
