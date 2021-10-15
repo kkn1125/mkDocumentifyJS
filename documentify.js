@@ -103,13 +103,15 @@ const Documentify = (function(){
                         break;
                     }
                 }
-
+                
                 let classifiedComment = commentBundle.map(comment => {
                     
                     let commentForm = ({tag, type, name, desc}) => {
                         let commentSpot = 0;
                         for(let valid in originLines){
-                            if(originLines[valid].indexOf(comment)>-1) {
+                            let cmt = `* ${comment}`;
+                            // trim()후 같은 내용을 line번호 매기는 방식
+                            if(originLines[valid].trim() == cmt) {
                                 commentSpot = parseInt(valid)+1;
                                 break;
                             }
@@ -189,7 +191,7 @@ const Documentify = (function(){
                         break;
                     }
                 }
-                return dataForm({name: nameSpace, props: classifiedComment, line: lines});
+                return dataForm({name: nameSpace, props: classifiedComment, line: lines+1});
             });
             
             let sources = (inf, ...method) => {
@@ -413,136 +415,8 @@ const Documentify = (function(){
         }
 
         /**
-         * @function mkContent 문서화 내용 생성
-         * @returns {string} 문서화된 내용 반환
+         * delete mkContent method - kimson 2021-10-15 12:40:39
          */
-        this.mkContent = function(){
-            let tmp = `<main class="container">
-            <div class="d-flex align-items-center p-3 my-3 text-white bg-purple rounded shadow-sm">
-                <span class="display-5">📔</span>
-                <div class="lh-1" style="flex: 1 0 0%;">
-                    <h1 class="h6 mb-0 text-white lh-1">Documentify JS</h1>
-                    <small>Since 2021</small>
-                </div>
-                <div>
-                    <button class="btn btn-outline-light" id="dcPopup">
-                    <i class="fas fa-chevron-down fa-2x"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="bg-body rounded shadow-sm" data-dc-type="popup">
-                <h6 class="border-bottom pb-2 mb-0">Recent updates</h6>
-                <div class="d-flex text-muted pt-3">
-                    <div style="padding-right:.5rem; flex: 0 0 42px; width: 42px; height: 42px; overflow: hidden;">
-                        <img class="img-fluid bd-placeholder-img" style="border-radius: .3rem;" src="https://avatars.githubusercontent.com/u/71887242?v=4" alt="">
-                    </div>
-            
-                    <p class="pb-3 mb-0 small lh-sm border-bottom">
-                    <strong class="d-block text-gray-dark">@${docuPack.made[0]}</strong>
-                    Some representative placeholder content, with some information about this user. Imagine this being some sort of status update, perhaps?
-                    <a href="https://github.com/kkn1125" target="_blank"><i class="fab fa-github fs-5 text-success"></i></a>
-                    </p>
-                </div>
-                <div class="d-flex text-muted pt-3">
-                    <div style="padding-right:.5rem; flex: 0 0 42px; width: 42px; height: 42px; overflow: hidden;">
-                        <img class="img-fluid bd-placeholder-img" style="border-radius: .3rem;" src="https://avatars.githubusercontent.com/u/77590526?v=4" alt="">
-                    </div>
-            
-                    <p class="pb-3 mb-0 small lh-sm border-bottom">
-                    <strong class="d-block text-gray-dark">@${docuPack.made[1]}</strong>
-                    Some more representative placeholder content, related to this other user. Another status update, perhaps.
-                    <a href="https://github.com/ohoraming" target="_blank"><i class="fab fa-github fs-5 text-success"></i></a>
-                    </p>
-                </div>
-                <small class="d-block text-end mt-3">
-                    <a href="https://github.com/kkn1125/mkDocumentifyJS#purpose" target="_blank">All updates</a>
-                </small>
-            </div>`;
-
-            Object.entries(docuPack.repository).forEach(([key, value])=>{
-                value.forEach(packageMethod=>{
-                    tmp += 
-                    `<div class="my-3 p-3 bg-body rounded shadow-sm">
-                        <h6 class="border-bottom pb-2 mb-0" id="${packageMethod.name}">${packageMethod.name}</h6>`;
-
-                    packageMethod.props.forEach(methodProperty=>{
-                        let {tag:propTag, type:propType, name:propName, desc:propDesc, line:propLine} = {...methodProperty};
-
-                        let desc = propDesc!==''||propDesc!==null?`<span class="d-block mt-3"><span class="badge bg-light text-dark me-3">desc</span>${propDesc}</span>`:`<span class="d-block mt-3"><span class="badge bg-light text-muted me-3">desc</span>No Descriptions</span>`;
-                        
-                        let badgeFont = propTag!==''?propTag.replace(/\@/gm, '').charAt():'?';
-                        if(propTag.match(/example/)) badgeFont = 'ex';
-                        if(propTag =='' && propName == '' && propType == '' && propDesc.match(/type|\=/gm)){
-                            badgeFont = 'tp';
-                        }
-                        if(propTag.match(/require/gm)){
-                            badgeFont = 'rq';
-                        }
-
-                        let badgeColor = 'info';
-                        if(badgeFont == 'f') badgeColor = 'primary';
-                        if(badgeFont == 'p'||badgeFont == 'v') badgeColor = 'warning';
-                        if(badgeFont == 'r') badgeColor = 'danger';
-                        if(badgeFont == 'ex') badgeColor = 'light';
-                        
-                        let svg = `<div class="text-center bg-${badgeColor} bd-placeholder-img flex-shrink-0 me-2 rounded" style="width: 32px; height: 32px;">
-                        <div class="badge-font ${badgeColor=='light'?'text-dark':''}">${badgeFont}</div>
-                        </div>`;
-
-                        if(propTag =='' && propName == '' && propType == '' && !propDesc.match(/[\(\)\=]/gm)){
-                            tmp += `<div class="desc">${propDesc}</div>`;
-                        } else if(propTag =='' && propName == '' && propType == '' && propDesc.match(/type|\=/gim)){
-                            tmp += `<div class="exam-type">${propDesc}</div>`;
-                        } else if(propTag.match(/param|var/gm)){
-                            tmp += `<div class="d-flex text-muted pt-3">
-
-                                ${svg}
-                        
-                                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <strong class="text-gray-dark">${propTag.replace('@','')}</strong>
-                                            <span class="text-muted">
-                                            
-                                             ${propType} → ${propName}
-
-                                            </span>
-                                        </div>
-                                        <a href="#${propLine}" data-type="lineNum">line : ${propLine}</a>
-                                    </div>
-                                    ${desc}
-                                </div>
-                            </div>`;
-                        } else {
-                            // if(!p.tag.match(/function/gm))
-                            tmp += `<div class="d-flex text-muted pt-3">
-
-                                ${svg}
-                        
-                                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <strong class="text-gray-dark">${propTag.replace('@','')}</strong>
-                                            <!--<span class="text-muted">${propType}</span>-->
-                                        </div>
-                                        <a href="#${propLine}" data-type="lineNum">line : ${propLine}</a>
-                                    </div>
-                                    <span class="d-block">${propName.match(/\,/gm)?propName.replace(/\,/gm, ' '):propName}</span>
-                                    ${desc}
-                                </div>
-                            </div>`;
-                        }
-                    });
-                    
-                    tmp += 
-                    `<small class="d-block text-end mt-3">
-                        <a href="#${packageMethod.bundleLine+1}" data-type="lineNum">line : ${packageMethod.bundleLine+1} ${docuPack.file.name.replace(/^\.\/|^\//gm,'')}</a>
-                        </small>
-                    </div>`;
-                });
-            });
-            return tmp+`</main>`;
-        }
 
         /**
          * @function mkBody body태그 부분을 생성
@@ -550,8 +424,8 @@ const Documentify = (function(){
         this.mkBody = function(){
             uiElem.body.prepend(...this.convertTextToElement(this.mkNav()));
 
+            let rowElement = '';
             let moduleTemplate = this.convertFileToElements(`template.html`);
-
             let moduleBundle = this.convertFileToElements(`updates.html`);
             moduleTemplate[0].append(...moduleBundle);
 
@@ -563,8 +437,7 @@ const Documentify = (function(){
                     // for bundle inner start
                     item.props.forEach(props=>{
                         let {tag, type, name, desc, line} = props;
-                        let rowElement = '';
-
+                        
                         if(tag =='' && name == '' && type == '' && !desc.match(/[\(\)\=]/gm)){
                             rowElement = this.convertFileToElements(`content-bundle-desc.html`, props);
                             moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
@@ -579,41 +452,38 @@ const Documentify = (function(){
                             moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
                         }
 
-                    })
-
-                    // for bundle inner end
-
+                    });
                     moduleTemplate[0].append(...moduleBundle);
 
+                    // for bundle inner end
                 });
-            })
+            });
+            
+            uiElem.body.append(moduleTemplate[0]);
+
+            moduleBundle = this.convertFileToElements(`origin-lines.html`, docuPack);
+
+            docuPack.originLines.forEach((line, i)=>{
+                let escape = document.createElement('textarea');
+                escape.textContent = line;
+                let escapeTag = escape.innerHTML;
+                rowElement = this.convertFileToElements(`origin-lines-per.html`, {escapeTag:escapeTag, i: i});
+                moduleBundle[0].querySelector('pre').append(rowElement[0]);
+                // tmp += `<div class="border-bottom" id="line-${i+1}"><span class="d-inline-block me-3 text-end" style="width: 2rem;">${i+1}</span><span>${escapeTag}</span></div>`;
+            });
+
+            uiElem.body.append(moduleBundle[0]);
 
             // let moduleParts = this.convertFileToElements(`content-bundle.html`);
 
             // console.log(moduleParts[0])
 
 
-            uiElem.body.append(moduleTemplate[0]);
         }
 
-        this.mkOriginLines = function(){
-            let tmp = ``;
-            docuPack.originLines.forEach((line, i)=>{
-                let escape = document.createElement('textarea');
-                escape.textContent = line;
-                let escapeTag = escape.innerHTML;
-                tmp += `<div class="border-bottom" id="line-${i+1}"><span class="d-inline-block me-3 text-end" style="width: 2rem;">${i+1}</span><span>${escapeTag}</span></div>`;
-            });
-
-            uiElem.body.innerHTML += `<div class="container" id="originlines">
-                <div class="border rounded p-5">
-                    <div class="mb-3 h3">${docuPack.file.name}</div>
-                    <code>
-                    <pre>${tmp}</pre>
-                    </code>
-                </div>
-                </div>`;
-        }
+        /**
+         * delete mkOriginLines method - kimson 2021-10-15 12:40:32
+         */
 
         this.mkFooter = function(){
             uiElem.body.innerHTML += `
