@@ -9,16 +9,17 @@ const Documentify = (function () {
         let uiElem = null;
         let userUrl = null;
 
-        this.init = function (model, ui, url) {
+        this.init = function (model, ui, options) {
             moduleModel = model;
             uiElem = ui;
-            userUrl = url;
+            userUrl = options;
 
             if (uiElem.file)
                 uiElem.file.addEventListener('change', this.fileUploadHandler);
             if (userUrl)
                 window.addEventListener('load', this.getFileHandler.bind(this));
             window.addEventListener('click', this.fileSaveHandler);
+            window.addEventListener('load', this.sendOptions);
         }
 
         this.fileSaveHandler = function (ev) {
@@ -261,14 +262,16 @@ const Documentify = (function () {
     function View() {
         let uiElem = null;
         let docuPack = null;
+        let initOption = null;
 
         /**
          * 
          * @param {object} ui 필요한 Element가 포함된 객체
          * @requires (ui) ui 객체가 있어야한다.
          */
-        this.init = function (ui) {
+        this.init = function (ui, options) {
             uiElem = ui;
+            initOption = options;
         }
 
         this.convertTextToElement = function (str) {
@@ -276,10 +279,10 @@ const Documentify = (function () {
             return dom.parseFromString(str, 'text/html').body.children;
         }
 
-        this.convertFileToElements = function (url, obj) {
+        this.convertFileToElements = function (url, obj, options) {
             const basePath = 'include/';
             let responseText = this.getFileContents(basePath + url);
-            let parseRegex = regexParser(responseText, obj ? obj : docuPack);
+            let parseRegex = regexParser(responseText, obj && obj!=null ? obj : docuPack, options);
             let elements = this.convertTextToElement(parseRegex);
             return elements;
         }
@@ -452,9 +455,11 @@ const Documentify = (function () {
          * @function mkBody body태그 부분을 생성
          */
         this.mkBody = function () {
-            uiElem.body.prepend(...this.convertTextToElement(this.mkNav()));
-
             let rowElement, moduleTemplate, moduleBundle;
+            // uiElem.body.prepend(...this.convertTextToElement(this.mkNav()));
+            moduleBundle = this.convertFileToElements(`global_nav_bar.html`, null, initOption);
+            uiElem.body.append(moduleBundle[0]);
+            
 
             moduleTemplate = this.convertFileToElements(`template.html`);
             moduleBundle = this.convertFileToElements(`updates.html`);
@@ -627,7 +632,7 @@ const Documentify = (function () {
             const model = new Model();
             const controller = new Controller();
 
-            view.init(ui);
+            view.init(ui, options);
             model.init(view);
             controller.init(model, ui, options);
         },
