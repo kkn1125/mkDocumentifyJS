@@ -1,8 +1,9 @@
 <div class="d-flex text-muted pt-3">
 
-    <div class="text-center bg-{@ docuPack.tag.charAt(1)=='r'?'danger':'info' @} bd-placeholder-img flex-shrink-0 me-2 rounded"
+    <div class="text-center bg-{@ docuPack.tag.charAt(1)=='r'?'danger text-white':docuPack.tag.charAt(1)=='e'?'white text-dark':'info text-white' @} bd-placeholder-img flex-shrink-0 me-2 rounded"
         style="width: 32px; height: 32px;">
-        <div class="badge-font ">{@ docuPack.tag.charAt(1)=='e'?'ex':docuPack.tag.slice(1).indexOf('require')>-1?'rq':docuPack.tag.charAt(1) @}
+        <div class="badge-font">{@
+            docuPack.tag.charAt(1)=='e'?'ex':docuPack.tag.slice(1).indexOf('require')>-1?'rq':docuPack.tag.charAt(1) @}
         </div>
     </div>
 
