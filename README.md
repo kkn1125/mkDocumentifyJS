@@ -1,3 +1,5 @@
+![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/kkn1125/mkDocumentifyJS?color=violet&include_prereleases&label=pre-release&style=for-the-badge)
+
 # mkDocumentifyJS
 
 [mkDocumentifyJS](#mkdocumentifyjs) | [purpose](#purpose) | [Notice](#notice) | [Usage](#usage)
@@ -28,18 +30,21 @@ And put the script in html.
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="mkZip.js" type="module"></script>
-        <link rel="stylesheet" href="main.css">
         <title>Documentify</title>
     </head>
 
     <body>
-        <script src="regexReader.js"></script>
         <script src="documentify.js"></script>
         <script src="index.js"></script>
     </body>
   </body>
 </html>
+```
+
+Also available on cdn.
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/kkn1125/mkDocumentifyJS@v0.1.0/dist/assets/js/documentify.js" integrity="sha384-LomLOKjZc2Q63LCfYatoRmM2tEEupYa2HKIkKM1bsczTvn5ShodXpObhtlbImOkt" crossorigin="anonymous"></script>
 ```
 
 Then, in the `index.js` file, write the path to the js file to be documented in the userUrl variable.
@@ -51,7 +56,11 @@ Then, in the `index.js` file, write the path to the js file to be documented in 
 const documentify = Documentify.init();
 
 // The second method is to directly enter the file path.
-const documentify = Documentify.init({ url: "example.js" });
+const documentify = Documentify.init({
+  url: 'dist/assets/js/example.js',
+  datapath: 'dist/data/userData.json',
+  basepath: 'dist/include/',
+});
 ```
 
 `example.js` is documented as an example. And there will be a save button on the left.
