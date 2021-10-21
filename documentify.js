@@ -256,6 +256,73 @@ const Documentify = (function () {
     }
 
     /**
+     * @function Conponent mkDocumentifyJS만의 컴포넌트 생성, if, for문을 태그로 사용 가능
+     */
+    function Component() {
+        const tagNames = ["d-if", "d-for"];
+
+        this.init = function () {
+            this.requireComponent();
+        }
+
+        this.requireComponent = function (ev) {
+            this.replaceDocuComponents(ev);
+        }
+
+        this.docuIf = function (root) {
+            let [test, content] = [root.getAttribute("test"), root.innerHTML];
+            if (eval(test)) root.insertAdjacentHTML('beforebegin', content);
+            root.remove();
+        }
+
+        this.docuFor = function (root) {
+            let [tmp, v, target, content] = ['', root.getAttribute("var"), root.getAttribute("target"), root.innerHTML];
+            target.indexOf(',')>-1?target = target.split(','):null;
+            
+            if (eval(`typeof ${target}`) == 'number') eval(`for(let ${v}=0; ${v}<${target}; ${v}++){tmp += \`${content}\`}`);
+
+            else eval(`${target}.forEach(${v}=>{tmp += \`${content}\`})`);
+
+            root.insertAdjacentHTML('beforebegin', tmp);
+            root.remove();
+        }
+
+        this.replaceDocuComponents = function () {
+            tagNames.forEach(name => {
+                let root = this;
+                class baseDocuElements extends HTMLElement {
+                    connectedCallback() {
+                        try{
+                            if (this.isConnected) {
+                                if (this.tagName == "D-IF") {
+                                    if (this.getAttribute("test").length == 0) {
+                                        throw new Error('[NoTestDataException] Please enter a value for the "test" attribute.')
+                                    } else {
+                                        root.docuIf(this);
+                                    }
+                                } else if (this.tagName == "D-FOR") {
+                                    if (this.getAttribute("var") && this.getAttribute("target")) {
+                                        root.docuFor(this);
+                                    } else if (!this.getAttribute("var") && !this.getAttribute("target")) {
+                                        throw new Error('[NoDataException] Set the variable and target.')
+                                    } else if (!this.getAttribute("var")) {
+                                        throw new Error('[NoVarDataException] Set the variable.')
+                                    } else if (!this.getAttribute("target")) {
+                                        throw new Error('[NoTargetDataException] Set the target.')
+                                    }
+                                }
+                            }
+                        } catch(e){
+                            console.error(e.message);
+                        }
+                    }
+                }
+                customElements.define(name, baseDocuElements);
+            });
+        }
+    }
+
+    /**
      * 화면 조작
      * @function View
      */
@@ -604,6 +671,28 @@ const Documentify = (function () {
             this.mkScript();
         }
 
+        this.regexParser = function (responseText) {
+            let tmp = '';
+            tmp = responseText.replace(/\{\@\s*[\s\S]+?\n*\s*\@\}/gim, e => {
+                let command = e.replace(/\{\@|\@\}/gm, '').trim();
+                if(command.match(/\s*\!\s*/gm)){
+                    return '';
+                }
+                if (command.trim() == 'page.url') {
+                    if(page.url == "") return location.protocol+'//'+location.host+(page.baseurl!=''?page.baseurl:'/');
+                    else return evl(`${command}`);
+                } else {
+                    return this.evl(`${command}`);
+                }
+            }) + '\n';
+            return tmp;
+        }
+
+        this.evl = function (str) {
+            let result = new Function('"use strict"; return ' + str + ';')();
+            return result;
+        }
+
         this.clearView = function () {
             uiElem.body.innerHTML = '';
         }
@@ -629,10 +718,12 @@ const Documentify = (function () {
             }
 
             const view = new View();
+            const component = new Component();
             const model = new Model();
             const controller = new Controller();
 
             view.init(ui, options);
+            component.init();
             model.init(view);
             controller.init(model, ui, options);
         },
