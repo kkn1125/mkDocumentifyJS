@@ -13,6 +13,7 @@
     - [수정사항](#수정사항)
     - [추가사항](#추가사항)
     - [예정사항](#예정사항)
+  - [Merge oho-fetch-5 and latest result](#merge-oho-fetch-5-and-latest-result)
 
 # Update
 
@@ -114,5 +115,15 @@
 1. mkDocumentifyJS v0.1.0 Pre-release 예정 ( 2021. 10. 25 :: 4일 후)
 
 <span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-21 19:51:20</span>
+
+-----
+
+## Merge oho-fetch-5 and latest result
+
+1. gnb, snb 병합 레이아웃 및 css 손볼 것 의논
+2. 이전 코드 구조보다 확실히 파일이 분리되어 수정이 편함
+3. 의논해서 나온 제안이나 문제점, 버그는 서로 추가하기로
+
+<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-21 22:13:35</span>
 
 -----
