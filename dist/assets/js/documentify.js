@@ -568,6 +568,8 @@ const Documentify = (function () {
                 href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap"
                 rel="stylesheet">
             <link rel="stylesheet" href="dist/assets/css/main.css">
+            <link rel="stylesheet" href="dist/assets/css/gnb.css">
+            <link rel="stylesheet" href="dist/assets/css/snb.css">
             <title>Documentify</title>
             `;
             let s = document.createElement('script');
@@ -656,13 +658,19 @@ const Documentify = (function () {
          * @function mkBody body태그 부분을 생성
          */
         this.mkBody = function () {
-            let rowElement, moduleTemplate, moduleBundle;
-            moduleBundle = this.convertFileToBodyElements(`global_nav_bar.html`, null);
-            uiElem.body.append(moduleBundle[0]);
-
+            let rowElement, moduleTemplate, moduleBundle, documentWrapper;
+            
+            documentWrapper = this.convertFileToBodyElements(`document-wrapper.html`);
             moduleTemplate = this.convertFileToBodyElements(`template.html`);
-            moduleBundle = this.convertFileToBodyElements(`updates.html`);
+            moduleBundle = this.convertFileToBodyElements(`global_nav_bar.html`);
+            
+            documentWrapper[0].append(...moduleBundle);
+
+            moduleBundle = this.convertFileToBodyElements(`side-nav-bar.html`);
             moduleTemplate[0].append(...moduleBundle);
+
+            moduleBundle = this.convertFileToBodyElements(`updates.html`);
+            moduleTemplate[1].append(...moduleBundle);
 
             Object.keys(docuPack.repository).forEach(name => {
                 docuPack.repository[name].forEach(item => {
@@ -693,12 +701,11 @@ const Documentify = (function () {
                         }
 
                     });
-                    moduleTemplate[0].append(...moduleBundle);
+                    moduleTemplate[1].append(...moduleBundle);
                     // for bundle inner end
 
                 });
             });
-            uiElem.body.append(moduleTemplate[0]);
 
             moduleBundle = this.convertFileToBodyElements(`origin-lines.html`, docuPack);
 
@@ -713,10 +720,15 @@ const Documentify = (function () {
                 moduleBundle[0].querySelector('pre').append(rowElement[0]);
 
             });
-            uiElem.body.append(moduleBundle[0]);
-
+            
+            moduleTemplate[1].append(...moduleBundle);
+            documentWrapper[0].append(...moduleTemplate);
+            
             moduleBundle = this.convertFileToBodyElements(`footer.html`);
-            uiElem.body.append(...moduleBundle);
+            documentWrapper[0].append(...moduleBundle);
+            
+
+            uiElem.body.append(documentWrapper[0]);
         }
 
         this.mkScript = function () {
