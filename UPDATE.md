@@ -9,6 +9,10 @@
   - [Fixed Bugs, Update Documentify](#fixed-bugs-update-documentify)
   - [Update documentify functions and added regexParser](#update-documentify-functions-and-added-regexparser)
   - [List of updates and some fixed bugs](#list-of-updates-and-some-fixed-bugs)
+  - [Update and Fixed Bugs](#update-and-fixed-bugs)
+    - [수정사항](#수정사항)
+    - [추가사항](#추가사항)
+    - [예정사항](#예정사항)
 
 # Update
 
@@ -82,5 +86,33 @@
 
 <span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-15 16:46:52</span>
 
+
+-----
+
+## Update and Fixed Bugs
+
+### 수정사항
+
+1. 전역변수로 지정되어 있던 docuPack, page, initOption 세 가지를 지역변수로 보호 수정
+2. 외부 코드 병합
+   1. regexParser 코드 통합 및 정리
+   2. Zip클래스 코드 통합 및 정리
+3. mkScript메서드 script태그 생성하는 방식 변경 >> scriptBundle.html을 따로 만들어 사용자가 필요한 스크립트를 보다 편하게 수정하고 반영될 수 있도록 하기 위함
+4. convertFileToElements메서드가 단일 요소(body)만 리턴하여 활용성이 떨어져 메서드 분기
+   1. convertFileToHeadElements >> head반환
+   2. convertFileToBodyElements >> body반환
+   3. convertFileToBodyElements(예정) >> document반환
+5. css 및 js파일 경로 변경 dist/assets/js|css
+6. documentify 결과 페이지 구조 변경
+
+### 추가사항
+
+1. <d-if test="">...</d-if>, <d-for var="" target="">...</d-for> 컴포넌트 추가, 태그로 if, for문을 html에서도 사용가능
+
+### 예정사항
+
+1. mkDocumentifyJS v0.1.0 Pre-release 예정 ( 2021. 10. 25 :: 4일 후)
+
+<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-21 19:51:20</span>
 
 -----

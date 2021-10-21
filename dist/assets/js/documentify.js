@@ -84,7 +84,6 @@ const Documentify = (function () {
 
             let manufacturedPack = this.manufactureToData(originLines, file[0], parseData);
             this.clearView();
-            // console.log(manufacturedPack)
             moduleView.generateDocument(manufacturedPack);
         }
 
@@ -328,9 +327,10 @@ const Documentify = (function () {
      */
     function View() {
         let uiElem = null;
-        let docuPack = null;
         let initOption = null;
-
+        let docuPack = null;
+        let page = null;
+        let zip = null;
         /**
          * 
          * @param {object} ui 필요한 Element가 포함된 객체
@@ -339,19 +339,153 @@ const Documentify = (function () {
         this.init = function (ui, options) {
             uiElem = ui;
             initOption = options;
+
+            this.requirePage();
+        }
+
+        class Zip {
+
+            constructor(name) {
+                this.name = name;
+                this.zip = new Array();
+                this.file = new Array();
+            }
+            
+            dec2bin=(dec,size)=>dec.toString(2).padStart(size,'0');
+            str2dec=str=>Array.from(new TextEncoder().encode(str));
+            str2hex=str=>[...new TextEncoder().encode(str)].map(x=>x.toString(16).padStart(2,'0'));
+            hex2buf=hex=>new Uint8Array(hex.split(' ').map(x=>parseInt(x,16)));
+            bin2hex=bin=>(parseInt(bin.slice(8),2).toString(16).padStart(2,'0')+' '+parseInt(bin.slice(0,8),2).toString(16).padStart(2,'0'));
+            
+            reverse=hex=>{
+                let hexArray=new Array();
+                for(let i=0;i<hex.length;i=i+2)hexArray[i]=hex[i]+''+hex[i+1];
+                return hexArray.filter((a)=>a).reverse().join(' ');	
+            }
+            
+            crc32=r=>{
+                for(var a,o=[],c=0;c<256;c++){
+                    a=c;
+                    for(var f=0;f<8;f++)a=1&a?3988292384^a>>>1:a>>>1;
+                    o[c]=a;
+                }
+                for(var n=-1,t=0;t<r.length;t++)n=n>>>8^o[255&(n^r[t])];
+                return this.reverse(((-1^n)>>>0).toString(16).padStart(8,'0'));
+            }
+            
+            fecth2zip(filesArray,folder=''){
+                filesArray.forEach(fileUrl=>{
+                    let resp;				
+                    fetch(fileUrl).then(response=>{
+                        resp=response;
+                        return response.arrayBuffer();
+                    }).then(blob=>{
+                        new Response(blob).arrayBuffer().then(buffer=>{
+                            console.log(`File: ${fileUrl} load`);
+                            let uint=[...new Uint8Array(buffer)];
+                            uint.modTime=resp.headers.get('Last-Modified');
+                            uint.fileUrl=`${this.name}/${folder}${fileUrl}`;							
+                            this.zip[fileUrl]=uint;
+                        });
+                    });				
+                });
+            }
+            
+            str2zip(name,str,folder=''){
+                let uint=[...new Uint8Array(this.str2dec(str))];
+                uint.name=name;
+                uint.modTime=new Date();
+                uint.fileUrl=`${this.name}/${folder}${name}`;
+                this.zip[uint.fileUrl]=uint;
+            }
+            
+            files2zip(files,folder=''){
+                for(let i=0;i<files.length;i++){
+                    files[i].arrayBuffer().then(data=>{
+                        let uint=[...new Uint8Array(data)];
+                        uint.name=files[i].name;
+                        uint.modTime=files[i].lastModifiedDate;
+                        uint.fileUrl=`${this.name}/${folder}${files[i].name}`;
+                        this.zip[uint.fileUrl]=uint;							
+                    });
+                }
+            }
+            
+            makeZip(){
+                let count=0;
+                let fileHeader='';
+                let centralDirectoryFileHeader='';
+                let directoryInit=0;
+                let offSetLocalHeader='00 00 00 00';
+                let zip=this.zip;
+                for(const name in zip){
+                    let modTime=()=>{
+                        lastMod=new Date(zip[name].modTime);
+                        hour=this.dec2bin(lastMod.getHours(),5);
+                        minutes=this.dec2bin(lastMod.getMinutes(),6);
+                        seconds=this.dec2bin(Math.round(lastMod.getSeconds()/2),5);
+                        year=this.dec2bin(lastMod.getFullYear()-1980,7);
+                        month=this.dec2bin(lastMod.getMonth()+1,4);
+                        day=this.dec2bin(lastMod.getDate(),5);						
+                        return this.bin2hex(`${hour}${minutes}${seconds}`)+' '+this.bin2hex(`${year}${month}${day}`);
+                    }					
+                    let crc=this.crc32(zip[name]);
+                    let size=this.reverse(parseInt(zip[name].length).toString(16).padStart(8,'0'));
+                    let nameFile=this.str2hex(zip[name].fileUrl).join(' ');
+                    let nameSize=this.reverse(zip[name].fileUrl.length.toString(16).padStart(4,'0'));
+                    let fileHeader=`50 4B 03 04 14 00 00 00 00 00 ${modTime} ${crc} ${size} ${size} ${nameSize} 00 00 ${nameFile}`;
+                    let fileHeaderBuffer=this.hex2buf(fileHeader);
+                    directoryInit=directoryInit+fileHeaderBuffer.length+zip[name].length;
+                    centralDirectoryFileHeader=`${centralDirectoryFileHeader}50 4B 01 02 14 00 14 00 00 00 00 00 ${modTime} ${crc} ${size} ${size} ${nameSize} 00 00 00 00 00 00 01 00 20 00 00 00 ${offSetLocalHeader} ${nameFile} `;
+                    offSetLocalHeader=this.reverse(directoryInit.toString(16).padStart(8,'0'));
+                    this.file.push(fileHeaderBuffer,new Uint8Array(zip[name]));
+                    count++;
+                }
+                centralDirectoryFileHeader=centralDirectoryFileHeader.trim();
+                let entries=this.reverse(count.toString(16).padStart(4,'0'));
+                let dirSize=this.reverse(centralDirectoryFileHeader.split(' ').length.toString(16).padStart(8,'0'));
+                let dirInit=this.reverse(directoryInit.toString(16).padStart(8,'0'));
+                let centralDirectory=`50 4b 05 06 00 00 00 00 ${entries} ${entries} ${dirSize} ${dirInit} 00 00`;
+                this.file.push(this.hex2buf(centralDirectoryFileHeader),this.hex2buf(centralDirectory));				
+                let a = document.createElement('a');
+                a.href = URL.createObjectURL(new Blob([...this.file],{type:'application/octet-stream'}));
+                a.download = `${this.name}.zip`;
+                a.click();				
+            }
+        }
+
+        this.requirePage = function(){
+            let xhr = new XMLHttpRequest();
+            xhr.addEventListener('readystatechange', (ev) => {
+                if (xhr.status == 200 || xhr.status == 201) {
+                    if (xhr.readyState == 4) {
+                        page = JSON.parse(xhr.responseText).page;
+                    }
+                }
+            });
+            xhr.open('get', initOption.datapath, false);
+            xhr.send();
         }
 
         this.convertTextToElement = function (str) {
             let dom = new DOMParser();
-            return dom.parseFromString(str, 'text/html').body.children;
+            return dom.parseFromString(str, 'text/html');
         }
 
-        this.convertFileToElements = function (url, obj, options) {
-            const basePath = 'include/';
-            let responseText = this.getFileContents(basePath + url);
-            let parseRegex = regexParser(responseText, obj && obj!=null ? obj : docuPack, options);
-            let elements = this.convertTextToElement(parseRegex);
-            return elements;
+        this.filterRegex = function(url, obj){
+            let responseText = this.getFileContents(initOption.basepath+url);
+            let parseRegex = this.regexParser(responseText, obj && obj!=null ? obj : docuPack, initOption);
+            return parseRegex;
+        }
+
+        this.convertFileToHeadElements = function (url, obj) {
+            let elements = this.convertTextToElement(this.filterRegex(url, obj));
+            return elements.head.children;
+        }
+
+        this.convertFileToBodyElements = function (url, obj) {
+            let elements = this.convertTextToElement(this.filterRegex(url, obj));
+            return elements.body.children;
         }
 
         /**
@@ -388,7 +522,7 @@ const Documentify = (function () {
             document.querySelector('#navbarsExampleDefault').classList.remove('open');
             li.remove();
 
-            let css = this.getFileContents('./main.css');
+            let css = this.getFileContents('dist/assets/css/main.css');
             let saveAsName = 'index.html';
             let saveContents = `<!DOCTYPE html>
             <html>
@@ -400,17 +534,17 @@ const Documentify = (function () {
                 </body>
             </html>`;
 
-            let z = new Zip('documentify');
+            zip = new Zip('documentify');
             let filesArray = [
                 // 'test',
                 // 'file02.ext',
                 // 'file...'
             ];
 
-            z.fecth2zip(filesArray, 'public/');
-            z.str2zip(saveAsName, saveContents, 'public/');
-            z.str2zip('main.css', css, 'public/');
-            z.makeZip();
+            zip.fecth2zip(filesArray, 'public/');
+            zip.str2zip(saveAsName, saveContents, 'public/');
+            zip.str2zip('main.css', css, 'public/');
+            zip.makeZip();
             parent.append(clone);
         }
 
@@ -433,7 +567,7 @@ const Documentify = (function () {
             <link
                 href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap"
                 rel="stylesheet">
-            <link rel="stylesheet" href="main.css">
+            <link rel="stylesheet" href="dist/assets/css/main.css">
             <title>Documentify</title>
             `;
             let s = document.createElement('script');
@@ -449,10 +583,11 @@ const Documentify = (function () {
          */
         this.mkNav = function () {
             let fileName = docuPack.file.name;
+            let sp = fileName.split(/\.+\//gm);
             let tmp = '';
             tmp += `<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
                 <div class="container-fluid">
-                <a class="navbar-brand" href="#">${fileName.replace(/^\.\/|^\//gm,'')}</a>
+                <a class="navbar-brand" href="#">${sp[sp.length-1]}</a>
                 <button class="navbar-toggler p-0 border-0" type="button" id="navbarSideCollapse" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -514,7 +649,6 @@ const Documentify = (function () {
 
             tmp += `</nav>
             </div>`;
-            // console.log(docuPack);
             return tmp;
         }
 
@@ -523,19 +657,16 @@ const Documentify = (function () {
          */
         this.mkBody = function () {
             let rowElement, moduleTemplate, moduleBundle;
-            // uiElem.body.prepend(...this.convertTextToElement(this.mkNav()));
-            moduleBundle = this.convertFileToElements(`global_nav_bar.html`, null, initOption);
+            moduleBundle = this.convertFileToBodyElements(`global_nav_bar.html`, null);
             uiElem.body.append(moduleBundle[0]);
-            
 
-            moduleTemplate = this.convertFileToElements(`template.html`);
-            moduleBundle = this.convertFileToElements(`updates.html`);
+            moduleTemplate = this.convertFileToBodyElements(`template.html`);
+            moduleBundle = this.convertFileToBodyElements(`updates.html`);
             moduleTemplate[0].append(...moduleBundle);
 
             Object.keys(docuPack.repository).forEach(name => {
                 docuPack.repository[name].forEach(item => {
-
-                    moduleBundle = this.convertFileToElements(`function-bundle-part.html`, item);
+                    moduleBundle = this.convertFileToBodyElements(`function-bundle-part.html`, item);
 
                     // for bundle inner start
                     item.props.forEach(props => {
@@ -548,16 +679,16 @@ const Documentify = (function () {
                         } = props;
 
                         if (tag == '' && name == '' && type == '' && !desc.match(/[\(\)\=]/gm)) {
-                            rowElement = this.convertFileToElements(`content-bundle-desc.html`, props);
+                            rowElement = this.convertFileToBodyElements(`content-bundle-desc.html`, props);
                             moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
                         } else if (tag.match(/param|var/gm)) {
-                            rowElement = this.convertFileToElements(`content-bundle-param.html`, props);
+                            rowElement = this.convertFileToBodyElements(`content-bundle-param.html`, props);
                             moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
                         } else if (tag == '' && name == '' && type == '' && desc.match(/type|\=/gim)) {
-                            rowElement = this.convertFileToElements(`content-bundle-example.html`, props);
+                            rowElement = this.convertFileToBodyElements(`content-bundle-example.html`, props);
                             moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
                         } else {
-                            rowElement = this.convertFileToElements(`content-bundle-basic.html`, props);
+                            rowElement = this.convertFileToBodyElements(`content-bundle-basic.html`, props);
                             moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
                         }
 
@@ -569,13 +700,13 @@ const Documentify = (function () {
             });
             uiElem.body.append(moduleTemplate[0]);
 
-            moduleBundle = this.convertFileToElements(`origin-lines.html`, docuPack);
+            moduleBundle = this.convertFileToBodyElements(`origin-lines.html`, docuPack);
 
             docuPack.originLines.forEach((line, i) => {
                 let escape = document.createElement('textarea');
                 escape.textContent = line;
                 let escapeTag = escape.innerHTML;
-                rowElement = this.convertFileToElements(`origin-lines-per.html`, {
+                rowElement = this.convertFileToBodyElements(`origin-lines-per.html`, {
                     escapeTag: escapeTag,
                     i: i
                 });
@@ -584,83 +715,25 @@ const Documentify = (function () {
             });
             uiElem.body.append(moduleBundle[0]);
 
-            moduleBundle = this.convertFileToElements(`footer.html`);
+            moduleBundle = this.convertFileToBodyElements(`footer.html`);
             uiElem.body.append(...moduleBundle);
         }
 
-        /**
-         * delete mkFooter - kimson 2021-10-15 15:55:57
-         */
-
         this.mkScript = function () {
-            let sc = document.createElement('script');
-            sc.src = "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js";
-            sc.integrity = "sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-            sc.crossOrigin = "anonymous";
-            uiElem.body.appendChild(sc);
-            
-            let sc3 = document.createElement('script');
-            sc3.src = "mkZip.js";
-            uiElem.body.appendChild(sc3);
-            let sc2 = document.createElement('script');
-            sc2.innerHTML = `
-            (function () {
-                'use strict'
-                
-                window.addEventListener('click', function (ev) {
-                    if(ev.target.id == 'navbarSideCollapse' || ev.target.className == 'navbar-toggler-icon')
-                        document.querySelector('.offcanvas-collapse').classList.toggle('open')
-                });
-                if(document.querySelector('#dcPopup'))
-                document.querySelector('#dcPopup').addEventListener('click', (ev)=>{
-                    let target = ev.target;
-                    if(target.tagName !== 'BUTTON' && target.id !== 'dcPopup' && target.tagName !== 'I') return;
-                    let pop = document.querySelector('[data-dc-type="popup"]');
-                    if(pop.classList.contains('show')){
-                        pop.classList.remove('show');
-                        pop.classList.add('hide');
-                    } else {
-                        pop.classList.add('show');
-                        pop.classList.remove('hide');
-                    }
-                });
-
-                document.addEventListener('click', lineMoveHandler);
-
-                
-                function lineMoveHandler(ev){
-                    let target = ev.target;
-                    let check = document.querySelector('.check');
-                    if(check) check.classList.remove('check');
-                    if(target.tagName !== 'A' || target.dataset.type !== 'lineNum') return;
-                        
-                    let lineNum = target.href.split('#')[1];
-                    let line = document.querySelector('#line-'+lineNum);
-                    line.scrollIntoView({
-                        behavior: "smooth", block: "center", inline: "nearest"
-                    });
-                    line.classList.add('mark-line', 'check');
-                    setTimeout(()=>{
-                        line.classList.remove('mark-line')
-                    }, 10000);
-                }
-                
-            })();
-            `;
+            let scriptBundle = [...this.convertFileToHeadElements('scriptBundle.html', null)];
+            scriptBundle.forEach(script=>{
+                let origin = location.origin;
+                let sc = document.createElement('script');
+                script.src && !script.src.match(origin) ? sc.src = script.src : script.src.match(origin) ? sc.src = script.src.split(origin)[1] : null;
+                script.integrity ? sc.integrity = script.integrity : null;
+                script.crossOrigin ? sc.crossOrigin = script.crossOrigin : null;
+                script.defer ? sc.defer = script.defer : null;
+                script.async ? sc.async = script.async : null;
+                script.innerHTML.length>0 ? sc.innerHTML = script.innerHTML : null;
+                uiElem.body.append(sc);
+            });
             uiElem.body.innerHTML += `<script src="documentify.js"></script>
             <script src="index.js"></script>`;
-            uiElem.body.appendChild(sc2);
-            let sc4 = document.createElement('script');
-            sc4.innerHTML = `
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = '';
-            setTimeout(()=>{
-                tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                  })
-            }, 500);
-            `;
-            uiElem.body.append(sc4);
         }
 
         this.generateDocument = function (manufacturedPack) {
@@ -671,7 +744,9 @@ const Documentify = (function () {
             this.mkScript();
         }
 
-        this.regexParser = function (responseText) {
+        this.regexParser = function (responseText, docuP) {
+            let save = docuPack;
+            docuPack = docuP;
             let tmp = '';
             tmp = responseText.replace(/\{\@\s*[\s\S]+?\n*\s*\@\}/gim, e => {
                 let command = e.replace(/\{\@|\@\}/gm, '').trim();
@@ -685,11 +760,12 @@ const Documentify = (function () {
                     return this.evl(`${command}`);
                 }
             }) + '\n';
+            docuPack = save;
             return tmp;
         }
 
         this.evl = function (str) {
-            let result = new Function('"use strict"; return ' + str + ';')();
+            let result = new Function('docuPack', 'initOption', 'page', '"use strict"; return ' + str + ';')(docuPack, initOption, page);
             return result;
         }
 
@@ -738,9 +814,45 @@ const Documentify = (function () {
                 id: 'file',
                 type: 'file',
                 className: 'form-control',
-                style: 'display: block; margin: auto;'
             });
+
+            function handleLoading(){
+                let loading = document.createElement("span");
+                Object.assign(loading, {
+                    id: 'loading',
+                    style: `
+                        z-index: 100;
+                        position: absolute;
+                        width: 100px;
+                        height: 100px;
+                        display: inline-block;
+                        top: 50%;
+                        left: 50%;
+                        transition: 500ms;
+                        transform: translate(-50%, -50%);
+                        background-image: url(https://www.pngrepo.com/png/1183/180/loading.png);
+                        background-size: cover;
+                        background-repeat: no-repeat;
+                    `,
+                });
+                document.body.prepend(loading);
+                
+                let loadAni = requestAnimationFrame(loadHandler);
+                let deg = 0;
+                function loadHandler(){
+                    if(!document.querySelector('input[type="file"]')){
+                        cancelAnimationFrame(loadAni);
+                    } else {
+                        document.body.querySelector('#loading').style.transform = 'translate(-50%, -50%) rotate('+deg+'deg)';
+                        deg += 20;
+                    }
+                    setTimeout(()=>{
+                        requestAnimationFrame(loadHandler);
+                    }, 100);
+                }
+            }
             document.body.prepend(input);
+            document.body.querySelector('input').addEventListener('change', handleLoading);
         }
     }
 })();

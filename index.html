@@ -5,15 +5,67 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="mkZip.js" type="module"></script>
-        <link rel="stylesheet" href="main.css">
+        <style>
+            input.form-control {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                display: block;
+                padding: .375rem .75rem;
+                font-size: 1rem;
+                font-weight: 400;
+                line-height: 1.5;
+                color: #212529;
+                background-color: #fff;
+                background-clip: padding-box;
+                border: 1px solid #ced4da;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                border-radius: .25rem;
+                transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+            }
+
+            .form-control[type=file]:not(:disabled):not([readonly]) {
+                cursor: pointer;
+            }
+
+            input.form-control::-webkit-file-upload-button {
+                z-index: -1;
+                white-space: nowrap;
+                -webkit-user-modify: read-only !important;
+                align-items: flex-start;
+                text-align: center;
+                cursor: default;
+                box-sizing: border-box;
+                border-image: initial;
+                font: inherit;
+                line-height: inherit;
+                -webkit-appearance: button;
+                border-radius: .3rem;
+                margin-inline-end: .75rem;
+                background-color: #e9ecef;
+                pointer-events: none;
+                border-color: inherit;
+                border-style: solid;
+                border-width: 0;
+                border-inline-end-width: 1px;
+                border-radius: 0;
+                color: #212529;
+                padding: .375rem .75rem;
+                margin: -.375rem -.75rem;
+                -webkit-margin-end: .75rem;
+                -webkit-transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+                transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+            }
+        </style>
         <title>Documentify</title>
     </head>
 
     <body>
-        <script src="regexParser.js"></script>
-        <script src="documentify.js"></script>
-        <script src="index.js"></script>
+        <script src="dist/assets/js/documentify.js"></script>
+        <script src="dist/assets/js/index.js"></script>
     </body>
 
 </html>
