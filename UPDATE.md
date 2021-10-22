@@ -14,6 +14,10 @@
     - [추가사항](#추가사항)
     - [예정사항](#예정사항)
   - [Merge oho-fetch-5 and latest result](#merge-oho-fetch-5-and-latest-result)
+  - [부분 업데이트](#부분-업데이트)
+    - [네비게이션](#네비게이션)
+    - [UI부분](#ui부분)
+    - [추가되는 기능](#추가되는-기능)
 
 # Update
 
@@ -125,5 +129,30 @@
 3. 의논해서 나온 제안이나 문제점, 버그는 서로 추가하기로
 
 <span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-21 22:13:35</span>
+
+-----
+
+## 부분 업데이트
+
+### 네비게이션
+
+1. snb 결정
+   1. 모바일 >> 버튼메뉴 안에 함수, 검색창
+   2. 웹 >> 사이드바
+2. 기존 gnb 삭제
+
+### UI부분
+
+1. information 디자인 따로 ( 함수와 분리 )
+
+### 추가되는 기능
+
+1. 메신저 창 구현
+   1. recent updates 포함
+   2. save file, send mail 포함
+   3. darkmode 포함
+2. originLines userOption으로 선택 조정
+
+<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-22 14:36:03</span>
 
 -----
