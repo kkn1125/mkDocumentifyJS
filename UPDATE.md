@@ -18,6 +18,10 @@
     - [네비게이션](#네비게이션)
     - [UI부분](#ui부분)
     - [추가되는 기능](#추가되는-기능)
+  - [v0.2.0 pre-release 수정 사항](#v020-pre-release-수정-사항)
+    - [초기화 옵션 방식 수정](#초기화-옵션-방식-수정)
+    - [메신저 창 추가](#메신저-창-추가)
+    - [변경사항](#변경사항)
 
 # Update
 
@@ -28,7 +32,7 @@
 3. 도큐먼트 최상위 객체에 파일 객체 추가
 4. 도큐먼트 하위 props 배열 단위 객체에 원문 파일의 line index 포함하여 객체 생성하는 것으로 변경 (기존에 없었음)
 
-<span style="color: gray; font-size: .8rem">kimson | 2021-10-06 15:01:39</span>
+***kimson | 2021-10-06 15:01:39***
 
 -----
 
@@ -38,7 +42,7 @@
 2. init에 인자 값 없이 index.html을 실행하면 파일 선택 input이 생성, 파일을 선택하면 파싱하여 문서화 출력
 3. update list에 참여자 프로필 추가
 
-<span style="color: gray; font-size: .8rem">kimson | 2021-10-06 17:49:00</span>
+***kimson | 2021-10-06 17:49:00***
 
 -----
 
@@ -52,7 +56,7 @@
 6. 해당 내용 원문 해당 라인으로 이동 구현
 7. ReadMe.md에 업데이트 리스트 링크 추가
 
-<span style="color: gray; font-size: .8rem">kimson | 2021-10-07 14:51:02</span>
+***kimson | 2021-10-07 14:51:02***
 
 -----
 
@@ -64,7 +68,7 @@
 4. 띄어쓰기만 있을 때 description등 나머지 내용 안 뜨는 안되는 버그 수정
 5. 컨텐츠 만드는 메서드 구조분해할당으로 코드 정리
 
-<span style="color: gray; font-size: .8rem">kimson | 2021-10-08 16:57:37</span>
+***kimson | 2021-10-08 16:57:37***
 
 -----
 
@@ -75,7 +79,7 @@
    - mkDocumentifyJS의 mkContent메서드 삭제
    - mkDocumentifyJS의 mkOriginLines메서드 삭제
 
-<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-15 12:42:35</span>
+***kimson, ohoraming | 2021-10-15 12:42:35***
 
 -----
 
@@ -89,7 +93,7 @@
 4. updates 영역 드롭다운 변경
 5. footer영역 direct top/down버튼 버그 수정
 
-<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-15 16:46:52</span>
+***kimson, ohoraming | 2021-10-15 16:46:52***
 
 
 -----
@@ -118,7 +122,7 @@
 
 1. mkDocumentifyJS v0.1.0 Pre-release 예정 ( 2021. 10. 25 :: 4일 후)
 
-<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-21 19:51:20</span>
+***kimson, ohoraming | 2021-10-21 19:51:20***
 
 -----
 
@@ -128,7 +132,7 @@
 2. 이전 코드 구조보다 확실히 파일이 분리되어 수정이 편함
 3. 의논해서 나온 제안이나 문제점, 버그는 서로 추가하기로
 
-<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-21 22:13:35</span>
+***kimson, ohoraming | 2021-10-21 22:13:35***
 
 -----
 
@@ -153,6 +157,37 @@
    3. darkmode 포함
 2. originLines userOption으로 선택 조정
 
-<span style="color: gray; font-size: .8rem;">kimson, ohoraming | 2021-10-22 14:36:03</span>
+***kimson, ohoraming | 2021-10-22 14:36:03***
+
+-----
+
+## v0.2.0 pre-release 수정 사항
+
+### 초기화 옵션 방식 수정
+
+1. `init({ ... })`메서드로 초기화할 때 커스터마이징 가능한 명령어 추가
+   1. selectFileMode : true(default) | false
+   2. url: "dist/assets/js/example.js"(default)
+   3. datapath: "dist/data/userData.json"(default)
+   4. basepath: "dist/include/"(default)
+   5. darkMode: true | false(default)
+
+### 메신저 창 추가
+
+1. 메신저 창
+   1. 명령어
+      1. save as | 저장 | 파일저장
+      2. send mail | 메일전송 | 메일
+      3. darkMode(토글) | on | off | 켜기 | 끄기
+      4. 도와줘 | ? | 명령어
+
+### 변경사항
+
+1. mkHead 메서드 수정
+   1. html파일로 분리해서 불러오는 형식으로 변경
+2. mkNav 메서드 삭제
+   1. mkBody 메서드에 포함되어 불러오기 때문
+
+***kimson, ohoraming | 2021-10-23 11:28:41***
 
 -----

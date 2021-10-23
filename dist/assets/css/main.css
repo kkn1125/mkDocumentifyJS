@@ -1,6 +1,17 @@
+/**
+ * mkDocumentifyJS v0.1.2 (https://github.com/kkn1125/mkDocumentifyJS)
+ * Copyright 2021 (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors)
+ * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
+ */
+ 
 :root {
     --ks-noto-serif: "Noto Serif KR", serif;
     --ks-noto-sans-serif: "Noto Sans KR", sans-serif;
+    --ks-brand: #5EC271;
+    --ks-primary: #0046B3;
+    --ks-secondary: #6D7698;
+    --ks-sub: #E7EFFF;
+    --ks-bg: #ffffff;
 }
 
 html,
@@ -36,7 +47,7 @@ body {
 }
 
 body {
-    padding-top: 56px;
+    /* padding-top: 56px; */
 }
 
 @media (max-width: 991.98px) {
@@ -51,7 +62,7 @@ body {
         padding-left: 1rem;
         overflow-y: auto;
         visibility: hidden;
-        background-color: #343a40;
+        background-color: var(--ks-sub);
         transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out;
     }
 
@@ -101,14 +112,14 @@ body {
 }
 
 .desc {
-    border-left: 5px solid rgba(19, 187, 19, 0.5);
+    border-left: 5px solid var(--ks-primary);
     padding-left: 1rem;
     padding: 1rem 0 1rem 1rem;
     margin-top: 1rem;
 }
 
 .exam-type {
-    border-left: 5px solid rgba(187, 58, 19, 0.5);
+    border-left: 5px solid var(--ks-secondary);
     padding-left: 1rem;
     padding: 1rem 0 1rem 1rem;
     margin-top: 1rem;
@@ -214,4 +225,28 @@ pre div.border-bottom:last-child{
     -moz-transition: background .3s;
     -ms-transition: background .3s;
     -o-transition: background .3s;
+}
+
+button{
+    border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    -ms-border-radius: 0 !important;
+    -o-border-radius: 0 !important;
+}
+
+.bg-info{
+    background-color: var(--ks-secondary) !important;
+}
+
+.bg-warning{
+    background-color: var(--ks-secondary) !important;
+}
+
+.bg-danger{
+    background-color: var(--ks-secondary) !important;
+}
+
+a[href]{
+    color: var(--ks-primary);
 }

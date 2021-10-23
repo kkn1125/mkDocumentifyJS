@@ -13,6 +13,6 @@
 
     <small class="d-block text-end mt-3">
         <a href="#{@docuPack.bundleLine@}" data-type="lineNum">line : {@docuPack.bundleLine@}
-            {@docuPack.fileName.slice(2)@}</a>
+            {@docuPack.fileName.split('/').pop()@}</a>
     </small>
 </div>
