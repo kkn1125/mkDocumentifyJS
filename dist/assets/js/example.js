@@ -1,3 +1,9 @@
+/**
+ * mkDocumentifyJS v0.1.2 (https://github.com/kkn1125/mkDocumentifyJS)
+ * Copyright 2021 (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors)
+ * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
+ */
+
 'use strict';
 
 /**

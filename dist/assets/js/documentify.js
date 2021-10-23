@@ -1,3 +1,9 @@
+/**
+ * mkDocumentifyJS v0.1.2 (https://github.com/kkn1125/mkDocumentifyJS)
+ * Copyright 2021 (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors)
+ * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
+ */
+
 'use strict';
 
 // 즉시실행 후 내부 함수 숨기는 효과
@@ -7,16 +13,16 @@ const Documentify = (function () {
     function Controller() {
         let moduleModel = null;
         let uiElem = null;
-        let userUrl = null;
+        let userOptions = null;
 
         this.init = function (model, ui, options) {
             moduleModel = model;
             uiElem = ui;
-            userUrl = options;
+            userOptions = options;
 
             if (uiElem.file)
                 uiElem.file.addEventListener('change', this.fileUploadHandler);
-            if (userUrl)
+            if (userOptions && !userOptions.selectFileMode)
                 window.addEventListener('load', this.getFileHandler.bind(this));
             window.addEventListener('click', this.fileSaveHandler);
             window.addEventListener('load', this.sendOptions);
@@ -52,13 +58,13 @@ const Documentify = (function () {
                     }
                 }
             });
-            xhr.open('get', userUrl.url, true);
+            xhr.open('get', userOptions.url, true);
             xhr.responseType = 'blob';
             xhr.send();
         }
 
         this.sendHandler = function (file) {
-            let files = new File([file], userUrl.url);
+            let files = new File([file], userOptions.url);
             this.fileUploadHandler({
                 0: files
             });
@@ -552,107 +558,23 @@ const Documentify = (function () {
          * @function mkHead head태그를 생성
          */
         this.mkHead = function () {
-            uiElem.head.innerHTML = `
-            <meta charset="UTF-8">
-            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            
-            <!-- Bootstrap CSS -->
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-            <!-- google font -->
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap"
-                rel="stylesheet">
-            <link
-                href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap"
-                rel="stylesheet">
-            <link rel="stylesheet" href="dist/assets/css/main.css">
-            <link rel="stylesheet" href="dist/assets/css/gnb.css">
-            <link rel="stylesheet" href="dist/assets/css/snb.css">
-            <title>Documentify</title>
-            `;
-            let s = document.createElement('script');
-            // s.src="https://use.fontawesome.com/08e7c2dfca.js";
-            s.src = "https://kit.fontawesome.com/8ff9cf0b7b.js";
-            s.crossOrigin = "anonymous";
-            uiElem.head.append(s);
+            let heads = [...this.convertFileToHeadElements(`headBundle.html`)];
+            let filteredHeads = heads.filter(tag=>tag.tagName!=='SCRIPT');
+            let filteredScripts = heads.filter(tag=>tag.tagName=='SCRIPT').map(tag=>{
+                let script = document.createElement('script');
+                !tag.src || (script.src=tag.src);
+                !tag.integrity || (script.integrity=tag.integrity);
+                !tag.crossOrigin || (script.crossOrigin=tag.crossOrigin);
+                !tag.innerHTML || (script.innerHTML=tag.innerHTML);
+                return script;
+            });
+            uiElem.head.append(...filteredHeads);
+            uiElem.head.append(...filteredScripts);
         }
 
         /**
-         * @function mkNav Global Navigation Bar를 생성
-         * @returns {string} 생성된 GNB 반환
+         * mkNav 삭제
          */
-        this.mkNav = function () {
-            let fileName = docuPack.file.name;
-            let sp = fileName.split(/\.+\//gm);
-            let tmp = '';
-            tmp += `<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
-                <div class="container-fluid">
-                <a class="navbar-brand" href="#">${sp[sp.length-1]}</a>
-                <button class="navbar-toggler p-0 border-0" type="button" id="navbarSideCollapse" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-            
-                <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Origin Lines</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Information</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#function">Functions</a>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-bs-toggle="dropdown" aria-expanded="false">Settings</a>
-                        <ul class="dropdown-menu" aria-labelledby="dropdown01">
-                        <li><a class="dropdown-item" href="#">Dark Mode</a></li>
-                        <li><a class="dropdown-item" href="#">Send Mail</a></li>
-                        <li><a class="dropdown-item saveas" href="#" id="saveas">Save As ...</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link badge" href="#">made by DocumentifyJS at ${new Date(docuPack.regdate).toLocaleString()}</a>
-                    </li>
-                    </ul>
-                    <form class="d-flex">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Search</button>
-                    </form>
-                </div>
-                </div>
-            </nav>`;
-
-            let id = 0;
-            let origin = `
-            <a class="nav-link" href="#originlines">
-                Origin Lines
-                <span class="badge bg-light text-dark rounded-pill align-text-bottom">${docuPack.originLines.length}</span>
-            </a>`;
-
-            tmp += `<div class="nav-scroller bg-body shadow-sm">
-            <nav class="nav nav-underline" aria-label="Secondary navigation">`;
-            tmp += origin;
-
-            let li = partOfPackage => {
-                return `<a class="nav-link${id==0?' active':''}" ${id==0?'aria-current="page"':''} href="#${partOfPackage.name}">${partOfPackage.name}</a>`;
-            };
-
-            docuPack.repository.packageInfos.forEach(partOfPackage => {
-                tmp += li(partOfPackage);
-                if (id == 0) id = 1;
-            });
-            docuPack.repository.packageMethods.forEach(partOfPackage => {
-                tmp += li(partOfPackage);
-            });
-
-            tmp += `</nav>
-            </div>`;
-            return tmp;
-        }
 
         /**
          * @function mkBody body태그 부분을 생성
@@ -669,8 +591,8 @@ const Documentify = (function () {
             moduleBundle = this.convertFileToBodyElements(`side-nav-bar.html`);
             moduleTemplate[0].append(...moduleBundle);
 
-            moduleBundle = this.convertFileToBodyElements(`updates.html`);
-            moduleTemplate[1].append(...moduleBundle);
+            // moduleBundle = this.convertFileToBodyElements(`updates.html`);
+            // moduleTemplate[1].append(...moduleBundle);
 
             Object.keys(docuPack.repository).forEach(name => {
                 docuPack.repository[name].forEach(item => {
@@ -726,7 +648,9 @@ const Documentify = (function () {
             
             moduleBundle = this.convertFileToBodyElements(`footer.html`);
             documentWrapper[0].append(...moduleBundle);
-            
+
+            moduleBundle = this.convertFileToBodyElements(`chat-popup.html`);
+            documentWrapper[0].append(...moduleBundle);
 
             uiElem.body.append(documentWrapper[0]);
         }
@@ -750,6 +674,7 @@ const Documentify = (function () {
 
         this.generateDocument = function (manufacturedPack) {
             docuPack = manufacturedPack;
+            this.clearHead();
             this.clearView();
             this.mkHead();
             this.mkBody();
@@ -768,6 +693,13 @@ const Documentify = (function () {
                 if (command.trim() == 'page.url') {
                     if(page.url == "") return location.protocol+'//'+location.host+(page.baseurl!=''?page.baseurl:'/');
                     else return evl(`${command}`);
+                } else if (command.trim().match(/insert\s/gm)) {
+                    let el = [...this.convertFileToBodyElements(command.replace(/insert\s/gm,'').trim())];
+                    let str = '';
+                    el.forEach(e=>{
+                        str += e.outerHTML;
+                    });
+                    return str;
                 } else {
                     return this.evl(`${command}`);
                 }
@@ -779,6 +711,10 @@ const Documentify = (function () {
         this.evl = function (str) {
             let result = new Function('docuPack', 'initOption', 'page', '"use strict"; return ' + str + ';')(docuPack, initOption, page);
             return result;
+        }
+
+        this.clearHead = function () {
+            uiElem.head.innerHTML = '';
         }
 
         this.clearView = function () {
@@ -793,7 +729,8 @@ const Documentify = (function () {
          * @param {string} url 문서화 대상 js파일의 경로
          */
         init: function (options) {
-            if (!options.url)
+            options = this.initializeOption(options);
+            if (options.selectFileMode)
                 this.create();
             const head = document.head;
             const body = document.body;
@@ -827,44 +764,25 @@ const Documentify = (function () {
                 type: 'file',
                 className: 'form-control',
             });
+            document.body.prepend(input);
+        },
 
-            function handleLoading(){
-                let loading = document.createElement("span");
-                Object.assign(loading, {
-                    id: 'loading',
-                    style: `
-                        z-index: 100;
-                        position: absolute;
-                        width: 100px;
-                        height: 100px;
-                        display: inline-block;
-                        top: 50%;
-                        left: 50%;
-                        transition: 500ms;
-                        transform: translate(-50%, -50%);
-                        background-image: url(https://www.pngrepo.com/png/1183/180/loading.png);
-                        background-size: cover;
-                        background-repeat: no-repeat;
-                    `,
-                });
-                document.body.prepend(loading);
-                
-                let loadAni = requestAnimationFrame(loadHandler);
-                let deg = 0;
-                function loadHandler(){
-                    if(!document.querySelector('input[type="file"]')){
-                        cancelAnimationFrame(loadAni);
-                    } else {
-                        document.body.querySelector('#loading').style.transform = 'translate(-50%, -50%) rotate('+deg+'deg)';
-                        deg += 20;
+        initializeOption: function(options){
+            let initOptions = {
+                selectFileMode: true,
+                url: 'dist/assets/js/example.js',
+                datapath: 'dist/data/userData.json',
+                basepath: 'dist/include/',
+                darkMode: false,
+            }
+            for(let key in options){
+                if(options.hasOwnProperty(key)){
+                    if(options[key].toString().length>0){
+                        initOptions[key] = options[key];
                     }
-                    setTimeout(()=>{
-                        requestAnimationFrame(loadHandler);
-                    }, 100);
                 }
             }
-            document.body.prepend(input);
-            document.body.querySelector('input').addEventListener('change', handleLoading);
+            return initOptions;
         }
     }
 })();

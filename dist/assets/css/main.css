@@ -1,6 +1,17 @@
+/**
+ * mkDocumentifyJS v0.1.2 (https://github.com/kkn1125/mkDocumentifyJS)
+ * Copyright 2021 (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors)
+ * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
+ */
+ 
 :root {
-  --ks-noto-serif: "Noto Serif KR", serif;
-  --ks-noto-sans-serif: "Noto Sans KR", sans-serif;
+    --ks-noto-serif: "Noto Serif KR", serif;
+    --ks-noto-sans-serif: "Noto Sans KR", sans-serif;
+    --ks-brand: #5EC271;
+    --ks-primary: #0046B3;
+    --ks-secondary: #6D7698;
+    --ks-sub: #E7EFFF;
+    --ks-bg: #ffffff;
 }
 
 html,
@@ -31,30 +42,30 @@ a {
 
 html,
 body {
-  overflow-x: hidden;
-  /* Prevent scroll on narrow devices */
+    overflow-x: hidden;
+    /* Prevent scroll on narrow devices */
 }
 
 @media (max-width: 991.98px) {
-  .offcanvas-collapse {
-    position: fixed;
-    top: 56px;
-    /* Height of navbar */
-    bottom: 0;
-    left: 100%;
-    width: 100%;
-    padding-right: 1rem;
-    padding-left: 1rem;
-    overflow-y: auto;
-    visibility: hidden;
-    background-color: #343a40;
-    transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out;
-  }
+    .offcanvas-collapse {
+        position: fixed;
+        top: 56px;
+        /* Height of navbar */
+        bottom: 0;
+        left: 100%;
+        width: 100%;
+        padding-right: 1rem;
+        padding-left: 1rem;
+        overflow-y: auto;
+        visibility: hidden;
+        background-color: var(--ks-sub);
+        transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    }
 
-  .offcanvas-collapse.open {
-    visibility: visible;
-    transform: translateX(-100%);
-  }
+    .offcanvas-collapse.open {
+        visibility: visible;
+        transform: translateX(-100%);
+    }
 }
 
 .nav-scroller {
@@ -97,17 +108,17 @@ body {
 }
 
 .desc {
-  border-left: 5px solid rgba(19, 187, 19, 0.5);
-  padding-left: 1rem;
-  padding: 1rem 0 1rem 1rem;
-  margin-top: 1rem;
+    border-left: 5px solid var(--ks-primary);
+    padding-left: 1rem;
+    padding: 1rem 0 1rem 1rem;
+    margin-top: 1rem;
 }
 
 .exam-type {
-  border-left: 5px solid rgba(187, 58, 19, 0.5);
-  padding-left: 1rem;
-  padding: 1rem 0 1rem 1rem;
-  margin-top: 1rem;
+    border-left: 5px solid var(--ks-secondary);
+    padding-left: 1rem;
+    padding: 1rem 0 1rem 1rem;
+    margin-top: 1rem;
 }
 
 div[data-dc-type="popup"] {
@@ -203,11 +214,35 @@ pre div.border-bottom:last-child {
   border-bottom: none !important;
 }
 
-.origin-line:hover {
-  transition: background 0.3s;
-  background-color: rgba(0, 0, 0, 0.03);
-  -webkit-transition: background 0.3s;
-  -moz-transition: background 0.3s;
-  -ms-transition: background 0.3s;
-  -o-transition: background 0.3s;
+.origin-line:hover{
+    transition: background .3s;
+    background-color: rgba(0,0,0,0.03);
+    -webkit-transition: background .3s;
+    -moz-transition: background .3s;
+    -ms-transition: background .3s;
+    -o-transition: background .3s;
+}
+
+button{
+    border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    -ms-border-radius: 0 !important;
+    -o-border-radius: 0 !important;
+}
+
+.bg-info{
+    background-color: var(--ks-secondary) !important;
+}
+
+.bg-warning{
+    background-color: var(--ks-secondary) !important;
+}
+
+.bg-danger{
+    background-color: var(--ks-secondary) !important;
+}
+
+a[href]{
+    color: var(--ks-primary);
 }
