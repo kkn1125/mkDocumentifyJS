@@ -1,20 +1,39 @@
-/**
+/**!
  * mkDocumentifyJS v0.1.2 (https://github.com/kkn1125/mkDocumentifyJS)
- * Copyright 2021 (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors)
+ * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
 
 'use strict';
 
-// 즉시실행 후 내부 함수 숨기는 효과
+/**
+ * javascript api의 문서를 빠르고 쉽게 도와주는 javascript로 구현된 문서화 애플리케이션입니다. 이 애플리케이션은 javascript의 주석형식을 따르고 있으며 "&#64;"로 시작되는 태그를 대상으로 파싱합니다. 자세한 내용은 <a href="https://github.com/kkn1125/mkDocumentifyJS#mkdocumentifyjs" target="_blank">문서화 Github</a>를 참고하시기 바랍니다.
+ * @author kkn1125,minji 2인 개발중에 있으며, 꾸준히 업데이트할 예정입니다. 문의사항은 우측하단의 채팅봇을 클릭하여 문의를 진행해주시면 감사하겠습니다.
+ * @since 2021~ 10월 초부터 진행 한 프로젝트입니다.
+ */
+
+/**
+ * 문서화 기능 전체를 담당하는 함수
+ * @function Documentify
+ */
 const Documentify = (function () {
 
-    // 이벤트 조작
+    /**
+     * 문서화의 모든 이벤트를 제어하는 기능 담당하는 객체
+     * @function Controller
+     */
     function Controller() {
         let moduleModel = null;
         let uiElem = null;
         let userOptions = null;
 
+        /**
+         * Controller를 초기화하는 메서드
+         * @function init
+         * @param {model} model 초기화 시점에 Model객체를 상속합니다.
+         * @param {object} ui 초기화 시점에 Ui객체를 상속합니다.
+         * @param {object} options 초기화 시점에 Initial Option객체를 상속합니다.
+         */
         this.init = function (model, ui, options) {
             moduleModel = model;
             uiElem = ui;
@@ -28,6 +47,11 @@ const Documentify = (function () {
             window.addEventListener('load', this.sendOptions);
         }
 
+        /**
+         * 문서화 최종 파일을 저장하는 메서드
+         * @function fileSaveHandler
+         * @param {event} ev click 타입 이벤트
+         */
         this.fileSaveHandler = function (ev) {
             let target = ev.target;
             if (!target || !target.classList.contains('saveas') || target.id !== 'saveas') return;
@@ -35,6 +59,14 @@ const Documentify = (function () {
             moduleModel.fileSaveHandler(ev);
         }
 
+        /**
+         * 초기화 옵션에서 selectFileMode가 true일 때 로컬 파일을 업로드하면 실행되는 메서드
+         * @function fileUploadHandler
+         * @param {event} ev change 타입의 이벤트
+         * @var {file} file 문서화 대상 파일의 정보를 담는 변수
+         * @var {fileReader} fileReader file변수에 담긴 파일 정보가 load될 때 Model객체의 parseToComments메서드에 파일 텍스트와 파일을 인자로 호출
+         * @see Controller.init,Model.parseToComments
+         */
         this.fileUploadHandler = function (ev) {
             let file = this.files;
             if (!ev.type) {
@@ -49,6 +81,11 @@ const Documentify = (function () {
             });
         }
 
+        /**
+         * 초기화 옵션에서 selectFileMode가 false일 때 초기화 옵션에 지정된 url의 파일을 읽는 메서드
+         * @function getFileHandler
+         * @see Controller.init
+         */
         this.getFileHandler = function () {
             let xhr = new XMLHttpRequest();
             xhr.addEventListener('readystatechange', (ev) => {
@@ -63,6 +100,12 @@ const Documentify = (function () {
             xhr.send();
         }
 
+        /**
+         * 비동기 방식으로 읽은 파일의 텍스트를 파일로 재구성하여 fileUploadHandler메서드로 전송하는 메서드
+         * @function sendHandler
+         * @param {string} file url경로의 파일 내부 텍스트
+         * @see getFileHandler,fileUpdateHandler
+         */
         this.sendHandler = function (file) {
             let files = new File([file], userOptions.url);
             this.fileUploadHandler({
@@ -71,24 +114,45 @@ const Documentify = (function () {
         }
     }
 
-    // 객체 조작
+    /**
+     * 문서화의 필요한 모든 객체를 제어하는 기능 담당하는 객체
+     * @function Model
+     */
     function Model() {
         let moduleView = null;
         let moduleComponent = null;
 
+        /**
+         * Model을 초기화하는 메서드
+         * @function init
+         * @param {view} view View 객체 상속
+         * @param {component} component Component 객체 상속
+         */
         this.init = function (view, component) {
             moduleView = view;
             moduleComponent = component;
         }
 
+        /**
+         * Controller에서 Model을 상속받아 사용되는 메서드
+         * @function fileSaveHandler
+         * @param {event} ev Controller의 fileSaveHandler를 통해 호출되는 click 타입의 이벤트
+         * @see Controller.fileSaveHandler
+         */
         this.fileSaveHandler = function (ev) {
             moduleView.fileSaveHandler(ev);
         }
 
+        /**
+         * 문서화 대상 파일의 텍스트 중 주석을 필터링하여 파싱하는 중추기능을 하는 메서드
+         * @function parseToComments
+         * @param {string} comments 문서화 대상 파일의 텍스트
+         * @param {file} file 파일 업로드 시 전달되는 문서화 대상 파일 객체
+         */
         this.parseToComments = function (comments, file) {
-            let regex = /\/\*\*+[\s\S]+?\*\//gm;
+            let regex = /\/\*\*+[^\!][\s\S]+?\*\//gm;
             let originLines = comments.split('\n');
-            let parseData = comments.match(regex); // 주석 묶음 배열
+            let parseData = comments.match(regex);
 
             let manufacturedPack = this.manufactureToData(originLines, file[0], parseData);
             this.clearView();
@@ -97,6 +161,14 @@ const Documentify = (function () {
             moduleView.generateDocument(manufacturedPack);
         }
 
+        /**
+         * 원문 내용을 파싱하여 주석을 documentify의 주요 객체로 변환하는 메서드
+         * @function manufactureToData
+         * @param {array<string>} originLines 줄 단위로 나눠지는 코드 원문 배열
+         * @param {file} file 문서화 대상 파일 객체
+         * @param {string} parseData 주석만 필터링된 텍스트
+         * @returns {object} 주석을 가공한 핵심 객체
+         */
         this.manufactureToData = function (originLines, file, parseData) {
 
             parseData = parseData.map(originLine => originLine.replace(/\s\*\s/gi, '')
@@ -218,8 +290,8 @@ const Documentify = (function () {
                     let nameSpace = '';
 
                     for (let commentObj of classifiedComment) {
-                        if (commentObj.tag.match(/var|return|function|param|example/gm)) {
-                            if (commentObj.tag.match(/function/gm)) {
+                        if (commentObj.tag.match(/var|return|function|class|param|example/gm)) {
+                            if (commentObj.tag.match(/function|class/gm)) {
                                 nameSpace = commentObj.name == '' ? 'Anonymous' : commentObj.name;
                                 break;
                             } else {
@@ -265,7 +337,8 @@ const Documentify = (function () {
     }
 
     /**
-     * @function Conponent mkDocumentifyJS만의 컴포넌트 생성, if, for문을 태그로 사용 가능
+     * d-* 태그를 생성하는 기능 담당하는 객체
+     * @function Conponent
      */
     function Component() {
         const tagNames = ["d-if", "d-for"];
@@ -274,40 +347,71 @@ const Documentify = (function () {
         let initOption = null;
         let docuPack = null;
 
+        /**
+         * Component 초기화 메서드
+         * @function init
+         * @param {view} view 상속받은 view 객체
+         */
         this.init = function (view) {
             moduleView = view;
             
             this.requireComponent();
             [page, initOption] = moduleView.requestLocalVariable();
-
         }
 
-        this.requireComponent = function (ev) {
-            this.replaceDocuComponents(ev);
+        /**
+         * 지정된 태그네임을 참조하여 컴포넌트를 생성하는 메서드
+         * @function requireComponent
+         * @see replaceDocuComponents
+         */
+        this.requireComponent = function () {
+            this.replaceDocuComponents();
         }
 
+        /**
+         * 가공된 데이터를 Component객체에서 사용할 수 있게 저장하는 메서드
+         * @function responseDocuPack
+         * @param {object} manufacturedPack Model의 parseToComments 메서드 내에서 호출될 때 받는 가공된 데이터 객체
+         * @see Model.parseToComments
+         */
         this.responseDocuPack = function(manufacturedPack){
             docuPack = manufacturedPack;
         }
 
+        /**
+         * d-if태그의 결과 내용을 치환해주는 메서드
+         * @function docuIf
+         * @param {component} root Component의 this와 동일
+         * @see replaceDocuComponents
+         */
         this.docuIf = function (root) {
             let [test, content] = [root.getAttribute("test"), root.innerHTML];
             if (eval(test)) root.insertAdjacentHTML('beforebegin', content);
             root.remove();
         }
 
+        /**
+         * d-for태그의 결과 내용을 치환해주는 메서드
+         * @function docuFor
+         * @param {component} root Component의 this와 동일
+         * @see replaceDocuComponents
+         */
         this.docuFor = function (root) {
-            let [tmp, v, target, content] = ['', root.getAttribute("var"), root.getAttribute("target"), root.innerHTML];
+            let [tmp, v, target, extend, content] = ['', root.getAttribute("var"), root.getAttribute("target"), root.getAttribute("extend"), root.innerHTML];
             target.indexOf(',')>-1?target = target.split(','):null;
+            if(extend) target = extend;
             
             if (eval(`typeof ${target}`) == 'number') eval(`for(let ${v}=0; ${v}<${target}; ${v}++){tmp += \`${content}\`}`);
 
             else eval(`${target}.forEach(${v}=>{tmp += \`${content}\`})`);
-
             root.insertAdjacentHTML('beforebegin', tmp);
             root.remove();
         }
 
+        /**
+         * d-* 태그를 생성, 추가하며 예외를 설정하는 주요 메서드
+         * @function replaceDocuComponents
+         */
         this.replaceDocuComponents = function () {
             tagNames.forEach(name => {
                 let root = this;
@@ -344,7 +448,7 @@ const Documentify = (function () {
     }
 
     /**
-     * 화면 조작
+     * 웹 페이지에 출력되는 부분의 제어를 담당하는 객체
      * @function View
      */
     function View() {
@@ -353,10 +457,12 @@ const Documentify = (function () {
         let docuPack = null;
         let page = null;
         let zip = null;
+
         /**
-         * 
-         * @param {object} ui 필요한 Element가 포함된 객체
-         * @requires (ui) ui 객체가 있어야한다.
+         * View 객체 초기화 메서드
+         * @function init
+         * @param {object} ui 
+         * @param {object} options 
          */
         this.init = function (ui, options) {
             uiElem = ui;
@@ -365,10 +471,21 @@ const Documentify = (function () {
             this.requirePage();
         }
 
+        /**
+         * json과 초기화 옵션을 파싱하여 객체로 변환하는 메서드
+         * @function requestLocalVariable
+         * @returns {array<object>} page와 options가 반환
+         */
         this.requestLocalVariable = function(){
             return [page, initOption];
         }
 
+        /**
+         * 알집으로 압축하여 파일을 저장할 수 있도록 도와주는 클래스
+         * @class Zip
+         * @license Unlicense
+         * @link github <a href="https://github.com/pwasystem/zip" target="_blank">by pwasystem</a>
+         */
         class Zip {
 
             constructor(name) {
@@ -480,6 +597,11 @@ const Documentify = (function () {
             }
         }
 
+        /**
+         * page 객체를 사용할 수 있도록 userData.json을 읽어들이는 메서드
+         * @function requirePage
+         * @see init
+         */
         this.requirePage = function(){
             let xhr = new XMLHttpRequest();
             xhr.addEventListener('readystatechange', (ev) => {
@@ -493,31 +615,63 @@ const Documentify = (function () {
             xhr.send();
         }
 
+        /**
+         * text를 elements로 변환하는 메서드
+         * @function convertTextToElement
+         * @param {string} str html string을 elements로 변환
+         * @returns 
+         */
         this.convertTextToElement = function (str) {
             let dom = new DOMParser();
             return dom.parseFromString(str, 'text/html');
         }
 
+        /**
+         * 경로의 파일을 docuPack객체를 받아 정규식으로 필터링 해주는 메서드
+         * @function filterRegex
+         * @param {string} url 
+         * @param {object} obj 
+         * @returns {string} 정규식으로 파싱된 텍스트
+         * @see getFileContents,regexParser
+         */
         this.filterRegex = function(url, obj){
             let responseText = this.getFileContents(initOption.basepath+url);
             let parseRegex = this.regexParser(responseText, obj && obj!=null ? obj : docuPack, initOption);
             return parseRegex;
         }
 
+        /**
+         * 경로의 파일의 head태그의 자식 노드를 반환해주는 메서드
+         * @function convertFileToHeadElements
+         * @param {*} url template 파일 경로
+         * @param {*} obj docuPack 객체
+         * @returns {array<element>}
+         * @see mkHead,convertTextToElement,mkBody
+         */
         this.convertFileToHeadElements = function (url, obj) {
             let elements = this.convertTextToElement(this.filterRegex(url, obj));
             return elements.head.children;
         }
 
+        /**
+         * 경로의 파일의 body태그의 자식 노드를 반환해주는 메서드
+         * @function convertFileToBodyElements
+         * @param {string} url template 파일 경로
+         * @param {object} obj docuPack 객체
+         * @returns {array<element>}
+         * @see convertTextToElement,mkBody
+         */
         this.convertFileToBodyElements = function (url, obj) {
             let elements = this.convertTextToElement(this.filterRegex(url, obj));
             return elements.body.children;
         }
 
         /**
-         * @function getFileContents 상대경로를 참조하여 파일을 읽어 내용을 반환하는 메서드
+         * 상대경로를 참조하여 파일을 읽어 내용을 반환하는 메서드
+         * @function getFileContents
          * @param {string} url 내용을 읽을 파일의 상대경로
          * @returns {string} url을 참조하여 읽은 파일의 내용 반환
+         * @see filterRegex
          */
         this.getFileContents = function (url) {
             let xhr = new XMLHttpRequest();
@@ -536,8 +690,10 @@ const Documentify = (function () {
         }
 
         /**
-         * @function fileSaveHandler 파일을 zip으로 저장시키는 메서드
-         * @param {event} ev Controller에서 지정한 addEventListener의 click 타입의 이벤트가 전달
+         * 파일을 zip으로 저장시키는 메서드
+         * @function fileSaveHandler
+         * @param {event} ev Controller에서 지정한 addEventListener의 click 타입의 이벤트
+         * @see Model.fileSaveHandler,Zip
          */
         this.fileSaveHandler = function (ev) {
             let target = ev.target;
@@ -575,7 +731,9 @@ const Documentify = (function () {
         }
 
         /**
-         * @function mkHead head태그를 생성
+         * 문서화 페이지의 head태그를 생성하는 메서드
+         * @function mkHead
+         * @see convertFileToHeadElements
          */
         this.mkHead = function () {
             let heads = [...this.convertFileToHeadElements(`headBundle.html`)];
@@ -593,11 +751,9 @@ const Documentify = (function () {
         }
 
         /**
-         * mkNav 삭제
-         */
-
-        /**
-         * @function mkBody body태그 부분을 생성
+         * 문서화 페이지의 body태그를 생성하는 메서드
+         * @function mkBody 
+         * @see convertFileToBodyElements
          */
         this.mkBody = function () {
             let rowElement, moduleTemplate, moduleBundle, documentWrapper;
@@ -611,12 +767,13 @@ const Documentify = (function () {
             moduleBundle = this.convertFileToBodyElements(`side-nav-bar.html`);
             moduleTemplate[0].append(...moduleBundle);
 
-            // moduleBundle = this.convertFileToBodyElements(`updates.html`);
-            // moduleTemplate[1].append(...moduleBundle);
-
             Object.keys(docuPack.repository).forEach(name => {
                 docuPack.repository[name].forEach(item => {
-                    moduleBundle = this.convertFileToBodyElements(`function-bundle-part.html`, item);
+                    let bundleTemplatePath = `function-bundle-part.html`;
+                    if(name=='packageInfos'){
+                        bundleTemplatePath = `information-bundle-part.html`
+                    }
+                    moduleBundle = this.convertFileToBodyElements(bundleTemplatePath, item);
 
                     // for bundle inner start
                     item.props.forEach(props => {
@@ -634,6 +791,11 @@ const Documentify = (function () {
                         } else if (tag.match(/param|var/gm)) {
                             rowElement = this.convertFileToBodyElements(`content-bundle-param.html`, props);
                             moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
+                        } else if (tag.match(/function|class/gm)) {
+                            
+                        } else if (tag.match(/see/gm)) {
+                            rowElement = this.convertFileToBodyElements(`content-bundle-see.html`, props);
+                            moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
                         } else if (tag == '' && name == '' && type == '' && desc.match(/type|\=/gim)) {
                             rowElement = this.convertFileToBodyElements(`content-bundle-example.html`, props);
                             moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
@@ -649,21 +811,23 @@ const Documentify = (function () {
                 });
             });
 
-            moduleBundle = this.convertFileToBodyElements(`origin-lines.html`, docuPack);
-
-            docuPack.originLines.forEach((line, i) => {
-                let escape = document.createElement('textarea');
-                escape.textContent = line;
-                let escapeTag = escape.innerHTML;
-                rowElement = this.convertFileToBodyElements(`origin-lines-per.html`, {
-                    escapeTag: escapeTag,
-                    i: i
-                });
-                moduleBundle[0].querySelector('pre').append(rowElement[0]);
-
-            });
             
-            moduleTemplate[1].append(...moduleBundle);
+            if(initOption.showOrigin){
+                moduleBundle = this.convertFileToBodyElements(`origin-lines.html`, docuPack);
+                docuPack.originLines.forEach((line, i) => {
+                    let escape = document.createElement('textarea');
+                    escape.textContent = line;
+                    let escapeTag = escape.innerHTML;
+                    rowElement = this.convertFileToBodyElements(`origin-lines-per.html`, {
+                        escapeTag: escapeTag,
+                        i: i
+                    });
+                    moduleBundle[0].querySelector('pre').append(rowElement[0]);
+
+                });
+                moduleTemplate[1].append(...moduleBundle);
+            }
+            
             documentWrapper[0].append(...moduleTemplate);
             
             moduleBundle = this.convertFileToBodyElements(`footer.html`);
@@ -675,6 +839,11 @@ const Documentify = (function () {
             uiElem.body.append(documentWrapper[0]);
         }
 
+        /**
+         * 문서화 페이지의 script를 동적 연결해주는 메서드
+         * @function mkScript
+         * @see convertFileToHeadElements
+         */
         this.mkScript = function () {
             let scriptBundle = [...this.convertFileToHeadElements('scriptBundle.html', null)];
             scriptBundle.forEach(script=>{
@@ -692,6 +861,12 @@ const Documentify = (function () {
             <script src="index.js"></script>`;
         }
 
+        /**
+         * Model 객체에서 parseToComments 메서드에 의해 호출되며, 문서화 페이지를 구성하는 head, body, script, css를 생성하는 메서드를 모두 호출하는 중추 메서드
+         * @function generateDocument
+         * @param {object} manufacturedPack 
+         * @see Model.parseToComments,clearHead,clearView,mkHead,mkBody,mkScript
+         */
         this.generateDocument = function (manufacturedPack) {
             docuPack = manufacturedPack;
             this.clearHead();
@@ -701,6 +876,14 @@ const Documentify = (function () {
             this.mkScript();
         }
 
+        /**
+         * documentify의 표현식({@...@})을 파싱한 내용을 반환하는 메서드
+         * @function regexParser
+         * @param {string} responseText getFileContents 메서드를 통해 받은 파일의 내용
+         * @param {object} docuP docuPack 또는 docuPack의 프로퍼티
+         * @returns {string} 정규식으로 필터링되고 표현식이 적용된 파일 내용을 반환
+         * @see filterRegex
+         */
         this.regexParser = function (responseText, docuP) {
             let save = docuPack;
             docuPack = docuP;
@@ -733,20 +916,29 @@ const Documentify = (function () {
             return result;
         }
 
+        /**
+         * head 태그를 초기화
+         * @function clearHead
+         */
         this.clearHead = function () {
             uiElem.head.innerHTML = '';
         }
 
+        /**
+         * body 태그를 초기화
+         * @function clearView
+         */
         this.clearView = function () {
             uiElem.body.innerHTML = '';
         }
     }
 
     return {
+        
         /**
          * DocumentifyJS 초기화 메서드
          * @function init
-         * @param {string} url 문서화 대상 js파일의 경로
+         * @param {object} options 사용자 초기화 옵션
          */
         init: function (options) {
             options = this.initializeOption(options);
@@ -774,7 +966,7 @@ const Documentify = (function () {
         },
 
         /**
-         * Documentify 초기화 시 초기화 메서드 인자로 url옵션을 주지 않을 때 로컬에서 문서화 대상 파일을 찾을 수 있게 화면에 input을 띄어주는 기능
+         * Documentify 초기화 시 초기화 메서드 인자로 url옵션을 주지 않을 때 로컬에서 문서화 대상 파일을 찾을 수 있게 화면에 input:file을 생성하는 메서드
          * @function create
          */
         create: function () {
@@ -787,21 +979,31 @@ const Documentify = (function () {
             document.body.prepend(input);
         },
 
+        /**
+         * 사용자 초기화 옵션을 default값에 덮어쓰는 메서드
+         * @function initializeOption
+         * @param {object} options 사용자 초기화 옵션
+         * @returns {object} default 옵션과 사용자 초기화 옵션이 동기화된 옵션 값
+         */
         initializeOption: function(options){
             let initOptions = {
-                selectFileMode: true,
+                selectFileMode: false,
                 url: 'dist/assets/js/example.js',
                 datapath: 'dist/data/userData.json',
                 basepath: 'dist/include/',
-                darkMode: false,
+                // darkMode: false,
             }
-            for(let key in options){
-                if(options.hasOwnProperty(key)){
-                    if(options[key].toString().length>0){
-                        initOptions[key] = options[key];
+
+            function asyncOptions(init, obj) {
+                for (let op in obj) {
+                    if (obj[op] instanceof Object && !(obj[op] instanceof Array) && op != 'words' && op != 'custom') {
+                        asyncOptions(init[op], obj[op]);
+                    } else {
+                        init[op] = obj[op];
                     }
                 }
             }
+            asyncOptions(initOptions, options);
             return initOptions;
         }
     }

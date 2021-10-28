@@ -1,0 +1,12 @@
+<div class="desc">
+    <div>
+        {@docuPack.tag.slice(1)@}
+    </div>
+    <div>
+        <d-for var="i" target="1" extend="{@JSON.stringify(docuPack.name.split(',')).replace(/\"/gm, '\'')@}">
+            <a 
+            href="#${i.split('.').pop()}-${docuPack.repository.packageMethods.map(q=>
+            {if(q.name==i.split('.').pop()) return q.bundleLine}).filter(q=>q)[0]}">${i}</a>
+        </d-for>
+    </div>
+</div>
