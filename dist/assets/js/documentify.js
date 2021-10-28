@@ -74,9 +74,11 @@ const Documentify = (function () {
     // 객체 조작
     function Model() {
         let moduleView = null;
+        let moduleComponent = null;
 
-        this.init = function (view) {
+        this.init = function (view, component) {
             moduleView = view;
+            moduleComponent = component;
         }
 
         this.fileSaveHandler = function (ev) {
@@ -90,6 +92,8 @@ const Documentify = (function () {
 
             let manufacturedPack = this.manufactureToData(originLines, file[0], parseData);
             this.clearView();
+
+            moduleComponent.responseDocuPack(manufacturedPack);
             moduleView.generateDocument(manufacturedPack);
         }
 
@@ -265,13 +269,25 @@ const Documentify = (function () {
      */
     function Component() {
         const tagNames = ["d-if", "d-for"];
+        let moduleView = null;
+        let page = null;
+        let initOption = null;
+        let docuPack = null;
 
-        this.init = function () {
+        this.init = function (view) {
+            moduleView = view;
+            
             this.requireComponent();
+            [page, initOption] = moduleView.requestLocalVariable();
+
         }
 
         this.requireComponent = function (ev) {
             this.replaceDocuComponents(ev);
+        }
+
+        this.responseDocuPack = function(manufacturedPack){
+            docuPack = manufacturedPack;
         }
 
         this.docuIf = function (root) {
@@ -347,6 +363,10 @@ const Documentify = (function () {
             initOption = options;
 
             this.requirePage();
+        }
+
+        this.requestLocalVariable = function(){
+            return [page, initOption];
         }
 
         class Zip {
@@ -748,8 +768,8 @@ const Documentify = (function () {
             const controller = new Controller();
 
             view.init(ui, options);
-            component.init();
-            model.init(view);
+            component.init(view);
+            model.init(view, component);
             controller.init(model, ui, options);
         },
 

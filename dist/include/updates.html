@@ -4,6 +4,7 @@
         <span class="display-5">📔</span>
         <div class="lh-1" style="flex: 1 0 0%;">
             <h1 class="h6 mb-0 text-white lh-1"></h1>
+            <span>업데이트 내역</span>
             <small>Since {@ new Date().getFullYear() @}</small>
         </div>
         <div>
@@ -16,37 +17,30 @@
     <!-- recent updates -->
     <div class="bg-body rounded shadow-sm d-flex flex-column" data-dc-type="popup">
         <h5 class="border-bottom pb-2 mb-0">Recent updates</h5>
-        <div class="d-flex text-muted pt-3">
-            <div style="padding-right:.5rem; flex: 0 0 42px; width: 42px; height: 42px; overflow: hidden;">
-                <img class="img-fluid bd-placeholder-img" style="border-radius: .3rem;"
-                    src="https://avatars.githubusercontent.com/u/71887242?v=4" alt="">
-            </div>
 
-            <p class="pb-3 mb-0 small lh-sm border-bottom">
-                <strong class="d-block text-gray-dark"><a href="{@page.authors.kimson.github@}" target="_blank">@{@
-                        page.authors.kimson.name @}</a></strong>
-                Some representative placeholder content, with some information about this user. Imagine this being some
-                sort
-                of status update, perhaps?
-                <a href="{@page.authors.kimson.github@}" target="_blank"><i class="fab fa-github fs-5 text-success"
-                        aria-hidden="true"></i></a>
-            </p>
-        </div>
-        <div class="d-flex text-muted pt-3">
-            <div style="padding-right:.5rem; flex: 0 0 42px; width: 42px; height: 42px; overflow: hidden;">
-                <img class="img-fluid bd-placeholder-img" style="border-radius: .3rem;"
-                    src="https://avatars.githubusercontent.com/u/77590526?v=4" alt="">
-            </div>
+        <d-for var="author" target="page.authors.list">
+            <div class="d-flex text-muted pt-3">
+                <div style="padding-right:.5rem; flex: 0 0 42px; width: 42px; height: 42px; overflow: hidden;">
+                    <img class="img-fluid bd-placeholder-img" style="border-radius: .3rem;"
+                        src="https://avatars.githubusercontent.com/u/71887242?v=4" alt="">
+                </div>
 
-            <p class="pb-3 mb-0 small lh-sm border-bottom">
-                <strong class="d-block text-gray-dark"><a href="{@page.authors.ohoraming.github@}" target="_blank">@{@
-                        page.authors.ohoraming.name @}</a></strong>
-                Some more representative placeholder content, related to this other user. Another status update,
-                perhaps.
-                <a href="{@page.authors.ohoraming.github@}" target="_blank"><i class="fab fa-github fs-5 text-success"
-                        aria-hidden="true"></i></a>
-            </p>
-        </div>
+                <p class="pb-3 mb-0 small lh-sm border-bottom">
+                    <strong class="d-block text-gray-dark">
+                        <a href="${page.authors[author].github}" target="_blank">
+                            ${page.authors[author].name}
+                        </a>
+                    </strong>
+                    <span class="d-inline-block">
+                        ${page.authors[author].desc}
+                    </span>
+                    <a href="${page.authors[author].github}" target="_blank">
+                        <i class="fab fa-github fs-5 text-success" aria-hidden="true"></i>
+                    </a>
+                </p>
+            </div>
+        </d-for>
+
         <div class="divider"></div>
         <h5 class="border-bottom pb-2 mb-0 text-success">Descriptions</h5>
         <div class="p-3 text-muted main-desc">
@@ -57,7 +51,7 @@
 
         </div>
         <small class="d-block text-end mt-3">
-            <a href="https://github.com/kkn1125/mkDocumentifyJS#purpose" target="_blank">All updates</a>
+            <a href="https://github.com/kkn1125/mkDocumentifyJS/blob/main/UPDATE.md" target="_blank">All updates</a>
         </small>
     </div>
 </div>

@@ -11,11 +11,13 @@
             ],
             "kimson": {
                 "name": "kyungnam",
+                "desc": "현재 백앤드 개발자를 준비하고 있는 예비 개발자입니다. 문의사항이나 버그발생은 '문의'라고 입력하셔서 내용을 남겨주시기 바랍니다.",
                 "github": "https://github.com/kkn1125/",
                 "blog": "https://kkn1125.github.io/"
             },
             "ohoraming": {
                 "name": "minji",
+                "desc": "",
                 "github": "https://github.com/ohoraming/",
                 "blog": "https://ohoraming.github.io/"
             }
