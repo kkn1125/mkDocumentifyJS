@@ -1,8 +1,7 @@
 <div class="d-flex text-muted pt-3">
 
-    <div class="text-center bg-warning bd-placeholder-img flex-shrink-0 me-2 rounded"
-        style="width: 32px; height: 32px;">
-        <div class="badge-font text-white">{@docuPack.tag.charAt(1)@}</div>
+    <div class="text-center bg-light bd-placeholder-img flex-shrink-0 me-2 rounded" style="width: 32px; height: 32px;">
+        <div class="badge-font text-danger">{@docuPack.tag.charAt(1)@}</div>
     </div>
 
     <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
@@ -15,8 +14,10 @@
 
                 </span>
             </div>
-            <a href="#{@docuPack.line@}" data-type="lineNum">line : {@docuPack.line@}</a>
+            <d-if test="initOption.showOrigin">
+                <a href="#{@docuPack.line@}" data-type="lineNum">line : {@docuPack.line@}</a>
+            </d-if>
         </div>
-        {@docuPack.desc@}
+        <span class="d-block mt-3"><span class="badge bg-light text-dark me-3">desc</span>{@docuPack.desc@}</span>
     </div>
 </div>
