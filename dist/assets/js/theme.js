@@ -65,10 +65,19 @@ function lineMoveHandler(ev) {
 }
 
 
-/**
+/** 채팅 modal 세트
  * modal 열고 닫기
  */
 let first = false;
+
+function motionAlertChatBtn(){
+    setTimeout(()=>{
+        let target = document.querySelector('.chat-btn i');
+        target.style.animation = `motionAlert 1s cubic-bezier(0.215, 0.610, 0.355, 1)`;
+    });
+}
+
+motionAlertChatBtn();
 
 document.addEventListener('click', chatHandler);
 function chatHandler(ev){
@@ -197,6 +206,7 @@ function userChatHandler(ev){
         this.focus();
     }
 }
+// 채팅 modal end
 
 /**
  * caret 열고 닫기
