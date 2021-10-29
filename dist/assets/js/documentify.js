@@ -1,5 +1,5 @@
 /**!
- * mkDocumentifyJS v0.1.2 (https://github.com/kkn1125/mkDocumentifyJS)
+ * mkDocumentifyJS v0.2.2 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
@@ -104,7 +104,7 @@ const Documentify = (function () {
          * 비동기 방식으로 읽은 파일의 텍스트를 파일로 재구성하여 fileUploadHandler메서드로 전송하는 메서드
          * @function sendHandler
          * @param {string} file url경로의 파일 내부 텍스트
-         * @see getFileHandler,fileUpdateHandler
+         * @see Controller.getFileHandler,Controller.fileUploadHandler
          */
         this.sendHandler = function (file) {
             let files = new File([file], userOptions.url);
@@ -242,17 +242,48 @@ const Documentify = (function () {
                                 }
                             };
 
+                            let sliceTags = cmt => {
+                                let sp = cmt.split(' ');
+                                if(cmt.match(/\{[\w]+?\}/gm)){
+                                    let tag = sp.shift();
+                                    let type = sp.shift();
+                                    let name = sp.shift();
+                                    let desc = sp.join(' ');
+                                    if(name.match(/function/gm)) name = 'Anonymous';
+                                    if(tag.match(/return/gm)){
+                                        return {
+                                            tag: tag,
+                                            type: type,
+                                            name: '',
+                                            desc: name+' '+desc,
+                                        }
+                                    }
+                                    return {
+                                        tag: tag,
+                                        type: type,
+                                        name: name,
+                                        desc: desc,
+                                    }
+                                } else {
+                                    let tag = sp.shift();
+                                    let name = sp.shift();
+                                    let desc = sp.join(' ');
+                                    return {
+                                        tag: tag,
+                                        type: '',
+                                        name: name,
+                                        desc: desc,
+                                    }
+                                }
+                            }
+
                             if (comment.match(/param|var/gm) && split.length > 1) {
-                                baseIdx = 2;
                                 return commentForm({
-                                    ...sliceTag(baseIdx),
-                                    desc: comment.substring(idx(baseIdx))
+                                    ...sliceTags(comment)
                                 });
                             } else if (comment.match(/return/gm) && split.length > 1) {
                                 return commentForm({
-                                    ...sliceTag(baseIdx),
-                                    name: '',
-                                    desc: comment.substring(idx(baseIdx))
+                                    ...sliceTags(comment)
                                 });
                             } else {
                                 if (split.length == 1) {
@@ -362,7 +393,7 @@ const Documentify = (function () {
         /**
          * 지정된 태그네임을 참조하여 컴포넌트를 생성하는 메서드
          * @function requireComponent
-         * @see replaceDocuComponents
+         * @see Component.replaceDocuComponents
          */
         this.requireComponent = function () {
             this.replaceDocuComponents();
@@ -382,7 +413,7 @@ const Documentify = (function () {
          * d-if태그의 결과 내용을 치환해주는 메서드
          * @function docuIf
          * @param {component} root Component의 this와 동일
-         * @see replaceDocuComponents
+         * @see Model.replaceDocuComponents
          */
         this.docuIf = function (root) {
             let [test, content] = [root.getAttribute("test"), root.innerHTML];
@@ -394,7 +425,7 @@ const Documentify = (function () {
          * d-for태그의 결과 내용을 치환해주는 메서드
          * @function docuFor
          * @param {component} root Component의 this와 동일
-         * @see replaceDocuComponents
+         * @see Model.replaceDocuComponents
          */
         this.docuFor = function (root) {
             let [tmp, v, target, extend, content] = ['', root.getAttribute("var"), root.getAttribute("target"), root.getAttribute("extend"), root.innerHTML];
@@ -600,7 +631,7 @@ const Documentify = (function () {
         /**
          * page 객체를 사용할 수 있도록 userData.json을 읽어들이는 메서드
          * @function requirePage
-         * @see init
+         * @see View.init
          */
         this.requirePage = function(){
             let xhr = new XMLHttpRequest();
@@ -632,7 +663,7 @@ const Documentify = (function () {
          * @param {string} url 
          * @param {object} obj 
          * @returns {string} 정규식으로 파싱된 텍스트
-         * @see getFileContents,regexParser
+         * @see View.getFileContents,View.regexParser
          */
         this.filterRegex = function(url, obj){
             let responseText = this.getFileContents(initOption.basepath+url);
@@ -646,7 +677,7 @@ const Documentify = (function () {
          * @param {*} url template 파일 경로
          * @param {*} obj docuPack 객체
          * @returns {array<element>}
-         * @see mkHead,convertTextToElement,mkBody
+         * @see View.mkHead,View.convertTextToElement,View.mkBody
          */
         this.convertFileToHeadElements = function (url, obj) {
             let elements = this.convertTextToElement(this.filterRegex(url, obj));
@@ -659,7 +690,7 @@ const Documentify = (function () {
          * @param {string} url template 파일 경로
          * @param {object} obj docuPack 객체
          * @returns {array<element>}
-         * @see convertTextToElement,mkBody
+         * @see View.convertTextToElement,View.mkBody
          */
         this.convertFileToBodyElements = function (url, obj) {
             let elements = this.convertTextToElement(this.filterRegex(url, obj));
@@ -671,7 +702,7 @@ const Documentify = (function () {
          * @function getFileContents
          * @param {string} url 내용을 읽을 파일의 상대경로
          * @returns {string} url을 참조하여 읽은 파일의 내용 반환
-         * @see filterRegex
+         * @see View.filterRegex
          */
         this.getFileContents = function (url) {
             let xhr = new XMLHttpRequest();
@@ -733,7 +764,7 @@ const Documentify = (function () {
         /**
          * 문서화 페이지의 head태그를 생성하는 메서드
          * @function mkHead
-         * @see convertFileToHeadElements
+         * @see View.convertFileToHeadElements
          */
         this.mkHead = function () {
             let heads = [...this.convertFileToHeadElements(`headBundle.html`)];
@@ -753,7 +784,7 @@ const Documentify = (function () {
         /**
          * 문서화 페이지의 body태그를 생성하는 메서드
          * @function mkBody 
-         * @see convertFileToBodyElements
+         * @see View.convertFileToBodyElements
          */
         this.mkBody = function () {
             let rowElement, moduleTemplate, moduleBundle, documentWrapper;
@@ -842,7 +873,7 @@ const Documentify = (function () {
         /**
          * 문서화 페이지의 script를 동적 연결해주는 메서드
          * @function mkScript
-         * @see convertFileToHeadElements
+         * @see View.convertFileToHeadElements
          */
         this.mkScript = function () {
             let scriptBundle = [...this.convertFileToHeadElements('scriptBundle.html', null)];
@@ -865,7 +896,7 @@ const Documentify = (function () {
          * Model 객체에서 parseToComments 메서드에 의해 호출되며, 문서화 페이지를 구성하는 head, body, script, css를 생성하는 메서드를 모두 호출하는 중추 메서드
          * @function generateDocument
          * @param {object} manufacturedPack 
-         * @see Model.parseToComments,clearHead,clearView,mkHead,mkBody,mkScript
+         * @see Model.parseToComments,View.clearHead,View.clearView,View.mkHead,View.mkBody,View.mkScript
          */
         this.generateDocument = function (manufacturedPack) {
             docuPack = manufacturedPack;
@@ -882,7 +913,7 @@ const Documentify = (function () {
          * @param {string} responseText getFileContents 메서드를 통해 받은 파일의 내용
          * @param {object} docuP docuPack 또는 docuPack의 프로퍼티
          * @returns {string} 정규식으로 필터링되고 표현식이 적용된 파일 내용을 반환
-         * @see filterRegex
+         * @see View.filterRegex
          */
         this.regexParser = function (responseText, docuP) {
             let save = docuPack;
@@ -895,7 +926,7 @@ const Documentify = (function () {
                 }
                 if (command.trim() == 'page.url') {
                     if(page.url == "") return location.protocol+'//'+location.host+(page.baseurl!=''?page.baseurl:'/');
-                    else return evl(`${command}`);
+                    else return evl(`${command}`, save);
                 } else if (command.trim().match(/insert\s/gm)) {
                     let el = [...this.convertFileToBodyElements(command.replace(/insert\s/gm,'').trim())];
                     let str = '';
@@ -904,15 +935,15 @@ const Documentify = (function () {
                     });
                     return str;
                 } else {
-                    return this.evl(`${command}`);
+                    return this.evl(`${command}`, save);
                 }
             }) + '\n';
             docuPack = save;
             return tmp;
         }
 
-        this.evl = function (str) {
-            let result = new Function('docuPack', 'initOption', 'page', '"use strict"; return ' + str + ';')(docuPack, initOption, page);
+        this.evl = function (str, ex) {
+            let result = new Function('docuPack', 'initOption', 'page', 'save', '"use strict"; return ' + str + ';')(docuPack, initOption, page, ex);
             return result;
         }
 

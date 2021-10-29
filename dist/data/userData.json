@@ -1,5 +1,6 @@
 {
     "page": {
+        "version": "v0.2.2",
         "url": "https://kkn1125.github.io",
         "baseurl": "/",
         "name": "DocumentifyJS",
