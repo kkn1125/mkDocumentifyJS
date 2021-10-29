@@ -1,5 +1,5 @@
 /**!
- * mkDocumentifyJS v0.2.2 (https://github.com/kkn1125/mkDocumentifyJS)
+ * mkDocumentifyJS v0.2.3 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
@@ -850,7 +850,7 @@ const Documentify = (function () {
             scriptBundle.forEach(script => {
                 let origin = location.origin;
                 let sc = document.createElement('script');
-                script.src && !script.src.match(origin) ? sc.src = script.src : script.src.match(origin) ? sc.src = '.'+script.src.split(origin).pop() : null;
+                script.src && !script.src.match(origin) ? sc.src = script.src : script.src.match(origin) ? sc.src = script.src.split(origin+location.pathname).pop() : null;
                 script.integrity ? sc.integrity = script.integrity : null;
                 script.crossOrigin ? sc.crossOrigin = script.crossOrigin : null;
                 script.defer ? sc.defer = script.defer : null;
