@@ -96,11 +96,11 @@ function chatHandler(ev){
     }
 }
 
-function generateBox(str, type){
+function generateBox(str, type, detail){
     let msgWrap = document.createElement('div');
     let msgBox = document.createElement('div');
     msgWrap.classList.add('msg-wrap');
-    msgBox.classList.add('msg-box', `msg-box-${type}`);
+    msgBox.classList.add('msg-box', `msg-box-${type}`, `needs-${detail}`);
     msgBox.innerHTML = str;
     msgWrap.append(msgBox);
     return msgWrap;
@@ -113,6 +113,11 @@ function firstOpenListener(ev){
     if(!first){
         first = true;
         msg.insertAdjacentElement('beforeend', generateBox('무엇을 도와드릴까요?', 'info'));
+        msg.insertAdjacentElement('beforeend', generateBox('업데이트를 확인하고 싶어요', 'user', 'update'));
+        msg.insertAdjacentElement('beforeend', generateBox('다크모드를 적용하고 싶어요', 'user', 'darkMode'));
+        msg.insertAdjacentElement('beforeend', generateBox('메일로 문의하고 싶어요', 'user', 'mail'));
+        msg.insertAdjacentElement('beforeend', generateBox('만든 사람이 궁금해요', 'user', 'dev'));
+        msg.insertAdjacentElement('beforeend', generateBox('튜토리얼을 보고 싶어요', 'user', 'tutorial'));
     }
 }
 
@@ -133,6 +138,11 @@ function insertUpdate(){
         let cl = msg.firstElementChild.cloneNode(true);
         msg.lastElementChild.insertAdjacentElement('beforebegin',cl);
     }, 2000);
+}
+
+document.querySelector('.needs-update').addEventListener('click', autoAnswer);
+function autoAnswer(){
+    answerDelay('업데이트', 'info');
 }
 
 document.querySelector('.chat-bar input').addEventListener('keydown', userChatHandler);
@@ -207,16 +217,3 @@ function userChatHandler(ev){
     }
 }
 // 채팅 modal end
-
-/**
- * caret 열고 닫기
- */
-window.addEventListener('click', (ev)=>{
-    let target = ev.target;
-    
-    if(target.parentNode.tagName !== 'LI' || target.tagName !== 'SPAN' || !target.classList.contains('caret')) return;
-    ev.preventDefault();
-
-    target.classList.toggle('caret-down');
-    target.parentNode.querySelector(".nested").classList.toggle("active");
-});
