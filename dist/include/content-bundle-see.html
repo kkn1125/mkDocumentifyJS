@@ -1,4 +1,4 @@
-<div class="desc">
+<div class="see">
     <div>
         {@docuPack.tag.slice(1)@}
     </div>
@@ -29,6 +29,6 @@
                 }
             }
             return result;
-        }).map(x=>`<a href="#${x.name}-${x.bundleLine}">${x.name}</a>`)@}
+        }).map(x=>`<a class="badge bg-light text-muted" href="#${x.name}-${x.bundleLine}">${x.name}</a>`).join('<br>')@}
     </div>
 </div>

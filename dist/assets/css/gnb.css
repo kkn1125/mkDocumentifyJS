@@ -34,7 +34,7 @@
   float: right;
 }
 
-input[type="text"] {
+.gnb input[type="text"] {
   padding: 6px;
   font-size: 17px;
   border: 1px solid black;
