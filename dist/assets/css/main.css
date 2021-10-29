@@ -12,6 +12,11 @@
     --ks-secondary: #6D7698;
     --ks-sub: #E7EFFF;
     --ks-bg: #ffffff;
+    --ks-brand-rgb: 94, 194, 113;
+    --ks-primary-rgb: 0, 70, 179;
+    --ks-secondary-rgb: 109, 118, 152;
+    --ks-sub-rgb: 231, 239, 255;
+    --ks-bg-rgb: 255, 255, 255;
 }
 
 html,
@@ -107,16 +112,20 @@ body {
   background-color: #6f42c1;
 }
 
+.see {
+    border-left: 3px solid rgba(var(--ks-secondary-rgb), 0.5);
+    padding: 0.1rem 0 0.1rem 1rem;
+    margin-top: 1rem;
+}
+
 .desc {
     border-left: 5px solid var(--ks-primary);
-    padding-left: 1rem;
     padding: 1rem 0 1rem 1rem;
     margin-top: 1rem;
 }
 
 .exam-type {
     border-left: 5px solid var(--ks-secondary);
-    padding-left: 1rem;
     padding: 1rem 0 1rem 1rem;
     margin-top: 1rem;
 }

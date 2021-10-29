@@ -54,7 +54,7 @@ const Documentify = (function () {
          */
         this.fileSaveHandler = function (ev) {
             let target = ev.target;
-            if (!target || !target.classList.contains('saveas') || target.id !== 'saveas') return;
+            if (!target || !target.parentNode.classList.contains('saveas') || target.parentNode.id !== 'saveas') return;
 
             moduleModel.fileSaveHandler(ev);
         }
@@ -138,6 +138,7 @@ const Documentify = (function () {
          * @function fileSaveHandler
          * @param {event} ev Controller의 fileSaveHandler를 통해 호출되는 click 타입의 이벤트
          * @see Controller.fileSaveHandler
+         * @todo 파일 분리 해야함
          */
         this.fileSaveHandler = function (ev) {
             moduleView.fileSaveHandler(ev);
@@ -244,18 +245,18 @@ const Documentify = (function () {
 
                             let sliceTags = cmt => {
                                 let sp = cmt.split(' ');
-                                if(cmt.match(/\{[\w]+?\}/gm)){
+                                if (cmt.match(/\{[\w]+?\}/gm)) {
                                     let tag = sp.shift();
                                     let type = sp.shift();
                                     let name = sp.shift();
                                     let desc = sp.join(' ');
-                                    if(name.match(/function/gm)) name = 'Anonymous';
-                                    if(tag.match(/return/gm)){
+                                    if (name.match(/function/gm)) name = 'Anonymous';
+                                    if (tag.match(/return/gm)) {
                                         return {
                                             tag: tag,
                                             type: type,
                                             name: '',
-                                            desc: name+' '+desc,
+                                            desc: name + ' ' + desc,
                                         }
                                     }
                                     return {
@@ -369,7 +370,7 @@ const Documentify = (function () {
 
     /**
      * d-* 태그를 생성하는 기능 담당하는 객체
-     * @function Conponent
+     * @function Component
      */
     function Component() {
         const tagNames = ["d-if", "d-for"];
@@ -382,10 +383,11 @@ const Documentify = (function () {
          * Component 초기화 메서드
          * @function init
          * @param {view} view 상속받은 view 객체
+         * @see View.requestLocalVariable
          */
         this.init = function (view) {
             moduleView = view;
-            
+
             this.requireComponent();
             [page, initOption] = moduleView.requestLocalVariable();
         }
@@ -405,7 +407,7 @@ const Documentify = (function () {
          * @param {object} manufacturedPack Model의 parseToComments 메서드 내에서 호출될 때 받는 가공된 데이터 객체
          * @see Model.parseToComments
          */
-        this.responseDocuPack = function(manufacturedPack){
+        this.responseDocuPack = function (manufacturedPack) {
             docuPack = manufacturedPack;
         }
 
@@ -429,9 +431,9 @@ const Documentify = (function () {
          */
         this.docuFor = function (root) {
             let [tmp, v, target, extend, content] = ['', root.getAttribute("var"), root.getAttribute("target"), root.getAttribute("extend"), root.innerHTML];
-            target.indexOf(',')>-1?target = target.split(','):null;
-            if(extend) target = extend;
-            
+            target.indexOf(',') > -1 ? target = target.split(',') : null;
+            if (extend) target = extend;
+
             if (eval(`typeof ${target}`) == 'number') eval(`for(let ${v}=0; ${v}<${target}; ${v}++){tmp += \`${content}\`}`);
 
             else eval(`${target}.forEach(${v}=>{tmp += \`${content}\`})`);
@@ -448,7 +450,7 @@ const Documentify = (function () {
                 let root = this;
                 class baseDocuElements extends HTMLElement {
                     connectedCallback() {
-                        try{
+                        try {
                             if (this.isConnected) {
                                 if (this.tagName == "D-IF") {
                                     if (this.getAttribute("test").length == 0) {
@@ -468,7 +470,7 @@ const Documentify = (function () {
                                     }
                                 }
                             }
-                        } catch(e){
+                        } catch (e) {
                             console.error(e.message);
                         }
                     }
@@ -488,6 +490,7 @@ const Documentify = (function () {
         let docuPack = null;
         let page = null;
         let zip = null;
+        let cloneFile = null;
 
         /**
          * View 객체 초기화 메서드
@@ -507,125 +510,8 @@ const Documentify = (function () {
          * @function requestLocalVariable
          * @returns {array<object>} page와 options가 반환
          */
-        this.requestLocalVariable = function(){
+        this.requestLocalVariable = function () {
             return [page, initOption];
-        }
-
-        /**
-         * 알집으로 압축하여 파일을 저장할 수 있도록 도와주는 클래스
-         * @class Zip
-         * @license Unlicense
-         * @link github <a href="https://github.com/pwasystem/zip" target="_blank">by pwasystem</a>
-         */
-        class Zip {
-
-            constructor(name) {
-                this.name = name;
-                this.zip = new Array();
-                this.file = new Array();
-            }
-            
-            dec2bin=(dec,size)=>dec.toString(2).padStart(size,'0');
-            str2dec=str=>Array.from(new TextEncoder().encode(str));
-            str2hex=str=>[...new TextEncoder().encode(str)].map(x=>x.toString(16).padStart(2,'0'));
-            hex2buf=hex=>new Uint8Array(hex.split(' ').map(x=>parseInt(x,16)));
-            bin2hex=bin=>(parseInt(bin.slice(8),2).toString(16).padStart(2,'0')+' '+parseInt(bin.slice(0,8),2).toString(16).padStart(2,'0'));
-            
-            reverse=hex=>{
-                let hexArray=new Array();
-                for(let i=0;i<hex.length;i=i+2)hexArray[i]=hex[i]+''+hex[i+1];
-                return hexArray.filter((a)=>a).reverse().join(' ');	
-            }
-            
-            crc32=r=>{
-                for(var a,o=[],c=0;c<256;c++){
-                    a=c;
-                    for(var f=0;f<8;f++)a=1&a?3988292384^a>>>1:a>>>1;
-                    o[c]=a;
-                }
-                for(var n=-1,t=0;t<r.length;t++)n=n>>>8^o[255&(n^r[t])];
-                return this.reverse(((-1^n)>>>0).toString(16).padStart(8,'0'));
-            }
-            
-            fecth2zip(filesArray,folder=''){
-                filesArray.forEach(fileUrl=>{
-                    let resp;				
-                    fetch(fileUrl).then(response=>{
-                        resp=response;
-                        return response.arrayBuffer();
-                    }).then(blob=>{
-                        new Response(blob).arrayBuffer().then(buffer=>{
-                            console.log(`File: ${fileUrl} load`);
-                            let uint=[...new Uint8Array(buffer)];
-                            uint.modTime=resp.headers.get('Last-Modified');
-                            uint.fileUrl=`${this.name}/${folder}${fileUrl}`;							
-                            this.zip[fileUrl]=uint;
-                        });
-                    });				
-                });
-            }
-            
-            str2zip(name,str,folder=''){
-                let uint=[...new Uint8Array(this.str2dec(str))];
-                uint.name=name;
-                uint.modTime=new Date();
-                uint.fileUrl=`${this.name}/${folder}${name}`;
-                this.zip[uint.fileUrl]=uint;
-            }
-            
-            files2zip(files,folder=''){
-                for(let i=0;i<files.length;i++){
-                    files[i].arrayBuffer().then(data=>{
-                        let uint=[...new Uint8Array(data)];
-                        uint.name=files[i].name;
-                        uint.modTime=files[i].lastModifiedDate;
-                        uint.fileUrl=`${this.name}/${folder}${files[i].name}`;
-                        this.zip[uint.fileUrl]=uint;							
-                    });
-                }
-            }
-            
-            makeZip(){
-                let count=0;
-                let fileHeader='';
-                let centralDirectoryFileHeader='';
-                let directoryInit=0;
-                let offSetLocalHeader='00 00 00 00';
-                let zip=this.zip;
-                for(const name in zip){
-                    let modTime=()=>{
-                        lastMod=new Date(zip[name].modTime);
-                        hour=this.dec2bin(lastMod.getHours(),5);
-                        minutes=this.dec2bin(lastMod.getMinutes(),6);
-                        seconds=this.dec2bin(Math.round(lastMod.getSeconds()/2),5);
-                        year=this.dec2bin(lastMod.getFullYear()-1980,7);
-                        month=this.dec2bin(lastMod.getMonth()+1,4);
-                        day=this.dec2bin(lastMod.getDate(),5);						
-                        return this.bin2hex(`${hour}${minutes}${seconds}`)+' '+this.bin2hex(`${year}${month}${day}`);
-                    }					
-                    let crc=this.crc32(zip[name]);
-                    let size=this.reverse(parseInt(zip[name].length).toString(16).padStart(8,'0'));
-                    let nameFile=this.str2hex(zip[name].fileUrl).join(' ');
-                    let nameSize=this.reverse(zip[name].fileUrl.length.toString(16).padStart(4,'0'));
-                    let fileHeader=`50 4B 03 04 14 00 00 00 00 00 ${modTime} ${crc} ${size} ${size} ${nameSize} 00 00 ${nameFile}`;
-                    let fileHeaderBuffer=this.hex2buf(fileHeader);
-                    directoryInit=directoryInit+fileHeaderBuffer.length+zip[name].length;
-                    centralDirectoryFileHeader=`${centralDirectoryFileHeader}50 4B 01 02 14 00 14 00 00 00 00 00 ${modTime} ${crc} ${size} ${size} ${nameSize} 00 00 00 00 00 00 01 00 20 00 00 00 ${offSetLocalHeader} ${nameFile} `;
-                    offSetLocalHeader=this.reverse(directoryInit.toString(16).padStart(8,'0'));
-                    this.file.push(fileHeaderBuffer,new Uint8Array(zip[name]));
-                    count++;
-                }
-                centralDirectoryFileHeader=centralDirectoryFileHeader.trim();
-                let entries=this.reverse(count.toString(16).padStart(4,'0'));
-                let dirSize=this.reverse(centralDirectoryFileHeader.split(' ').length.toString(16).padStart(8,'0'));
-                let dirInit=this.reverse(directoryInit.toString(16).padStart(8,'0'));
-                let centralDirectory=`50 4b 05 06 00 00 00 00 ${entries} ${entries} ${dirSize} ${dirInit} 00 00`;
-                this.file.push(this.hex2buf(centralDirectoryFileHeader),this.hex2buf(centralDirectory));				
-                let a = document.createElement('a');
-                a.href = URL.createObjectURL(new Blob([...this.file],{type:'application/octet-stream'}));
-                a.download = `${this.name}.zip`;
-                a.click();				
-            }
         }
 
         /**
@@ -633,7 +519,7 @@ const Documentify = (function () {
          * @function requirePage
          * @see View.init
          */
-        this.requirePage = function(){
+        this.requirePage = function () {
             let xhr = new XMLHttpRequest();
             xhr.addEventListener('readystatechange', (ev) => {
                 if (xhr.status == 200 || xhr.status == 201) {
@@ -650,7 +536,7 @@ const Documentify = (function () {
          * text를 elements로 변환하는 메서드
          * @function convertTextToElement
          * @param {string} str html string을 elements로 변환
-         * @returns 
+         * @returns {element} str를 파싱한 html element 
          */
         this.convertTextToElement = function (str) {
             let dom = new DOMParser();
@@ -665,17 +551,17 @@ const Documentify = (function () {
          * @returns {string} 정규식으로 파싱된 텍스트
          * @see View.getFileContents,View.regexParser
          */
-        this.filterRegex = function(url, obj){
-            let responseText = this.getFileContents(initOption.basepath+url);
-            let parseRegex = this.regexParser(responseText, obj && obj!=null ? obj : docuPack, initOption);
+        this.filterRegex = function (url, obj) {
+            let responseText = this.getFileContents(initOption.basepath + url);
+            let parseRegex = this.regexParser(responseText, obj && obj != null ? obj : docuPack, initOption);
             return parseRegex;
         }
 
         /**
          * 경로의 파일의 head태그의 자식 노드를 반환해주는 메서드
          * @function convertFileToHeadElements
-         * @param {*} url template 파일 경로
-         * @param {*} obj docuPack 객체
+         * @param {string} url template 파일 경로
+         * @param {object} obj docuPack 객체
          * @returns {array<element>}
          * @see View.mkHead,View.convertTextToElement,View.mkBody
          */
@@ -724,41 +610,123 @@ const Documentify = (function () {
          * 파일을 zip으로 저장시키는 메서드
          * @function fileSaveHandler
          * @param {event} ev Controller에서 지정한 addEventListener의 click 타입의 이벤트
-         * @see Model.fileSaveHandler,Zip
+         * @see Model.fileSaveHandler,View.fileSaveAsSinglePage,View.fileSaveAsMutilplePage
          */
         this.fileSaveHandler = function (ev) {
             let target = ev.target;
+            
+            if (target.dataset.saveType === 'single') {
+                this.fileSaveAsSinglePage(ev)
+            } else if (target.dataset.saveType === 'multi') {
+                this.fileSaveAsMutilplePage(ev)
+            }
+        }
 
-            let li = target.parentNode;
-            let parent = li.parentNode;
-            let clone = li.cloneNode(true);
-            document.querySelector('#navbarsExampleDefault').classList.remove('open');
-            li.remove();
+        /**
+         * 파일을 단일 페이지 모드로 압축 저장시키는 메서드
+         * @function fileSaveAsMutilplePage
+         * @param {event} ev Controller에서 지정한 addEventListener의 click 타입의 이벤트
+         * @see View.fileSaveHandler,Zip
+         */
+        this.fileSaveAsSinglePage = function(ev){
+            let main = this.getFileContents('dist/assets/css/main.css');
+            let chat = this.getFileContents('dist/assets/css/chat.css');
+            let gnb = this.getFileContents('dist/assets/css/gnb.css');
+            let theme = this.getFileContents('dist/assets/js/theme.js');
 
-            let css = this.getFileContents('dist/assets/css/main.css');
             let saveAsName = 'index.html';
+
+            let contents = cloneFile.querySelector('.contents');
+            
+            contents.querySelector('.home a').href = `index.html#${docuPack.repository.packageInfos[0].name+'-'+docuPack.repository.packageInfos[0].bundleLine}`
+            contents.querySelector('.global a').href = `index.html#${docuPack.repository.packageMethods[0].name+'-'+docuPack.repository.packageMethods[0].bundleLine}`
+            contents.querySelector('.source a').href = `sources.html`
+            
             let saveContents = `<!DOCTYPE html>
             <html>
                 <head>
-                    ${document.head.innerHTML}
+                    ${cloneFile.head.innerHTML}
                 </head>
                 <body>
-                    ${document.body.innerHTML}
+                    ${cloneFile.body.innerHTML}
                 </body>
             </html>`;
 
             zip = new Zip('documentify');
-            let filesArray = [
-                // 'test',
-                // 'file02.ext',
-                // 'file...'
-            ];
 
-            zip.fecth2zip(filesArray, 'public/');
-            zip.str2zip(saveAsName, saveContents, 'public/');
-            zip.str2zip('main.css', css, 'public/');
+            zip.str2zip(saveAsName, saveContents, '/');
+            zip.str2zip('main.css', main, '/dist/assets/css/');
+            zip.str2zip('gnb.css', gnb, '/dist/assets/css/');
+            zip.str2zip('chat.css', chat, '/dist/assets/css/');
+            zip.str2zip('theme.js', theme, '/dist/assets/js/');
             zip.makeZip();
-            parent.append(clone);
+        }
+
+        /**
+         * 파일을 분할 페이지 모드로 압축 저장시키는 메서드
+         * @function fileSaveAsMutilplePage
+         * @param {event} ev Controller에서 지정한 addEventListener의 click 타입의 이벤트
+         * @see View.fileSaveHandler,Zip
+         */
+         this.fileSaveAsMutilplePage = function (ev) {
+            let main = this.getFileContents('dist/assets/css/main.css');
+            let chat = this.getFileContents('dist/assets/css/chat.css');
+            let gnb = this.getFileContents('dist/assets/css/gnb.css');
+            let theme = this.getFileContents('dist/assets/js/theme.js');
+
+            let saveAsName = 'index.html';
+            let saveAsNameFunc = 'functions.html';
+
+            let infoBody = cloneFile.body.cloneNode(true);
+            let funcBody = cloneFile.body.cloneNode(true);
+
+            infoBody.querySelector('main').innerHTML = '';
+            infoBody.querySelector('main').append(cloneFile.body.querySelector('main').children[0].cloneNode(true));
+            
+            funcBody.querySelector('main').children[0].remove();
+
+            for(let con of [infoBody,funcBody]){
+                let contents = con.querySelector('.contents');
+                
+                contents.querySelector('.home a').href = `index.html#${docuPack.repository.packageInfos[0].name+'-'+docuPack.repository.packageInfos[0].bundleLine}`
+                contents.querySelector('.global a').href = `functions.html#${docuPack.repository.packageMethods[0].name+'-'+docuPack.repository.packageMethods[0].bundleLine}`
+                contents.querySelector('.source a').href = `sources.html`
+            }
+
+            let saveContentsInfo = `<!DOCTYPE html>
+            <html>
+                <head>
+                    ${cloneFile.head.innerHTML}
+                </head>
+                <body>
+                    ${infoBody.innerHTML}
+                </body>
+            </html>`;
+            let saveContentsFunc = `<!DOCTYPE html>
+            <html>
+                <head>
+                    ${cloneFile.head.innerHTML}
+                </head>
+                <body>
+                    ${funcBody.innerHTML}
+                </body>
+            </html>`;
+
+            zip = new Zip('documentify');
+            // let filesArray = [
+            //     // 'test',
+            //     // 'file02.ext',
+            //     // 'file...'
+            // ];
+
+            // zip.fecth2zip(filesArray, 'public/');
+            zip.str2zip(saveAsName, saveContentsInfo, '/');
+            zip.str2zip(saveAsNameFunc, saveContentsFunc, '/');
+            zip.str2zip('main.css', main, '/dist/assets/css/');
+            zip.str2zip('gnb.css', gnb, '/dist/assets/css/');
+            zip.str2zip('chat.css', chat, '/dist/assets/css/');
+            zip.str2zip('theme.js', theme, '/dist/assets/js/');
+            zip.makeZip();
         }
 
         /**
@@ -768,13 +736,13 @@ const Documentify = (function () {
          */
         this.mkHead = function () {
             let heads = [...this.convertFileToHeadElements(`headBundle.html`)];
-            let filteredHeads = heads.filter(tag=>tag.tagName!=='SCRIPT');
-            let filteredScripts = heads.filter(tag=>tag.tagName=='SCRIPT').map(tag=>{
+            let filteredHeads = heads.filter(tag => tag.tagName !== 'SCRIPT');
+            let filteredScripts = heads.filter(tag => tag.tagName == 'SCRIPT').map(tag => {
                 let script = document.createElement('script');
-                !tag.src || (script.src=tag.src);
-                !tag.integrity || (script.integrity=tag.integrity);
-                !tag.crossOrigin || (script.crossOrigin=tag.crossOrigin);
-                !tag.innerHTML || (script.innerHTML=tag.innerHTML);
+                !tag.src || (script.src = tag.src);
+                !tag.integrity || (script.integrity = tag.integrity);
+                !tag.crossOrigin || (script.crossOrigin = tag.crossOrigin);
+                !tag.innerHTML || (script.innerHTML = tag.innerHTML);
                 return script;
             });
             uiElem.head.append(...filteredHeads);
@@ -788,11 +756,11 @@ const Documentify = (function () {
          */
         this.mkBody = function () {
             let rowElement, moduleTemplate, moduleBundle, documentWrapper;
-            
+
             documentWrapper = this.convertFileToBodyElements(`document-wrapper.html`);
             moduleTemplate = this.convertFileToBodyElements(`template.html`);
             moduleBundle = this.convertFileToBodyElements(`global_nav_bar.html`);
-            
+
             documentWrapper[0].append(...moduleBundle);
 
             moduleBundle = this.convertFileToBodyElements(`side-nav-bar.html`);
@@ -801,7 +769,7 @@ const Documentify = (function () {
             Object.keys(docuPack.repository).forEach(name => {
                 docuPack.repository[name].forEach(item => {
                     let bundleTemplatePath = `function-bundle-part.html`;
-                    if(name=='packageInfos'){
+                    if (name == 'packageInfos') {
                         bundleTemplatePath = `information-bundle-part.html`
                     }
                     moduleBundle = this.convertFileToBodyElements(bundleTemplatePath, item);
@@ -823,11 +791,12 @@ const Documentify = (function () {
                             rowElement = this.convertFileToBodyElements(`content-bundle-param.html`, props);
                             moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
                         } else if (tag.match(/function|class/gm)) {
-                            
+                            // on purpose it does not working something this case
+                            // 이 경우 일부러 작동하지 않게 했음
                         } else if (tag.match(/see/gm)) {
                             rowElement = this.convertFileToBodyElements(`content-bundle-see.html`, props);
                             moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
-                        } else if (tag == '' && name == '' && type == '' && desc.match(/type|\=/gim)) {
+                        } else if ((tag == '' && name == '' && type == '' && desc.match(/type|\=/gim)) || tag.match('todo')) {
                             rowElement = this.convertFileToBodyElements(`content-bundle-example.html`, props);
                             moduleBundle[0].querySelector('small').insertAdjacentElement('beforebegin', rowElement[0]);
                         } else {
@@ -836,14 +805,15 @@ const Documentify = (function () {
                         }
 
                     });
+
                     moduleTemplate[1].append(...moduleBundle);
                     // for bundle inner end
 
                 });
             });
 
-            
-            if(initOption.showOrigin){
+
+            if (initOption.showOrigin) {
                 moduleBundle = this.convertFileToBodyElements(`origin-lines.html`, docuPack);
                 docuPack.originLines.forEach((line, i) => {
                     let escape = document.createElement('textarea');
@@ -858,9 +828,9 @@ const Documentify = (function () {
                 });
                 moduleTemplate[1].append(...moduleBundle);
             }
-            
+
             documentWrapper[0].append(...moduleTemplate);
-            
+
             moduleBundle = this.convertFileToBodyElements(`footer.html`);
             documentWrapper[0].append(...moduleBundle);
 
@@ -877,15 +847,15 @@ const Documentify = (function () {
          */
         this.mkScript = function () {
             let scriptBundle = [...this.convertFileToHeadElements('scriptBundle.html', null)];
-            scriptBundle.forEach(script=>{
+            scriptBundle.forEach(script => {
                 let origin = location.origin;
                 let sc = document.createElement('script');
-                script.src && !script.src.match(origin) ? sc.src = script.src : script.src.match(origin) ? sc.src = script.src.split(origin)[1] : null;
+                script.src && !script.src.match(origin) ? sc.src = script.src : script.src.match(origin) ? sc.src = '.'+script.src.split(origin).pop() : null;
                 script.integrity ? sc.integrity = script.integrity : null;
                 script.crossOrigin ? sc.crossOrigin = script.crossOrigin : null;
                 script.defer ? sc.defer = script.defer : null;
                 script.async ? sc.async = script.async : null;
-                script.innerHTML.length>0 ? sc.innerHTML = script.innerHTML : null;
+                script.innerHTML.length > 0 ? sc.innerHTML = script.innerHTML : null;
                 uiElem.body.append(sc);
             });
             uiElem.body.innerHTML += `<script src="documentify.js"></script>
@@ -905,6 +875,15 @@ const Documentify = (function () {
             this.mkHead();
             this.mkBody();
             this.mkScript();
+            this.copyResult();
+        }
+
+        /**
+         * 완성된 html 복사 저장해두는 메서드
+         * @function copyResult
+         */
+        this.copyResult = function(){
+            cloneFile = document.cloneNode(true);
         }
 
         /**
@@ -913,7 +892,7 @@ const Documentify = (function () {
          * @param {string} responseText getFileContents 메서드를 통해 받은 파일의 내용
          * @param {object} docuP docuPack 또는 docuPack의 프로퍼티
          * @returns {string} 정규식으로 필터링되고 표현식이 적용된 파일 내용을 반환
-         * @see View.filterRegex
+         * @see View.filterRegex,View.convertFileToBodyElements
          */
         this.regexParser = function (responseText, docuP) {
             let save = docuPack;
@@ -921,16 +900,16 @@ const Documentify = (function () {
             let tmp = '';
             tmp = responseText.replace(/\{\@\s*[\s\S]+?\n*\s*\@\}/gim, e => {
                 let command = e.replace(/\{\@|\@\}/gm, '').trim();
-                if(command.match(/\s*\!\s*/gm)){
+                if (command.match(/\s*\!\s*/gm)) {
                     return '';
                 }
                 if (command.trim() == 'page.url') {
-                    if(page.url == "") return location.protocol+'//'+location.host+(page.baseurl!=''?page.baseurl:'/');
+                    if (page.url == "") return location.protocol + '//' + location.host + (page.baseurl != '' ? page.baseurl : '/');
                     else return evl(`${command}`, save);
                 } else if (command.trim().match(/insert\s/gm)) {
-                    let el = [...this.convertFileToBodyElements(command.replace(/insert\s/gm,'').trim())];
+                    let el = [...this.convertFileToBodyElements(command.replace(/insert\s/gm, '').trim())];
                     let str = '';
-                    el.forEach(e=>{
+                    el.forEach(e => {
                         str += e.outerHTML;
                     });
                     return str;
@@ -965,7 +944,7 @@ const Documentify = (function () {
     }
 
     return {
-        
+
         /**
          * DocumentifyJS 초기화 메서드
          * @function init
@@ -1016,7 +995,7 @@ const Documentify = (function () {
          * @param {object} options 사용자 초기화 옵션
          * @returns {object} default 옵션과 사용자 초기화 옵션이 동기화된 옵션 값
          */
-        initializeOption: function(options){
+        initializeOption: function (options) {
             let initOptions = {
                 selectFileMode: false,
                 url: 'dist/assets/js/example.js',

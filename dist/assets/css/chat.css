@@ -29,8 +29,8 @@
 .chat-modal {
     display: none;
     position: fixed;
-    width: 20rem;
-    height: 30rem;
+    width: 25rem;
+    height: 35rem;
     background-color: var(--ks-bg);
     bottom: 1rem;
     right: 1rem;
@@ -137,9 +137,8 @@
 }
 
 .chat-modal .chat-content {
-    /* padding: 1rem; */
     color: rgba(80, 80, 80);
-    height: 440px;
+    height: 520px;
 }
 
 .chat-modal .chat-content .chat-body {
@@ -152,10 +151,9 @@
 .chat-modal .chat-content .chat-body .chat-message {
     overflow-y: auto;
     overflow-x: hidden;
-    height: 85%;
+    height: 87%;
     font-size: 0.9rem;
     padding: .5rem;
-    margin-top: .5rem;
 }
 
 .chat-modal .chat-content .chat-body .chat-message::-webkit-scrollbar {
