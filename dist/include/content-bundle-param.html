@@ -1,22 +1,25 @@
 <div class="d-flex text-muted pt-3">
 
-    <div class="text-center bg-warning bd-placeholder-img flex-shrink-0 me-2 rounded"
-        style="width: 32px; height: 32px;">
-        <div class="badge-font text-white">{@docuPack.tag.charAt(1)@}</div>
-    </div>
+    <d-if test="false">
+        <div class="text-center bg-light bd-placeholder-img flex-shrink-0 me-2 rounded" style="width: 32px; height: 32px;">
+            <div class="badge-font text-danger">{@docuPack.tag.charAt(1)@}</div>
+        </div>
+    </d-if>
 
-    <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-        <div class="d-flex justify-content-between">
-            <div>
-                <strong class="text-gray-dark">{@ docuPack.tag.slice(1) @}</strong>
-                <span class="text-muted">
+    <div class="d-flex flex-md-row flex-column pb-3 mb-0 small lh-sm border-bottom w-100">
+        <span class="d-inline-flex justify-content-between">
+            <div class="me-4">
+                <strong class="text-dark">{@ docuPack.tag.slice(1) @}</strong>
+                <span class="text-gray-dark">
 
                     {@docuPack.type@} → {@docuPack.name@}
 
                 </span>
             </div>
-            <a href="#{@docuPack.line@}" data-type="lineNum">line : {@docuPack.line@}</a>
-        </div>
-        {@docuPack.desc@}
+            <d-if test="initOption.showOrigin">
+                <a href="#{@docuPack.line@}" data-type="lineNum">line : {@docuPack.line@}</a>
+            </d-if>
+        </span>
+        <span class="mt-md-0 mt-3 flex-grow-1 flex-shrink-0" style="flex-basis: 50%;"><span class="badge bg-light text-muted me-2">desc</span>{@docuPack.desc@}</span>
     </div>
 </div>

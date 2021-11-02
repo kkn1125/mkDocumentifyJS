@@ -1,6 +1,6 @@
 <div class="d-flex text-muted pt-3">
 
-    <div class="text-center bg-{@ docuPack.tag.charAt(1)=='r'?'danger text-white':docuPack.tag.charAt(1)=='e'?'white text-dark':'info text-white' @} bd-placeholder-img flex-shrink-0 me-2 rounded"
+    <div class="text-center bg-{@! docuPack.tag.charAt(1)=='r'?'danger text-white':docuPack.tag.charAt(1)=='e'?'white text-dark':'info text-white' @}light bd-placeholder-img flex-shrink-0 me-2 rounded"
         style="width: 32px; height: 32px;">
         <div class="badge-font">{@
             docuPack.tag.charAt(1)=='e'?'ex':docuPack.tag.slice(1).indexOf('require')>-1?'rq':docuPack.tag.charAt(1) @}
@@ -10,12 +10,13 @@
     <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
         <div class="d-flex justify-content-between">
             <div>
-                <strong class="text-gray-dark">{@docuPack.tag.slice(1)@}</strong>
-                <!--<span class="text-muted"></span>-->
+                <strong class="text-dark">{@docuPack.tag.slice(1)@}</strong>
             </div>
-            <a href="#{@docuPack.line@}" data-type="lineNum">line : {@docuPack.line@}</a>
+            <d-if test="initOption.showOrigin">
+                <a href="#{@docuPack.line@}" data-type="lineNum">line : {@docuPack.line@}</a>
+            </d-if>
         </div>
-        <span class="d-block">{@docuPack.name@}</span>
+        <span class="d-block">{@docuPack.name.split(',').join(' ')@}</span>
         <span class="d-block mt-3"><span class="badge bg-light text-dark me-3">desc</span>{@docuPack.desc@}</span>
     </div>
 

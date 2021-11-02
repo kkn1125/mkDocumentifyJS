@@ -1,6 +1,6 @@
 /**
- * mkDocumentifyJS v0.1.2 (https://github.com/kkn1125/mkDocumentifyJS)
- * Copyright 2021 (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors)
+ * mkDocumentifyJS v0.2.3 (https://github.com/kkn1125/mkDocumentifyJS)
+ * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
 
@@ -27,23 +27,22 @@
 }
 
 .chat-modal {
-  display: none;
-  position: fixed;
-  width: 20rem;
-  height: 30rem;
-  background-color: var(--ks-bg);
-  bottom: 1rem;
-  right: 1rem;
-  transform-origin: bottom right;
-  z-index: 1000;
-  overflow: hidden;
-  box-shadow: 0 0 1.2rem 0.3rem rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  -webkit-border-radius: 0.5rem;
-  -moz-border-radius: 0.5rem;
-  -ms-border-radius: 0.5rem;
-  -o-border-radius: 0.5rem;
-  user-select: none;
+    display: none;
+    position: fixed;
+    width: 25rem;
+    height: 35rem;
+    background-color: var(--ks-bg);
+    bottom: 1rem;
+    right: 1rem;
+    transform-origin: bottom right;
+    z-index: 1000;
+    overflow: hidden;
+    box-shadow: 0 0 1.2rem 0.3rem rgba(0, 0, 0, 0.2);
+    border-radius: .5rem;
+    -webkit-border-radius: .5rem;
+    -moz-border-radius: .5rem;
+    -ms-border-radius: .5rem;
+    -o-border-radius: .5rem;
 }
 
 @keyframes chatModalPop {
@@ -136,10 +135,9 @@
   cursor: pointer;
 }
 
-.chat-modal .chat-content {
-  /* padding: 1rem; */
-  color: rgba(80, 80, 80);
-  height: 440px;
+.chat-modal .chat-content
+    color: rgba(80, 80, 80);
+    height: 520px;
 }
 
 .chat-modal .chat-content .chat-body {
@@ -150,12 +148,11 @@
 }
 
 .chat-modal .chat-content .chat-body .chat-message {
-  overflow-y: auto;
-  overflow-x: hidden;
-  height: 85%;
-  font-size: 0.9rem;
-  padding: 0.5rem;
-  margin-top: 0.5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 87%;
+    font-size: 0.9rem;
+    padding: .5rem;
 }
 
 .chat-modal .chat-content .chat-body .chat-message::-webkit-scrollbar {
