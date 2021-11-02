@@ -108,11 +108,11 @@ function chatHandler(ev) {
     }
 }
 
-function generateBox(str, type) {
+function generateBox(str, type, detail){
     let msgWrap = document.createElement('div');
     let msgBox = document.createElement('div');
     msgWrap.classList.add('msg-wrap');
-    msgBox.classList.add('msg-box', `msg-box-${type}`);
+    msgBox.classList.add('msg-box', `msg-box-${type}`, `needs-${detail}`);
     msgBox.innerHTML = str;
     msgWrap.append(msgBox);
     return msgWrap;
@@ -120,15 +120,32 @@ function generateBox(str, type) {
 
 // 첫 안내문구
 const msg = document.querySelector('.chat-message');
-// document.addEventListener('click', firstOpenListener);
-function firstOpenListener(ev) {
-    if (!first) {
+document.addEventListener('click', firstOpenListener);
+
+let command = {
+    update: '업데이트 내역을 확인하고 싶어요',
+    darkMode: '다크모드를 적용하고 싶어요',
+    mail: '메일로 문의하고 싶어요',
+    dev: '만든 사람이 궁금해요',
+    tutorial: '튜토리얼을 보고 싶어요'
+}
+
+// 반복문으로 수정하기!!
+// 각 세부 연결 디테일 보충하기
+function firstOpenListener(ev){
+    if(!first){
         first = true;
         msg.insertAdjacentElement('beforeend', generateBox('무엇을 도와드릴까요?', 'info'));
+        msg.insertAdjacentElement('beforeend', generateBox('업데이트 내역을 확인하고 싶어요', 'user', 'update'));
+        msg.insertAdjacentElement('beforeend', generateBox('다크모드를 적용하고 싶어요', 'user', 'darkMode'));
+        msg.insertAdjacentElement('beforeend', generateBox('메일로 문의하고 싶어요', 'user', 'mail'));
+        msg.insertAdjacentElement('beforeend', generateBox('만든 사람이 궁금해요', 'user', 'dev'));
+        msg.insertAdjacentElement('beforeend', generateBox('튜토리얼을 보고 싶어요', 'user', 'tutorial'));
     }
 }
 
-function answerDelay(str, type) {
+// 안내문구 팝업 시간 단축하는 방향으로 수정하기
+function answerDelay(str, type){
     let load = generateBox('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>', 'info');
     msg.append(load);
     setTimeout(() => {
@@ -149,6 +166,23 @@ function insertUpdate() {
         let cl = msg.firstElementChild.cloneNode(true);
         msg.lastElementChild.insertAdjacentElement('beforebegin', cl);
     }, 2000);
+}
+
+window.addEventListener('click', autoAnswer);
+function autoAnswer(ev){
+    let target = ev.target;
+    if(target.tagName == 'DIV') {
+        if(target.classList.contains('needs-update'))
+            answerDelay('업데이트 내역입니다', 'info');
+        else if(target.classList.contains('needs-darkMode'))
+            answerDelay('다크모드입니다', 'info');
+        else if(target.classList.contains('needs-mail'))
+            answerDelay('클릭해서 메일 작성하기', 'info');
+        else if(target.classList.contains('needs-dev'))
+            answerDelay('만든 사람들입니다', 'info');
+        else if(target.classList.contains('needs-tutorial'))
+            answerDelay('튜토리얼보기', 'info');
+    } 
 }
 
 document.querySelector('.chat-bar input').addEventListener('keydown', userChatHandler);
@@ -208,16 +242,3 @@ function userChatHandler(ev) {
     }
 }
 // 채팅 modal end
-
-/**
- * caret 열고 닫기
- */
-window.addEventListener('click', (ev) => {
-    let target = ev.target;
-
-    if (target.parentNode.tagName !== 'LI' || target.tagName !== 'SPAN' || !target.classList.contains('caret')) return;
-    ev.preventDefault();
-
-    target.classList.toggle('caret-down');
-    target.parentNode.querySelector(".nested").classList.toggle("active");
-});
