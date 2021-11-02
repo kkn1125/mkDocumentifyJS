@@ -43,6 +43,7 @@
   -moz-border-radius: 0.5rem;
   -ms-border-radius: 0.5rem;
   -o-border-radius: 0.5rem;
+  user-select: none;
 }
 
 @keyframes chatModalPop {
@@ -292,6 +293,10 @@
 .msg-box-user:hover {
   background-color: #5ec271;
   color: white;
+}
+
+.msg-box-user:hover::before {
+  background-color: #5ec271 !important;
 }
 
 .msg-box-info {

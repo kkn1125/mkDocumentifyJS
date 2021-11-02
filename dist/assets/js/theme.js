@@ -109,11 +109,22 @@ function generateBox(str, type, detail){
 // 첫 안내문구
 const msg = document.querySelector('.chat-message');
 document.addEventListener('click', firstOpenListener);
+
+let command = {
+    update: '업데이트 내역을 확인하고 싶어요',
+    darkMode: '다크모드를 적용하고 싶어요',
+    mail: '메일로 문의하고 싶어요',
+    dev: '만든 사람이 궁금해요',
+    tutorial: '튜토리얼을 보고 싶어요'
+}
+
+// 반복문으로 수정하기!!
+// 각 세부 연결 디테일 보충하기
 function firstOpenListener(ev){
     if(!first){
         first = true;
         msg.insertAdjacentElement('beforeend', generateBox('무엇을 도와드릴까요?', 'info'));
-        msg.insertAdjacentElement('beforeend', generateBox('업데이트를 확인하고 싶어요', 'user', 'update'));
+        msg.insertAdjacentElement('beforeend', generateBox('업데이트 내역을 확인하고 싶어요', 'user', 'update'));
         msg.insertAdjacentElement('beforeend', generateBox('다크모드를 적용하고 싶어요', 'user', 'darkMode'));
         msg.insertAdjacentElement('beforeend', generateBox('메일로 문의하고 싶어요', 'user', 'mail'));
         msg.insertAdjacentElement('beforeend', generateBox('만든 사람이 궁금해요', 'user', 'dev'));
@@ -121,6 +132,7 @@ function firstOpenListener(ev){
     }
 }
 
+// 안내문구 팝업 시간 단축하는 방향으로 수정하기
 function answerDelay(str, type){
     let load = generateBox('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>', 'info');
     msg.append(load);
@@ -140,9 +152,21 @@ function insertUpdate(){
     }, 2000);
 }
 
-document.querySelector('.needs-update').addEventListener('click', autoAnswer);
-function autoAnswer(){
-    answerDelay('업데이트', 'info');
+window.addEventListener('click', autoAnswer);
+function autoAnswer(ev){
+    let target = ev.target;
+    if(target.tagName == 'DIV') {
+        if(target.classList.contains('needs-update'))
+            answerDelay('업데이트 내역입니다', 'info');
+        else if(target.classList.contains('needs-darkMode'))
+            answerDelay('다크모드입니다', 'info');
+        else if(target.classList.contains('needs-mail'))
+            answerDelay('클릭해서 메일 작성하기', 'info');
+        else if(target.classList.contains('needs-dev'))
+            answerDelay('만든 사람들입니다', 'info');
+        else if(target.classList.contains('needs-tutorial'))
+            answerDelay('튜토리얼보기', 'info');
+    } 
 }
 
 document.querySelector('.chat-bar input').addEventListener('keydown', userChatHandler);
