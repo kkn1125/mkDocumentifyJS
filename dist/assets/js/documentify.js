@@ -1,5 +1,5 @@
 /**!
- * mkDocumentifyJS v0.2.3 (https://github.com/kkn1125/mkDocumentifyJS)
+ * mkDocumentifyJS v0.2.4 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
@@ -525,6 +525,7 @@ const Documentify = (function () {
                 if (xhr.status == 200 || xhr.status == 201) {
                     if (xhr.readyState == 4) {
                         page = JSON.parse(xhr.responseText).page;
+                        window.page = page;
                     }
                 }
             });
@@ -624,15 +625,16 @@ const Documentify = (function () {
 
         /**
          * 파일을 단일 페이지 모드로 압축 저장시키는 메서드
-         * @function fileSaveAsMutilplePage
+         * @function fileSaveAsSinglePage
          * @param {event} ev Controller에서 지정한 addEventListener의 click 타입의 이벤트
-         * @see View.fileSaveHandler,Zip
+         * @see View.fileSaveHandler
          */
         this.fileSaveAsSinglePage = function(ev){
             let main = this.getFileContents('dist/assets/css/main.css');
             let chat = this.getFileContents('dist/assets/css/chat.css');
             let gnb = this.getFileContents('dist/assets/css/gnb.css');
             let theme = this.getFileContents('dist/assets/js/theme.js');
+            theme = theme.replace("'use strict';", `'use strict';\n// page\nconst page = ${JSON.stringify(page)}`);
 
             let saveAsName = 'index.html';
 
@@ -666,13 +668,14 @@ const Documentify = (function () {
          * 파일을 분할 페이지 모드로 압축 저장시키는 메서드
          * @function fileSaveAsMutilplePage
          * @param {event} ev Controller에서 지정한 addEventListener의 click 타입의 이벤트
-         * @see View.fileSaveHandler,Zip
+         * @see Model.fileSaveHandler
          */
          this.fileSaveAsMutilplePage = function (ev) {
             let main = this.getFileContents('dist/assets/css/main.css');
             let chat = this.getFileContents('dist/assets/css/chat.css');
             let gnb = this.getFileContents('dist/assets/css/gnb.css');
             let theme = this.getFileContents('dist/assets/js/theme.js');
+            theme = theme.replace("'use strict';", `'use strict';\n// page\nconst page = ${JSON.stringify(page)}`);
 
             let saveAsName = 'index.html';
             let saveAsNameFunc = 'functions.html';
