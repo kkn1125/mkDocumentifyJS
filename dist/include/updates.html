@@ -4,7 +4,7 @@
         <span class="display-5">📔</span>
         <div class="lh-1" style="flex: 1 0 0%;">
             <h1 class="h6 mb-0 text-white lh-1"></h1>
-            <span>업데이트 내역</span>
+            <span>{@page.version@} 업데이트 내역</span>
             <small>Since {@ new Date().getFullYear() @}</small>
         </div>
         <div>
@@ -22,7 +22,7 @@
             <div class="d-flex text-muted pt-3">
                 <div style="padding-right:.5rem; flex: 0 0 42px; width: 42px; height: 42px; overflow: hidden;">
                     <img class="img-fluid bd-placeholder-img" style="border-radius: .3rem;"
-                        src="https://avatars.githubusercontent.com/u/71887242?v=4" alt="">
+                        src="${page.authors[author].avatar}" alt="">
                 </div>
 
                 <p class="pb-3 mb-0 small lh-sm border-bottom">
