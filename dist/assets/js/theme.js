@@ -67,10 +67,15 @@ function lineMoveHandler(ev) {
 }
 
 document.addEventListener('click', anchorHandler);
-function anchorHandler(ev){
+
+function anchorHandler(ev) {
     let target = ev.target.closest('[data-anchor]');
-    if(!target || target.tagName !== 'A' || target.dataset.anchor !== 'top')return;
-    window.scrollTo({behavior:'smooth',left:0,top:0})
+    if (!target || target.tagName !== 'A' || target.dataset.anchor !== 'top') return;
+    window.scrollTo({
+        behavior: 'smooth',
+        left: 0,
+        top: 0
+    })
 }
 
 
@@ -108,7 +113,7 @@ function chatHandler(ev) {
     }
 }
 
-function generateBox(str, type, detail){
+function generateBox(str, type, detail) {
     let msgWrap = document.createElement('div');
     let msgBox = document.createElement('div');
     msgWrap.classList.add('msg-wrap');
@@ -132,8 +137,8 @@ let command = {
 
 // 반복문으로 수정하기!!
 // 각 세부 연결 디테일 보충하기
-function firstOpenListener(ev){
-    if(!first){
+function firstOpenListener(ev) {
+    if (!first) {
         first = true;
         msg.insertAdjacentElement('beforeend', generateBox('무엇을 도와드릴까요?', 'info'));
         msg.insertAdjacentElement('beforeend', generateBox('업데이트 내역을 확인하고 싶어요', 'user', 'update'));
@@ -145,7 +150,7 @@ function firstOpenListener(ev){
 }
 
 // 안내문구 팝업 시간 단축하는 방향으로 수정하기
-function answerDelay(str, type){
+function answerDelay(str, type) {
     let load = generateBox('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>', 'info');
     msg.append(load);
     setTimeout(() => {
@@ -169,20 +174,21 @@ function insertUpdate() {
 }
 
 window.addEventListener('click', autoAnswer);
-function autoAnswer(ev){
+
+function autoAnswer(ev) {
     let target = ev.target;
-    if(target.tagName == 'DIV') {
-        if(target.classList.contains('needs-update'))
+    if (target.tagName == 'DIV') {
+        if (target.classList.contains('needs-update'))
             answerDelay('업데이트 내역입니다', 'info');
-        else if(target.classList.contains('needs-darkMode'))
+        else if (target.classList.contains('needs-darkMode'))
             answerDelay('다크모드입니다', 'info');
-        else if(target.classList.contains('needs-mail'))
+        else if (target.classList.contains('needs-mail'))
             answerDelay('클릭해서 메일 작성하기', 'info');
-        else if(target.classList.contains('needs-dev'))
+        else if (target.classList.contains('needs-dev'))
             answerDelay('만든 사람들입니다', 'info');
-        else if(target.classList.contains('needs-tutorial'))
+        else if (target.classList.contains('needs-tutorial'))
             answerDelay('튜토리얼보기', 'info');
-    } 
+    }
 }
 
 document.querySelector('.chat-bar input').addEventListener('keydown', userChatHandler);
@@ -242,3 +248,49 @@ function userChatHandler(ev) {
     }
 }
 // 채팅 modal end
+
+// 검색창 start
+const keywords = ['information', 'documentify', 'controller', 'info']; // 메서드이름
+
+(function getTitle() {
+    let getTitles = document.getElementsByClassName('h3 text-dark'); // 정확하게 id로 받아오도록 수정하기!
+
+    let titles = [];
+    for(let i = 0; i < getTitles.length; i++) {
+        let title = getTitles[i].innerText;
+        titles.push(title);
+    }
+    console.log(titles); // 이거 전역으로 받고 싶음
+    
+})();
+
+document.addEventListener('keyup', resultHandler);
+
+function resultHandler(ev) {
+    let target = ev.target;
+    if (!(target.tagName == 'INPUT' && target.name == 'search')) return; // 클릭은 요기
+    let inputValue = ev.target.value; // input창에 입력한 값(String)
+    let idx = 0;
+    let result = document.getElementById('search-result'); // 들어가는 결과값은 요기
+    result.innerHTML = '';
+
+// 다른 곳 클릭하면 드롭다운 닫히기
+    keywords.forEach(function (keyword) {
+        let okay = keyword.indexOf(inputValue); // keywords의 각 value마다 일치하는 인덱스 반환
+        console.log(okay);
+        if (okay != -1 && inputValue != '') {
+            console.log(`keyword: ${keyword}`);
+            console.log(keywords[idx]);
+            
+            result.innerHTML += 
+            `<div class="dropdown-content">
+                <span>${keyword.slice(0, okay)}</span>
+                <mark>${inputValue}</mark>
+                <span>${keyword.slice(okay+inputValue.length, keyword.length)}</span>
+            </div>`;
+        }
+        idx++;
+    });
+
+}
+// 검색창 end
