@@ -255,12 +255,11 @@ const keywords = ['information', 'documentify', 'controller', 'info']; // 메서
 (function getTitle() {
     let getTitles = document.getElementsByClassName('h3 text-dark'); // 정확하게 id로 받아오도록 수정하기!
 
-    let titles = [];
+    window.titles = [];
     for(let i = 0; i < getTitles.length; i++) {
         let title = getTitles[i].innerText;
         titles.push(title);
     }
-    console.log(titles); // 이거 전역으로 받고 싶음
     
 })();
 
@@ -275,7 +274,7 @@ function resultHandler(ev) {
     result.innerHTML = '';
 
 // 다른 곳 클릭하면 드롭다운 닫히기
-    keywords.forEach(function (keyword) {
+    titles.forEach(function (keyword) {
         let okay = keyword.indexOf(inputValue); // keywords의 각 value마다 일치하는 인덱스 반환
         console.log(okay);
         if (okay != -1 && inputValue != '') {
