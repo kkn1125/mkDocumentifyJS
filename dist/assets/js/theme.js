@@ -322,3 +322,48 @@ function floatWarning(type) {
     });
 }
 // 채팅 modal end
+
+// 검색창 start
+const keywords = ['information', 'documentify', 'controller', 'info']; // 메서드이름
+
+(function getTitle() {
+    let getTitles = document.getElementsByClassName('h3 text-dark'); // 정확하게 id로 받아오도록 수정하기!
+
+    window.titles = [];
+    for(let i = 0; i < getTitles.length; i++) {
+        let title = getTitles[i].innerText;
+        titles.push(title);
+    }
+    
+})();
+
+document.addEventListener('keyup', resultHandler);
+
+function resultHandler(ev) {
+    let target = ev.target;
+    if (!(target.tagName == 'INPUT' && target.name == 'search')) return; // 클릭은 요기
+    let inputValue = ev.target.value; // input창에 입력한 값(String)
+    let idx = 0;
+    let result = document.getElementById('search-result'); // 들어가는 결과값은 요기
+    result.innerHTML = '';
+
+// 다른 곳 클릭하면 드롭다운 닫히기
+    titles.forEach(function (keyword) {
+        let okay = keyword.indexOf(inputValue); // keywords의 각 value마다 일치하는 인덱스 반환
+        console.log(okay);
+        if (okay != -1 && inputValue != '') {
+            console.log(`keyword: ${keyword}`);
+            console.log(keywords[idx]);
+            
+            result.innerHTML += 
+            `<div class="dropdown-content">
+                <span>${keyword.slice(0, okay)}</span>
+                <mark>${inputValue}</mark>
+                <span>${keyword.slice(okay+inputValue.length, keyword.length)}</span>
+            </div>`;
+        }
+        idx++;
+    });
+
+}
+// 검색창 end
