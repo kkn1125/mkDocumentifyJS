@@ -5,75 +5,75 @@
  */
 
 .grid-wrap {
-  height: 100vh;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 1fr minmax(4fr, auto) 1fr;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 1fr minmax(4fr, auto) 1fr;
 }
 
 /* global-nav-bar start */
 .gnb {
-  grid-column: 1 / 5;
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  background-color: #5ec271;
-  max-height: 111px;
+    grid-column: 1 / 5;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #5ec271;
+    max-height: 111px;
 }
 
 .gnb .file_name {
-  color: white;
-  margin: 20px;
+    color: white;
+    margin: 20px;
 }
 
 /* 검색창 start */
 .gnb .search-container {
-  margin: 20px;
-  display: block;
-  align-self: center;
-  justify-self: center;
-  float: right;
+    margin: 20px;
+    display: block;
+    align-self: center;
+    justify-self: center;
+    float: right;
 }
 
 .gnb input[type="text"] {
-  padding: 6px;
-  font-size: 17px;
-  border: 1px solid black;
+    padding: 6px;
+    font-size: 17px;
+    border: 1px solid black;
 }
 
 .search-container button {
-  float: right;
-  padding: 6px 10px;
-  font-size: 17px;
-  border: 1px solid black;
-  cursor: pointer;
+    float: right;
+    padding: 6px 10px;
+    font-size: 17px;
+    border: 1px solid black;
+    cursor: pointer;
 }
 
 #search-bar {
-  position: relative;
+    position: relative;
 }
 
 #search-result {
-  position: absolute;
-  width: 100%;
+    position: absolute;
+    width: 100%;
 }
 
 .dropdown {
-  position: relative;
-  display: inline-block;
+    position: relative;
+    display: inline-block;
 }
 
 .dropdown-content {
-  display: block;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  padding: 12px 16px;
-  z-index: 1;
+    display: block;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    padding: 12px 16px;
+    z-index: 1;
 }
 
 .dropdown-content:hover {
-  background-color: #d8f9da;
+    background-color: #d8f9da;
 }
 
 /* 검색창 end */
@@ -81,38 +81,96 @@
 
 /* side-nav-bar start */
 .side-nav-bar {
-  grid-row: 2 / 7;
-  grid-column: 1;
-  padding: 80px 20px;
-  border-top: 2px solid white;
-  background-color: #d8f9da;
+    grid-row: 2 / 3;
+    grid-column: 1/5;
+    padding: .3rem;
+    background-color: #d8f9da;
 }
 
 .side-nav-bar .contents {
-  position: sticky;
-  align-self: start;
-  text-align: center;
-  top: 80px;
+    position: sticky;
+    align-self: start;
+    text-align: center;
+    top: 80px;
 }
 
-.side-nav-bar .contents div {
-  color: black;
-  padding: 0.5rem;
+.side-nav-bar .contents div[class] a{
+    transition: color .5s;
+    -webkit-transition: color .5s;
+    -moz-transition: color .5s;
+    -ms-transition: color .5s;
+    -o-transition: color .5s;
 }
-.side-nav-bar .contents div:hover {
-  background-color: #5ec271;
-  color: white;
+
+.side-nav-bar .contents div[class] {
+    position: relative;
+    color: black;
+    padding: 0.5rem;
 }
+
+.side-nav-bar .contents div[class]::before,
+.side-nav-bar .contents div[class]::after{
+    content: '';
+    display: block;
+    position: absolute;
+    height: 50%;
+    width: 0%;
+    transition: .5s cubic-bezier(1, 0.03, 0.515, 0.955);
+    -webkit-transition: .5s cubic-bezier(1, 0.03, 0.515, 0.955);
+    -moz-transition: .5s cubic-bezier(1, 0.03, 0.515, 0.955);
+    -ms-transition: .5s cubic-bezier(1, 0.03, 0.515, 0.955);
+    -o-transition: .5s cubic-bezier(1, 0.03, 0.515, 0.955);
+    z-index: -1;
+}
+
+.side-nav-bar .contents div[class]::before{
+    top: 0;
+    left: 0;
+}
+
+.side-nav-bar .contents div[class]::after{
+    bottom: 0;
+    right: 0;
+}
+
+.side-nav-bar .contents div[class]:hover::before {
+    background-color: rgba(var(--ks-brand-rgb),.7);
+    width: 100%;
+}
+
+.side-nav-bar .contents div[class]:hover::after{
+    background-color: rgba(var(--ks-brand-rgb),.5);
+    width: 100%;
+}
+
+.side-nav-bar .contents div[class]:hover a{
+    color: rgba(var(--ks-bg-rgb), 1);
+}
+
 /* side-nav-bar end */
 
 .main {
-  grid-row: 2 / 7;
-  grid-column: 2 / 5;
-  color: gray;
-  padding: 50px;
+    grid-row: 3 / 4;
+    grid-column: 1 / 5;
+    color: gray;
+    padding: 50px;
+    scroll-behavior: smooth;
 }
 
 .footer {
-  grid-row: 7 / 8;
-  grid-column: 1 / 5;
+    grid-row: 6 / 7;
+    grid-column: 1 / 5;
+}
+
+@media (min-width: 768px) {
+    .side-nav-bar {
+        grid-row: 2 / 6;
+        grid-column: 1;
+        padding: 5em 0px;
+    }
+
+    .main {
+        grid-row: 2 / 6;
+        grid-column: 2 / 5;
+    }
 }

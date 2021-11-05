@@ -3,10 +3,11 @@
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
- 
+
 :root {
     --ks-noto-serif: "Noto Serif KR", serif;
     --ks-noto-sans-serif: "Noto Sans KR", sans-serif;
+    --ks-dark: #505050;
     --ks-brand: #5EC271;
     --ks-primary: #0046B3;
     --ks-secondary: #6D7698;
@@ -21,28 +22,29 @@
 
 html,
 body {
-  scroll-behavior: smooth;
+    scroll-behavior: smooth;
 }
 
 html {
-  height: auto;
+    height: auto;
+    overflow: hidden;
 }
 
 body {
-  height: 100%;
-  font-family: var(--ks-noto-sans-serif);
+    height: 100%;
+    font-family: var(--ks-noto-sans-serif);
 }
 
 li,
 ol,
 ul,
 a {
-  list-style: none;
-  text-decoration: none;
+    list-style: none;
+    text-decoration: none;
 }
 
 #file {
-  margin: 0 auto;
+    margin: 0 auto;
 }
 
 html,
@@ -74,42 +76,42 @@ body {
 }
 
 .nav-scroller {
-  position: relative;
-  z-index: 2;
-  height: 2.75rem;
-  overflow-y: hidden;
+    position: relative;
+    z-index: 2;
+    height: 2.75rem;
+    overflow-y: hidden;
 }
 
 .nav-scroller .nav {
-  display: flex;
-  flex-wrap: nowrap;
-  padding-bottom: 1rem;
-  margin-top: -1px;
-  overflow-x: auto;
-  color: rgba(255, 255, 255, 0.75);
-  text-align: center;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-wrap: nowrap;
+    padding-bottom: 1rem;
+    margin-top: -1px;
+    overflow-x: auto;
+    color: rgba(255, 255, 255, 0.75);
+    text-align: center;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
 }
 
 .nav-underline .nav-link {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  font-size: 0.875rem;
-  color: #6c757d;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    font-size: 0.875rem;
+    color: #6c757d;
 }
 
 .nav-underline .nav-link:hover {
-  color: #007bff;
+    color: #007bff;
 }
 
 .nav-underline .active {
-  font-weight: 500;
-  color: #343a40;
+    font-weight: 500;
+    color: #343a40;
 }
 
 .bg-purple {
-  background-color: #6f42c1;
+    background-color: #6f42c1;
 }
 
 .see {
@@ -131,108 +133,108 @@ body {
 }
 
 div[data-dc-type="popup"] {
-  max-height: 0;
-  margin: 0;
-  padding: 0 1rem;
-  opacity: 0;
-  overflow: hidden;
-  white-space: normal;
-  pointer-events: none;
-  transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
-  -webkit-transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
-  -moz-transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
-  -ms-transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
-  -o-transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
+    max-height: 0;
+    margin: 0;
+    padding: 0 1rem;
+    opacity: 0;
+    overflow: hidden;
+    white-space: normal;
+    pointer-events: none;
+    transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
+    -webkit-transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
+    -moz-transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
+    -ms-transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
+    -o-transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 
 div[id^="line-"] {
-  position: relative;
+    position: relative;
 }
 
 div[id^="line-"].check::after {
-  content: "line found ✅";
-  position: absolute;
-  right: 0;
-  top: 0;
-  color: black;
+    content: "line found ✅";
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: black;
 }
 
 div[id^="line-"].mark-line {
-  animation: highlight 2s linear infinite;
-  -webkit-animation: highlight 2s linear infinite;
+    animation: highlight 2s linear infinite;
+    -webkit-animation: highlight 2s linear infinite;
 }
 
 @keyframes highlight {
-  0% {
-    background-color: rgba(255, 237, 74, 0);
-  }
+    0% {
+        background-color: rgba(255, 237, 74, 0);
+    }
 
-  50% {
-    background-color: rgba(255, 237, 74, 0.3);
-  }
+    50% {
+        background-color: rgba(255, 237, 74, 0.3);
+    }
 
-  100% {
-    background-color: rgba(255, 237, 74, 0);
-  }
+    100% {
+        background-color: rgba(255, 237, 74, 0);
+    }
 }
 
 [data-dc-type="popup"].show {
-  max-height: 100rem;
-  margin: 1rem 0;
-  padding: 1rem;
-  opacity: 1;
-  pointer-events: unset;
+    max-height: 100rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    opacity: 1;
+    pointer-events: unset;
 }
 
 .badge-font {
-  color: inherit;
-  font-size: 21.5px;
-  font-weight: 700;
-  font-family: var(--ks-noto-serif);
-  user-select: none;
+    color: inherit;
+    font-size: 21.5px;
+    font-weight: 700;
+    font-family: var(--ks-noto-serif);
+    user-select: none;
 }
 
 .divider {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .main-desc {
-  font-size: 0.9rem;
-  text-size-adjust: 1rem;
-  line-height: 1.8rem;
-  word-spacing: 0.15rem;
-  letter-spacing: 0.05rem;
+    font-size: 0.9rem;
+    text-size-adjust: 1rem;
+    line-height: 1.8rem;
+    word-spacing: 0.15rem;
+    letter-spacing: 0.05rem;
 }
 
 .line-num {
-  width: 2.5rem;
-  flex: 0 0 2.5rem;
+    width: 2.5rem;
+    flex: 0 0 2.5rem;
 }
 
 .codes {
-  background: rgb(245, 245, 245);
+    background: rgb(245, 245, 245);
 }
 
 .codes .line-num {
-  /* background: #7a7a7a; */
-  color: rgb(87, 87, 87);
+    /* background: #7a7a7a; */
+    color: rgb(87, 87, 87);
 }
 
 pre div.border-bottom:last-child {
-  border-bottom: none !important;
+    border-bottom: none !important;
 }
 
-.origin-line:hover{
+.origin-line:hover {
     transition: background .3s;
-    background-color: rgba(0,0,0,0.03);
+    background-color: rgba(0, 0, 0, 0.03);
     -webkit-transition: background .3s;
     -moz-transition: background .3s;
     -ms-transition: background .3s;
     -o-transition: background .3s;
 }
 
-button{
+button {
     border-radius: 0 !important;
     -webkit-border-radius: 0 !important;
     -moz-border-radius: 0 !important;
@@ -240,23 +242,18 @@ button{
     -o-border-radius: 0 !important;
 }
 
-.bg-info{
+.bg-info {
     background-color: var(--ks-secondary) !important;
 }
 
-.bg-warning{
+.bg-warning {
     background-color: var(--ks-secondary) !important;
 }
 
-.bg-danger{
+.bg-danger {
     background-color: var(--ks-secondary) !important;
 }
 
-a[href]{
+a[href] {
     color: var(--ks-primary);
-}
-
-.main{
-  overflow-y: auto;
-  scroll-behavior: smooth;
 }

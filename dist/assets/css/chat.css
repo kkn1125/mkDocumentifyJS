@@ -6,8 +6,8 @@
 
 .chat-btn-wrap {
     position: fixed;
-    right: 3rem;
-    bottom: 8rem;
+    right: 4rem;
+    bottom: 3rem;
     color: var(--ks-brand);
     width: auto;
     height: auto;
@@ -30,11 +30,14 @@
     display: none;
     position: fixed;
     user-select: none;
-    width: 25rem;
-    height: 35rem;
+    max-width: 25rem;
+    min-width: 16rem;
+    height: 90vh;
+    max-height: 45rem;
     background-color: var(--ks-bg);
     bottom: 1rem;
-    right: 1rem;
+    right: 2rem;
+    margin-left: 1rem;
     transform-origin: bottom right;
     z-index: 1000;
     overflow: hidden;
@@ -136,13 +139,13 @@
 
 .chat-modal .chat-content {
     color: rgba(80, 80, 80);
-    height: 520px;
+    height: calc(100% - 2.5em);
 }
 
 .chat-modal .chat-content .chat-body {
     height: 100%;
     display: flex;
-    flex-flow: column wrap;
+    flex-flow: column nowrap;
     justify-content: space-between;
 }
 
@@ -295,7 +298,7 @@
     cursor: pointer !important;
 }
 
-.chat-modal .chat-body .chat-message .msg-wrap .msg-box div{
+.chat-modal .chat-body .chat-message .msg-wrap .msg-box:not(.mail) div{
     pointer-events: none;
 }
 
