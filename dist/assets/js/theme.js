@@ -67,11 +67,10 @@ function anchorHandler(ev) {
     ev.preventDefault();
     
     let anchor = target.dataset.anchor;
-    let main = document.querySelector('main.main');
-    main.scrollTo({
+    document.body.scrollTo({
         behavior: 'smooth',
         left: 0,
-        top: anchor=='start'?0:anchor=='end'?main.scrollHeight:target.scrollTop
+        top: anchor=='start'?0:anchor=='end'?document.body.scrollHeight:target.scrollTop
     });
 }
 
@@ -103,12 +102,15 @@ const command = {
 const answerList = {
     mail: `<div class="fw-bold fs-5">메일 보내기</div>
     <form name="mail" action="">
-        <div>작성자명</div>
-        <input name="author" type="text" class="form-control form-control-sm">
-        <div>내용</div>
-        <textarea name="content" class="form-control"></textarea>
+    <label for="name">성함</label>
+            <input type="text" name="name" class="form-control rounded-0" id="name" placeholder="홍길동" required>
+            <label for="email">이메일</label>
+            <input type="email" name="email" class="form-control rounded-0" id="email" placeholder="name@example.com" required>
+            <label for="phone">연락처 (01012345678)</label>
+            <input type="text" name="phone" class="form-control rounded-0" id="phone" placeholder="01012345678">
+            <textarea class="form-control rounded-0" placeholder="Leave a comment here" name="message" id="message" style="height: 10rem"></textarea>
     </form>
-    <button id="sendBtn" class="btn btn-sm btn-success">메일 전송</button>
+    <button id="sendMail" class="btn btn-sm btn-success">메일 전송</button>
     `,
     update: `최근 업데이트된 내역입니다. <span class="badge bg-info">현재 버전 ${page.version}</span>`,
     dev: function(){
@@ -122,7 +124,7 @@ const answerList = {
     </div>`,
     info: '<span class="fw-bold">도와줘</span> 또는 <span class="fw-bold">명령어</span>를 입력하시면 입력 가능한 명령어가 출력됩니다.',
     send: '문의사항이 전송되었습니다.',
-    notSend: '전송에 실패하였습니다. 특수문자가 있는지 확인해주세요.',
+    notAllowedContent: '전송에 실패하였습니다. 특수문자가 있는지 확인해주세요.',
     noMessage: '전송에 실패하였습니다. 공란이 있는지 확인해주세요.',
 };
 
@@ -165,13 +167,13 @@ function generateBox(str, type, detail) {
     let msgBox = document.createElement('div');
     let addDetail = detail ? ` needs-${detail}` : '';
     msgWrap.classList.add('msg-wrap');
-    if(turn!==type){
+    if(turn!==type.split(' ').shift()){
         let msgTitle = document.createElement('div');
         msgTitle.classList.value = `msg-title-${type}`;
         msgTitle.innerHTML = type.split(' ').shift() == 'info' ? 'Bot' : type;
         msgBox.append(msgTitle);
     }
-
+    turn = type;
     let msgContent = document.createElement('div');
     msgContent.classList.value = `msg-box msg-box-${type}${addDetail}`;
     msgContent.innerHTML = `<div>${str}</div>`;
@@ -179,7 +181,6 @@ function generateBox(str, type, detail) {
 
     msgBox.classList.add('msg-box-wrap');
     msgWrap.append(msgBox);
-    turn = type;
     return msgWrap;
 }
 
@@ -213,7 +214,7 @@ function userChatHandler(ev) {
     function isThis(regex) {
         return root.value.match(regex);
     }
-
+    turn = '';
     if (ev.key === 'Enter') {
         if (this.value.length > 0) {
             msg.append(generateBox(this.value, 'user'));
@@ -222,9 +223,7 @@ function userChatHandler(ev) {
             } else if (isThis(/저장|save|세이브/gm)) {
                 answerDelay(answerList['save'], 'info');
             } else if (this.value.match(isThis(/도움|도와|어떠|어떻|어떤|뭐|help/gm))) {
-                for (let type in command) {
-                    msg.insertAdjacentElement('beforeend', generateBox(command[type], 'info', type));
-                }
+                answerDelay(command, 'info');
             } else if (this.value.match(isThis(/만든|개발자|누가/gm))){
                 answerDelay(answerList['dev'], 'info');
             } else if (this.value.match(isThis(/업데이트|최신|update/gm))){
@@ -243,13 +242,18 @@ function userChatHandler(ev) {
 }
 
 // 안내문구 지연
-function answerDelay(str, type) {
+function answerDelay(str, type, detail) {
     let load = generateBox('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>', 'info');
     msg.append(load);
+    turn = '';
     scrollToEnd(1);
     setTimeout(() => {
-        turn = '';
-        load.insertAdjacentElement('beforebegin', generateBox(str, type));
+        if(typeof str == 'object') {
+            for(let string in str){
+                load.insertAdjacentElement('beforebegin', generateBox(str[string], type, string));
+            }
+        }
+        else load.insertAdjacentElement('beforebegin', generateBox(str, type, detail));
         load.remove();
         scrollToEnd();
     }, 2000);
@@ -275,15 +279,16 @@ function insertUpdate() {
 // 메일 유효성 검사 후 전송
 window.addEventListener('click', sendMailHandler);
 function sendMailHandler(ev) {
+    let frm, name, email, phone, message, arr;
+    const url = `https://script.google.com/macros/s/AKfycbzcKHV1ldNC0BmgldYDLEMGjqYdWCqkn-G85ptXK1Y9woc835I/exec`;
     let target = ev.target;
-    if (target.id !== 'sendBtn') return;
-    let frm, author, content, arr;
+    if (target.id !== 'sendMail') return;
     frm = target.previousElementSibling;
-    arr = [author, content] = [frm.author, frm.content];
+    arr = [name, email, phone, message] = [frm.name, frm.email, frm.phone, frm.message];
     frm.parentNode.parentNode.parentNode.remove();
 
     for(let valid of arr){
-        if (valid.value.match(/[^\wㄱ-힣\s]/gm)) {
+        if (valid.value.match(/[^\wㄱ-힣\s\.\!\?\:\;\^\@\(\)\[\]\-]/gm)) {
             answerDelay(answerList['notAllowedContent'], 'info');
             return;
         }
@@ -293,7 +298,23 @@ function sendMailHandler(ev) {
         }
     }
 
-    answerDelay(answerList['send'], 'info');
+    let xhr = new XMLHttpRequest();
+    xhr.addEventListener('load', ()=>{
+        console.log('done!');
+    });
+    xhr.open('post', url);
+    xhr.send(requestMail.call(frm));
+    answerDelay(name.value+'님의 '+answerList['send'], 'info');
+}
+
+function requestMail(){
+    let form = new FormData();
+    form.append('name', this.name.value);
+    form.append('message', this.message.value);
+    form.append('email', this.email.value);
+    form.append('phone', this.phone.value);
+    form.append('type', '질문');
+    return form;
 }
 
 function floatWarning(type) {
