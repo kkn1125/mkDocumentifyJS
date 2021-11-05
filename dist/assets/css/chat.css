@@ -1,5 +1,5 @@
 /**
- * mkDocumentifyJS v0.2.4 (https://github.com/kkn1125/mkDocumentifyJS)
+ * mkDocumentifyJS v0.2.5 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
@@ -132,6 +132,50 @@
     justify-content: space-between;
 }
 
+div[data-dc-type="popup"] {
+    max-height: 0;
+    margin: 0;
+    padding: 0 1rem;
+    opacity: 0;
+    overflow: hidden;
+    white-space: normal;
+    pointer-events: none;
+    transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
+    -webkit-transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
+    -moz-transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
+    -ms-transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
+    -o-transition: 1s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+div[data-dc-type="popup"].show {
+    max-height: 100rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    opacity: 1;
+    pointer-events: unset;
+}
+
+div[data-dc-type="popup"] .avatar-wrap {
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    overflow: hidden;
+    margin-right: .5em;
+}
+
+div[data-dc-type="popup"] .avatar-wrap .avatar-img {
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: .5rem;
+    -webkit-border-radius: .5rem;
+    -moz-border-radius: .5rem;
+    -ms-border-radius: .5rem;
+    -o-border-radius: .5rem;
+}
+
 .chat-modal .chat-title .modal-del-btn {
     user-select: none;
     cursor: pointer;
@@ -217,7 +261,7 @@
     color: var(--ks-brand);
 }
 
-.chat-modal .chat-content .chat-body .chat-message .msg-wrap .msg-box-wrap .msg-title-info::before{
+.chat-modal .chat-content .chat-body .chat-message .msg-wrap .msg-box-wrap .msg-title-info::before {
     content: '🤖';
     margin-right: .2em;
     font-size: 1.5em;
@@ -298,7 +342,7 @@
     cursor: pointer !important;
 }
 
-.chat-modal .chat-body .chat-message .msg-wrap .msg-box:not(.mail) div{
+.chat-modal .chat-body .chat-message .msg-wrap .msg-box[class*="needs-"] div {
     pointer-events: none;
 }
 

@@ -1,5 +1,5 @@
 /**!
- * mkDocumentifyJS v0.2.4 (https://github.com/kkn1125/mkDocumentifyJS)
+ * mkDocumentifyJS v0.2.5 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
@@ -608,6 +608,14 @@ const Documentify = (function () {
         }
 
         /**
+         * 웹 렌더링 후 저장된 사본 파일을 새로운 파일로 복제
+         * @function cloneFile
+         */
+        this.cloneFile = function(){
+            return cloneFile.cloneNode(true);
+        }
+
+        /**
          * 파일을 zip으로 저장시키는 메서드
          * @function fileSaveHandler
          * @param {event} ev Controller에서 지정한 addEventListener의 click 타입의 이벤트
@@ -615,11 +623,12 @@ const Documentify = (function () {
          */
         this.fileSaveHandler = function (ev) {
             let target = ev.target;
-            
+            let newFile = this.cloneFile();
+            console.log(newFile)
             if (target.dataset.saveType === 'single') {
-                this.fileSaveAsSinglePage(ev)
+                this.fileSaveAsSinglePage(ev, newFile)
             } else if (target.dataset.saveType === 'multi') {
-                this.fileSaveAsMutilplePage(ev)
+                this.fileSaveAsMutilplePage(ev, newFile)
             }
         }
 
@@ -629,7 +638,7 @@ const Documentify = (function () {
          * @param {event} ev Controller에서 지정한 addEventListener의 click 타입의 이벤트
          * @see View.fileSaveHandler
          */
-        this.fileSaveAsSinglePage = function(ev){
+        this.fileSaveAsSinglePage = function(ev, newFile){
             let main = this.getFileContents('dist/assets/css/main.css');
             let chat = this.getFileContents('dist/assets/css/chat.css');
             let gnb = this.getFileContents('dist/assets/css/gnb.css');
@@ -638,19 +647,21 @@ const Documentify = (function () {
 
             let saveAsName = 'index.html';
 
-            let contents = cloneFile.querySelector('.contents');
+            let contents = newFile.querySelector('.contents');
             
             contents.querySelector('.home a').href = `index.html#${docuPack.repository.packageInfos[0].name+'-'+docuPack.repository.packageInfos[0].bundleLine}`
             contents.querySelector('.global a').href = `index.html#${docuPack.repository.packageMethods[0].name+'-'+docuPack.repository.packageMethods[0].bundleLine}`
             contents.querySelector('.source a').href = `sources.html`
+
+            if(!initOption.showOrigin) contents.querySelector('.source').remove();
             
             let saveContents = `<!DOCTYPE html>
             <html>
                 <head>
-                    ${cloneFile.head.innerHTML}
+                    ${newFile.head.innerHTML}
                 </head>
                 <body>
-                    ${cloneFile.body.innerHTML}
+                    ${newFile.body.innerHTML}
                 </body>
             </html>`;
 
@@ -670,7 +681,7 @@ const Documentify = (function () {
          * @param {event} ev Controller에서 지정한 addEventListener의 click 타입의 이벤트
          * @see Model.fileSaveHandler
          */
-         this.fileSaveAsMutilplePage = function (ev) {
+         this.fileSaveAsMutilplePage = function (ev, newFile) {
             let main = this.getFileContents('dist/assets/css/main.css');
             let chat = this.getFileContents('dist/assets/css/chat.css');
             let gnb = this.getFileContents('dist/assets/css/gnb.css');
@@ -680,11 +691,11 @@ const Documentify = (function () {
             let saveAsName = 'index.html';
             let saveAsNameFunc = 'functions.html';
 
-            let infoBody = cloneFile.body.cloneNode(true);
-            let funcBody = cloneFile.body.cloneNode(true);
+            let infoBody = newFile.body.cloneNode(true);
+            let funcBody = newFile.body.cloneNode(true);
 
             infoBody.querySelector('main').innerHTML = '';
-            infoBody.querySelector('main').append(cloneFile.body.querySelector('main').children[0].cloneNode(true));
+            infoBody.querySelector('main').append(newFile.body.querySelector('main').children[0].cloneNode(true));
             
             funcBody.querySelector('main').children[0].remove();
 
@@ -693,13 +704,16 @@ const Documentify = (function () {
                 
                 contents.querySelector('.home a').href = `index.html#${docuPack.repository.packageInfos[0].name+'-'+docuPack.repository.packageInfos[0].bundleLine}`
                 contents.querySelector('.global a').href = `functions.html#${docuPack.repository.packageMethods[0].name+'-'+docuPack.repository.packageMethods[0].bundleLine}`
-                contents.querySelector('.source a').href = `sources.html`
+                contents.querySelector('.source a').href = `sources.html`;
+
+                if(!initOption.showOrigin) contents.querySelector('.source').remove();
+
             }
 
             let saveContentsInfo = `<!DOCTYPE html>
             <html>
                 <head>
-                    ${cloneFile.head.innerHTML}
+                    ${newFile.head.innerHTML}
                 </head>
                 <body>
                     ${infoBody.innerHTML}
@@ -708,7 +722,7 @@ const Documentify = (function () {
             let saveContentsFunc = `<!DOCTYPE html>
             <html>
                 <head>
-                    ${cloneFile.head.innerHTML}
+                    ${newFile.head.innerHTML}
                 </head>
                 <body>
                     ${funcBody.innerHTML}

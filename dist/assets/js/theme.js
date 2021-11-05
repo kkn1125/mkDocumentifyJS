@@ -1,5 +1,5 @@
 /**!
- * mkDocumentifyJS v0.2.4 (https://github.com/kkn1125/mkDocumentifyJS)
+ * mkDocumentifyJS v0.2.5 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
@@ -147,7 +147,7 @@ function chatHandler(ev) {
     if (!modal.classList.contains('show')) {
         modal.classList.add('show');
         modal.classList.remove('hide');
-        modal.querySelector('input[type="text"]').focus();
+        modal.querySelector('.chat-bar input[type="text"]').focus();
         firstOpenListener();
     }
 }
