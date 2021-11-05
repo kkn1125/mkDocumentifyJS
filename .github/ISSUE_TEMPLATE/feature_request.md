@@ -1,20 +1,16 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
+title: feature
+labels: enhancement
+assignees: kkn1125
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+[기능 개선 대상과 문제를 설명해주세요.]
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+[원하는 솔루션에 대해 간략히 설명해주세요.]
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+[대안을 검토했다면 솔루션 또는 기능에 대해 제시해주세요.]
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+[추가 사항을 기입해주세요. 참조 링크도 좋습니다.]
