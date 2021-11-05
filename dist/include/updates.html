@@ -20,9 +20,8 @@
 
         <d-for var="author" target="page.authors.list">
             <div class="d-flex text-muted pt-3">
-                <div style="padding-right:.5rem; flex: 0 0 42px; width: 42px; height: 42px; overflow: hidden;">
-                    <img class="img-fluid bd-placeholder-img" style="border-radius: .3rem;"
-                        src="${page.authors[author].avatar}" alt="">
+                <div class="avatar-wrap">
+                    <div class="avatar-img" style="background-image: url('${page.authors[author].avatar}')"></div>
                 </div>
 
                 <p class="pb-3 mb-0 small lh-sm border-bottom">
