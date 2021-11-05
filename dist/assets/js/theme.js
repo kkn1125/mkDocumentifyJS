@@ -345,8 +345,6 @@ function floatWarning(type) {
 // 채팅 modal end
 
 // 검색창 start
-const keywords = ['information', 'documentify', 'controller', 'info']; // 메서드이름
-
 (function getTitle() {
     let getTitles = document.getElementsByClassName('h3 text-dark'); // 정확하게 id로 받아오도록 수정하기!
 
@@ -362,29 +360,41 @@ document.addEventListener('keyup', resultHandler);
 
 function resultHandler(ev) {
     let target = ev.target;
-    if (!(target.tagName == 'INPUT' && target.name == 'search')) return; // 클릭은 요기
+    if (!(target.tagName == 'INPUT' && target.name == 'search')) return;
     let inputValue = ev.target.value; // input창에 입력한 값(String)
     let idx = 0;
     let result = document.getElementById('search-result'); // 들어가는 결과값은 요기
     result.innerHTML = '';
-
-// 다른 곳 클릭하면 드롭다운 닫히기
-    titles.forEach(function (keyword) {
-        let okay = keyword.indexOf(inputValue); // keywords의 각 value마다 일치하는 인덱스 반환
-        console.log(okay);
+    
+    titles.forEach(function (title) {
+        let okay = title.toUpperCase().indexOf(inputValue.toUpperCase()); // keywords의 각 value마다 일치하는 인덱스 반환
+        // console.log(okay);
         if (okay != -1 && inputValue != '') {
-            console.log(`keyword: ${keyword}`);
-            console.log(keywords[idx]);
+            // console.log(`title: ${title}`);
+            console.log(`${titles[idx]}, ${okay}번째 일치`);
             
             result.innerHTML += 
             `<div class="dropdown-content">
-                <span>${keyword.slice(0, okay)}</span>
-                <mark>${inputValue}</mark>
-                <span>${keyword.slice(okay+inputValue.length, keyword.length)}</span>
-            </div>`;
-        }
-        idx++;
-    });
-
-}
-// 검색창 end
+            <span>${title.slice(0, okay)}</span>
+            <span class="markThis">${title.slice(okay, okay+inputValue.length)}</span>
+                <span>${title.slice(okay+inputValue.length, title.length)}</span>
+                </div>`;
+            }
+            idx++;
+            const searchBarInput = document.getElementById('searchbar-input');
+            
+            // 검색창에 포커스 없으면 드롭다운 가리기
+            searchBarInput.addEventListener('blur', ()=>{
+                let searchResult = document.getElementById('search-result');
+                searchResult.style.display = 'none';
+            });
+            
+            // 검색창에 포커스 있으면 드롭다운 보이기
+            searchBarInput.addEventListener('click', ()=>{
+                let searchResult = document.getElementById('search-result');
+                searchResult.style.display = 'block';
+            });
+        });
+        
+    }
+    // 검색창 end
