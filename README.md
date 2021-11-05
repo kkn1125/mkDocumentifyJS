@@ -185,7 +185,7 @@ const documentify = Documentify.init({
 
 -----
 
-[devkimson Blog](https://kkn1125.github.io/ "Blog")  
-[devkimson Blog](https://github.com/ohoraming "Github")  
+[devkimson Github](https://github.com/kkn1125 "Github")  
+[ohoraming Github](https://github.com/ohoraming "Github")  
 [Sample page](https://kkn1125.github.io/mkDocumentifyJS/ "Documentify Sample Page")  
 [Update List](https://github.com/kkn1125/mkDocumentifyJS/blob/main/UPDATE.md)
