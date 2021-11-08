@@ -157,7 +157,10 @@ const Documentify = (function () {
 
             let manufacturedPack = this.manufactureToData(originLines, file[0], parseData);
             this.clearView();
-
+            window.titles = [];
+            titles.push(...manufacturedPack.repository.packageInfos)
+            titles.push(...manufacturedPack.repository.packageMethods);
+            // console.log(titles)
             moduleComponent.responseDocuPack(manufacturedPack);
             moduleView.generateDocument(manufacturedPack);
         }
@@ -651,9 +654,9 @@ const Documentify = (function () {
             
             contents.querySelector('.home a').href = `index.html#${docuPack.repository.packageInfos[0].name+'-'+docuPack.repository.packageInfos[0].bundleLine}`
             contents.querySelector('.global a').href = `index.html#${docuPack.repository.packageMethods[0].name+'-'+docuPack.repository.packageMethods[0].bundleLine}`
-            contents.querySelector('.source a').href = `sources.html`
+            // contents.querySelector('.source a').href = `sources.html`
 
-            if(!initOption.showOrigin) contents.querySelector('.source').remove();
+            // if(!initOption.showOrigin) contents.querySelector('.source').remove();
             
             let saveContents = `<!DOCTYPE html>
             <html>
@@ -665,14 +668,22 @@ const Documentify = (function () {
                 </body>
             </html>`;
 
-            zip = new Zip('documentify');
+            zip = new Zip('documentify-single');
+
+            let deleted = this.deleteSaveFeature(theme);
 
             zip.str2zip(saveAsName, saveContents, '/');
             zip.str2zip('main.css', main, '/dist/assets/css/');
             zip.str2zip('gnb.css', gnb, '/dist/assets/css/');
             zip.str2zip('chat.css', chat, '/dist/assets/css/');
-            zip.str2zip('theme.js', theme, '/dist/assets/js/');
+            zip.str2zip('theme.js', deleted, '/dist/assets/js/');
             zip.makeZip();
+        }
+
+        this.deleteSaveFeature = function(str){
+            let deleted = str.replace(`else if (target.classList.contains('needs-save')) answerDelay(answerList['save'], 'info');` ,'');
+            deleted = deleted.replace(`answerList['save']` ,`answerList['info']`);
+            return deleted.replace(/save\:/gm ,`// save:`);
         }
 
         /**
@@ -704,9 +715,9 @@ const Documentify = (function () {
                 
                 contents.querySelector('.home a').href = `index.html#${docuPack.repository.packageInfos[0].name+'-'+docuPack.repository.packageInfos[0].bundleLine}`
                 contents.querySelector('.global a').href = `functions.html#${docuPack.repository.packageMethods[0].name+'-'+docuPack.repository.packageMethods[0].bundleLine}`
-                contents.querySelector('.source a').href = `sources.html`;
+                // contents.querySelector('.source a').href = `sources.html`;
 
-                if(!initOption.showOrigin) contents.querySelector('.source').remove();
+                // if(!initOption.showOrigin) contents.querySelector('.source').remove();
 
             }
 
@@ -729,7 +740,9 @@ const Documentify = (function () {
                 </body>
             </html>`;
 
-            zip = new Zip('documentify');
+            let deleted = this.deleteSaveFeature(theme);
+
+            zip = new Zip('documentify-multiple');
             // let filesArray = [
             //     // 'test',
             //     // 'file02.ext',
@@ -742,7 +755,7 @@ const Documentify = (function () {
             zip.str2zip('main.css', main, '/dist/assets/css/');
             zip.str2zip('gnb.css', gnb, '/dist/assets/css/');
             zip.str2zip('chat.css', chat, '/dist/assets/css/');
-            zip.str2zip('theme.js', theme, '/dist/assets/js/');
+            zip.str2zip('theme.js', deleted, '/dist/assets/js/');
             zip.makeZip();
         }
 
