@@ -18,7 +18,7 @@
     justify-content: space-between;
     padding: 10px;
     background-color: #5ec271;
-    max-height: 111px;
+    align-items: center;
 }
 
 .gnb .file_name {

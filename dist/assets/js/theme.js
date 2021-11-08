@@ -41,15 +41,22 @@ document.addEventListener('click', lineMoveHandler);
 function lineMoveHandler(ev) {
     let target = ev.target;
     let check = document.querySelector('.check');
+    let origins = document.querySelector('#originlines');
+
+    if(target.classList.contains('btn-close')){
+        origins.style.display = 'none';
+    }
 
     if (check) check.classList.remove('check');
     if (target.tagName !== 'A' || target.dataset.type !== 'lineNum') return;
     
+    origins.style.display = 'block';
+
     let lineNum = target.href.split('#')[1];
     let line = document.querySelector('#line-' + lineNum);
     line.scrollIntoView({
         behavior: "smooth",
-        block: "center",
+        block: "start",
         inline: "nearest"
     });
     
@@ -117,11 +124,7 @@ const answerList = {
         let authors = page.authors.list.map(x => `<a target="_blank" href="${page.authors[x].github}"><img style="width: 42px; height: 42px;" class="rounded img-fluid" src="${page.authors[x].avatar}" alt="img"> ${x}</a>`);
         return `<span class="fw-bold">개발자 리스트</span> <br> 클릭 시 깃허브로 이동합니다. <br><br> ${authors.join('<hr class="my-2">')}`;
     }.call(),
-    save: `저장 방식을 선택해주세요.
-    <div id="saveas" class="saveas btn-group mt-2 text-center w-100 rounded-1">
-        <button class="btn btn-primary" data-save-type="single">단일</button>
-        <button class="btn btn-success" data-save-type="multi">분할</button>
-    </div>`,
+    save: `저장 방식을 선택해주세요. <div id="saveas" class="saveas btn-group mt-2 text-center w-100 rounded-1"> <button class="btn btn-primary" data-save-type="single">단일</button> <button class="btn btn-success" data-save-type="multi">분할</button> </div>`,
     info: '<span class="fw-bold">도와줘</span> 또는 <span class="fw-bold">명령어</span>를 입력하시면 입력 가능한 명령어가 출력됩니다.',
     send: '문의사항이 전송되었습니다.',
     notAllowedContent: '전송에 실패하였습니다. 특수문자가 있는지 확인해주세요.',
@@ -155,7 +158,7 @@ function chatHandler(ev) {
 function firstOpenListener(ev) {
     if (!first) {
         first = true;
-        msg.insertAdjacentElement('beforeend', generateBox('무엇을 도와드릴까요?', 'info'));
+        msg.insertAdjacentElement('beforeend', generateBox('무엇을 도와드릴까요?\n<span class="fw-bold">"도와줘"</span>라고 입력하시면 안내 버튼이 나옵니다.', 'info'));
         for (let type in command) {
             msg.insertAdjacentElement('beforeend', generateBox(command[type], 'user', type));
         }
@@ -196,9 +199,7 @@ function autoAnswer(ev) {
             answerDelay(answerList['mail'], 'info mail');
         } else if (target.classList.contains('needs-dev')) {
             answerDelay(answerList['dev'], 'info');
-        } else if (target.classList.contains('needs-save')) {
-            answerDelay(answerList['save'], 'info');
-        }
+        } else if (target.classList.contains('needs-save')) answerDelay(answerList['save'], 'info');
         // else if(target.classList.contains('needs-darkMode'))
         //     answerDelay('다크모드입니다', 'info');
         // else if(target.classList.contains('needs-tutorial'))
@@ -256,7 +257,7 @@ function answerDelay(str, type, detail) {
         else load.insertAdjacentElement('beforebegin', generateBox(str, type, detail));
         load.remove();
         scrollToEnd();
-    }, 2000);
+    }, 1000);
 }
 
 function scrollToEnd(delay = 100) {
@@ -273,7 +274,7 @@ function insertUpdate() {
     setTimeout(() => {
         let cl = msg.firstElementChild.cloneNode(true);
         msg.lastElementChild.insertAdjacentElement('beforebegin', cl);
-    }, 2000);
+    }, 1000);
 }
 
 // 메일 유효성 검사 후 전송
@@ -344,18 +345,6 @@ function floatWarning(type) {
 }
 // 채팅 modal end
 
-// 검색창 start
-(function getTitle() {
-    let getTitles = document.getElementsByClassName('h3 text-dark'); // 정확하게 id로 받아오도록 수정하기!
-
-    window.titles = [];
-    for(let i = 0; i < getTitles.length; i++) {
-        let title = getTitles[i].innerText;
-        titles.push(title);
-    }
-    
-})();
-
 document.addEventListener('keyup', resultHandler);
 
 function resultHandler(ev) {
@@ -367,17 +356,18 @@ function resultHandler(ev) {
     result.innerHTML = '';
     
     titles.forEach(function (title) {
-        let okay = title.toUpperCase().indexOf(inputValue.toUpperCase()); // keywords의 각 value마다 일치하는 인덱스 반환
+        let name = title.name;
+        let okay = name.toUpperCase().indexOf(inputValue.toUpperCase()); // keywords의 각 value마다 일치하는 인덱스 반환
         // console.log(okay);
         if (okay != -1 && inputValue != '') {
             // console.log(`title: ${title}`);
-            console.log(`${titles[idx]}, ${okay}번째 일치`);
+            console.log(`${name}, ${okay}번째 일치`);
             
             result.innerHTML += 
             `<div class="dropdown-content">
-            <span>${title.slice(0, okay)}</span>
-            <span class="markThis">${title.slice(okay, okay+inputValue.length)}</span>
-                <span>${title.slice(okay+inputValue.length, title.length)}</span>
+            <span>${name.slice(0, okay)}</span>
+            <span class="markThis">${name.slice(okay, okay+inputValue.length)}</span>
+                <span>${name.slice(okay+inputValue.length, name.length)}</span>
                 </div>`;
             }
             idx++;
