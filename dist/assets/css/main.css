@@ -184,6 +184,27 @@ div[id^="line-"].mark-line {
     letter-spacing: 0.05rem;
 }
 
+#originlines{
+    position: fixed;
+    top: 10%;
+    left: 0;
+    right: 0;
+    height: calc(90vh - 10%);
+    display: none;
+}
+
+#originlines .title{
+    background-color: var(--ks-secondary);
+    color: white;
+    padding: .5rem 1rem;
+    text-align: end;
+}
+
+#originlines>div:not(.title){
+    background-color: white;
+    height: 100%;
+}
+
 .line-num {
     width: 2.5rem;
     flex: 0 0 2.5rem;
@@ -191,6 +212,12 @@ div[id^="line-"].mark-line {
 
 .codes {
     background: rgb(245, 245, 245);
+    height: 100%;
+    overflow: auto;
+}
+
+.codes>pre{
+    height: calc(93% - 1.3rem + .6vw);
 }
 
 .codes .line-num {
