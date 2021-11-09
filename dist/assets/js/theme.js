@@ -1,5 +1,5 @@
 /**!
- * mkDocumentifyJS v0.2.5 (https://github.com/kkn1125/mkDocumentifyJS)
+ * mkDocumentifyJS v0.2.6 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
@@ -202,10 +202,18 @@ function autoAnswer(ev) {
         } else if (target.classList.contains('needs-save')) answerDelay(answerList['save'], 'info');
         // else if(target.classList.contains('needs-darkMode'))
         //     answerDelay('다크모드입니다', 'info');
-        // else if(target.classList.contains('needs-tutorial'))
-        //     answerDelay('튜토리얼보기', 'info');
+        // else if(target.classList.contains('needs-tutorial')){
+        //     document.querySelector('.chat-modal').classList.remove('show');
+        //     document.querySelector('.chat-modal').classList.add('hide');
+        //     answerDelay('튜토리얼을 진행합니다.', 'info');
+        //     renderTutorials();
+        // }
     }
 }
+
+// function renderTutorials(){
+//     document.querySelector('.restart').click();
+// }
 
 // 유저 대화 입력 핸들러
 document.querySelector('.chat-bar input').addEventListener('keydown', userChatHandler);

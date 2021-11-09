@@ -1,5 +1,5 @@
 /**
- * mkDocumentifyJS v0.2.5 (https://github.com/kkn1125/mkDocumentifyJS)
+ * mkDocumentifyJS v0.2.6 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
@@ -260,4 +260,9 @@ button {
 
 a[href] {
     color: var(--ks-primary);
+}
+
+.restart{
+    opacity: 0;
+    pointer-events: none;
 }
