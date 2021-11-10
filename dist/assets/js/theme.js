@@ -353,49 +353,54 @@ function floatWarning(type) {
 }
 // 채팅 modal end
 
-document.addEventListener('keyup', resultHandler);
+// 검색창 start
 
+const searchBarInput = document.getElementById('searchbar-input'); // 검색어 입력창
+const searchResult = document.getElementById('search-result'); // 검색 결과를 드롭다운으로 보여주는 공간
+
+searchBarInput.addEventListener('click', focusHandler);
+
+function focusHandler() {
+    searchResult.style.display = 'block'; // 검색 결과 드롭다운 보이기
+    searchBarInput.addEventListener('keyup', resultHandler);
+}
+
+// ESC키로 검색창 초기화
+searchBarInput.addEventListener('keydown', (ev)=>{
+    if(ev.key == 'Escape') {
+        searchBarInput.value = ''; // 검색어 삭제
+        searchResult.style.display = 'none'; // 드롭다운 닫기
+    }
+})
+
+// 검색창에 검색어 입력시 검색결과 드롭다운 보여줌
 function resultHandler(ev) {
-    let target = ev.target;
-    if (!(target.tagName == 'INPUT' && target.name == 'search')) return;
     let inputValue = ev.target.value; // 검색창에 입력한 값(String)
-    const searchResult = document.getElementById('search-result'); // 검색 결과를 드롭다운으로 보여주는 공간
     searchResult.innerHTML = '';
-    
     titles.forEach(function (title) {// object type의 titles
-        let name = title.name; // 함수 이름
+        let fnName = title.name; // 함수 이름
         let bundleLine = title.bundleLine; // 소스코드 줄번호
         let fileName = title.fileName; // 파일 경로
-        let okay = name.toUpperCase().indexOf(inputValue.toUpperCase()); // 함수 이름들 중 대소문자 구분없이 입력값과 일치하는 인덱스 반환
+        let okay = fnName.toUpperCase().indexOf(inputValue.toUpperCase()); // 함수 이름들 중 대소문자 구분없이 입력값과 일치하는 인덱스 반환
         
         if (okay != -1 && inputValue != '') {
             searchResult.style.display = 'block'; // 검색어 입력시 검색 결과 드롭다운 보이기
             
             // 드롭다운에서 해당 함수 이름에 검색창의 입력값 마킹 
             // data-name에 해당 함수를 표시한 요소의 id기입
-            searchResult.innerHTML += `<div class="dropdown-content" data-name="${name}-${bundleLine}">
-            <div>${name.slice(0, okay)}</div>
-            <div class="markThis">${name.slice(okay, okay+inputValue.length)}</div>
-            <div>${name.slice(okay+inputValue.length, name.length)}</div>
+            searchResult.innerHTML += `<div class="dropdown-content" data-name="${fnName}-${bundleLine}">
+            <div>${fnName.slice(0, okay)}</div>
+            <div class="markThis">${fnName.slice(okay, okay+inputValue.length)}</div>
+            <div>${fnName.slice(okay+inputValue.length, fnName.length)}</div>
             <div class="markLineNum">(${fileName}, line number: ${bundleLine})</div>
             </div>`;
-        }
+        }       
+    });
 
-        // const searchBarInput = document.getElementById('searchbar-input');
-            
-        // // 검색창에 포커스 없으면 드롭다운 가리기
-        // searchBarInput.addEventListener('blur', ()=>{
-        //     let searchResult = document.getElementById('search-result');
-        //     searchResult.style.display = 'none';
-        // });
-        
-        // // 검색창에 포커스 있으면 드롭다운 보이기
-        // searchBarInput.addEventListener('click', ()=>{
-        //     let searchResult = document.getElementById('search-result');
-        //     searchResult.style.display = 'block';
-        // });
-
-        
+    // 검색창과 드롭다운 이외 클릭시 드롭다운 닫힘
+    document.addEventListener('click', (ev)=>{
+        let target = ev.target;
+        if(target.id != 'search-bar' || target.parentNode == 'search-result') searchResult.style.display = 'none';
     });
                             
     // 드롭다운 내 특정 함수명 클릭시 화면의 해당 함수로 이동
@@ -404,11 +409,8 @@ function resultHandler(ev) {
         let dropdownContentDiv = target.closest('.dropdown-content')
         let fnName = dropdownContentDiv.dataset.name;
         document.getElementById(fnName).scrollIntoView(true); // 해당 함수 이름으로 이동
-        let searchBarInput = document.getElementById('searchbar-input');
         searchBarInput.value = ''; // 검색어 삭제
         searchResult.style.display = 'none'; // 이동 후에는 드롭다운 닫기
     });
-        
-    
 }
 // 검색창 end
