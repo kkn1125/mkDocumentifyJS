@@ -1,5 +1,5 @@
 /**!
- * mkDocumentifyJS v0.2.6 (https://github.com/kkn1125/mkDocumentifyJS)
+ * mkDocumentifyJS v1.0.0 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
@@ -54,7 +54,7 @@ const Documentify = (function () {
          */
         this.fileSaveHandler = function (ev) {
             let target = ev.target;
-            if (!target || !target.parentNode.classList.contains('saveas') || target.parentNode.id !== 'saveas') return;
+            if (!target || !target.parentNode || !target.parentNode.classList.contains('saveas') || target.parentNode.id !== 'saveas') return;
 
             moduleModel.fileSaveHandler(ev);
         }

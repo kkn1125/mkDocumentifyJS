@@ -1,5 +1,5 @@
 /**!
- * mkDocumentifyJS v0.2.6 (https://github.com/kkn1125/mkDocumentifyJS)
+ * mkDocumentifyJS v1.0.0 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
@@ -9,7 +9,7 @@
 // recent popup delete | kimson 2021-10-22 16:25:02
 window.addEventListener('click', (ev) => {
     let target = ev.target;
-    if (target.dataset.id !== 'dcPopup' && (target.parentNode.dataset.id !== 'dcPopup' || target.tagName !== 'I')) {
+    if (target.dataset.id !== 'dcPopup' && (!target.parentNode || target.parentNode.dataset.id !== 'dcPopup' || target.tagName !== 'I')) {
         return;
     }
     let pop = target.offsetParent.querySelector('[data-dc-type="popup"]');
@@ -146,7 +146,7 @@ function chatHandler(ev) {
         modal.classList.add('hide')
     }
 
-    if (target.parentNode.tagName !== 'DIV' || !target.parentNode.classList.contains('chat-btn')) return;
+    if (!target.parentNode || target.parentNode.tagName !== 'DIV' || !target.parentNode.classList.contains('chat-btn')) return;
     if (!modal.classList.contains('show')) {
         modal.classList.add('show');
         modal.classList.remove('hide');
@@ -407,14 +407,17 @@ function dropdownAnchorHandler(ev){
     let target = ev.target;
     let dropdownContentDiv = target.closest('.dropdown-content');
     let fnName = dropdownContentDiv.dataset.name;
-    document.getElementById(fnName).scrollIntoView(true); // 해당 함수 이름으로 이동
+    document.getElementById(fnName).scrollIntoView({behavior: "smooth",
+    block: "start",
+    inline: "nearest"}); // 해당 함수 이름으로 이동
     clearInput(true);
+    searchResult.innerHTML = '';
 }
 
 // 검색창과 드롭다운 이외 클릭시 드롭다운 닫힘 - kim
 document.addEventListener('click', (ev)=>{
     let target = ev.target;
-    if(target.id == 'searchbar-input' || target.parentNode.id == 'search-result') return;
+    if(target.id == 'searchbar-input' || (target.parentNode && target.parentNode.id == 'search-result')) return;
     clearInput(false);
 });
 

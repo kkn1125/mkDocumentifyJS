@@ -1,5 +1,5 @@
 /**
- * mkDocumentifyJS v0.2.6 (https://github.com/kkn1125/mkDocumentifyJS)
+ * mkDocumentifyJS v1.0.0 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
  */
@@ -159,7 +159,6 @@
     grid-column: 1 / 5;
     color: gray;
     padding: 50px;
-    scroll-behavior: smooth;
 }
 
 .footer {
