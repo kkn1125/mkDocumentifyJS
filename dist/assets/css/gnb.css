@@ -35,19 +35,11 @@
     float: right;
 }
 
-.gnb input[type="text"] {
+/* .gnb input[type="text"] {
     padding: 6px;
     font-size: 17px;
     border: 1px solid black;
-}
-
-.search-container button {
-    float: right;
-    padding: 6px 10px;
-    font-size: 17px;
-    border: 1px solid black;
-    cursor: pointer;
-}
+} */
 
 #search-bar {
     position: relative;

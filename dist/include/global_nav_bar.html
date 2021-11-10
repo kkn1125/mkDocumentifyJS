@@ -3,8 +3,8 @@
         <h1>{@docuPack.file.name.split('/').pop().split('').map((x,i)=>i==0?x.toUpperCase():x).join('')@}</h1>
     </div>
     <div class="search-container dropdown" id="search-bar">
-        <input type="text" placeholder="search" name="search" id="searchbar-input">
-            <button id="saveas" class="saveas" type="submit"><i class="fa fa-search"></i></button>
-            <div id="search-result"></div>
+        <input class="form-control border-1 border-dark" type="text" placeholder="search" name="search" id="searchbar-input">
+        <i class="fa fa-search text-muted position-absolute end-0 top-50 translate-middle"></i>
+        <div id="search-result"></div>
     </div>
 </div>
