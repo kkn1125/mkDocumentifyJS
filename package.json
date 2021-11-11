@@ -1,6 +1,7 @@
 {
     "homepage" : "https://kkn1125.github.io/mkDocumentifyJS/",
     "script": {
+        "build": "webpack --mode production",
         "predeploy": "npm run build",
         "deploy": "gh-pages -d build"
     }
