@@ -184,7 +184,7 @@ const documentify = Documentify.init({
 
 관심을 가져주는 것 만으로도 감사할 따름입니다. 현재 두 명 개발 진행 중이며 버그나 에러, 미흡한 부분, 제안 등 모든 의견 주시면 검토하고 반영하도록 하겠습니다.
 
-<a href="https://donaricano.com/creator/kkn1125" target="_blank"><img src="https://d1u4yishnma8v5.cloudfront.net/mobile-gift.png" alt="donaricano-btn" style="height: 70px !important;width: 200px !important;" /></a>
+<a href="https://donaricano.com/creator/kkn1125" target="_blank"><img src="https://d1u4yishnma8v5.cloudfront.net/custom/-eHBmanJuc2VrczFAbmF2ZXIuY29t" alt="donaricano-btn" style="height: 50px !important;width: 200px !important;" /></a>
 
 -----
 
