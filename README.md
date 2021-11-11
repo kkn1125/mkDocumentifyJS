@@ -1,4 +1,4 @@
-![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/kkn1125/mkDocumentifyJS?color=violet&include_prereleases&label=pre-release&style=for-the-badge)
+![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/kkn1125/mkDocumentifyJS?color=violet&include_prereleases&label=release&style=for-the-badge)
 
 # mkDocumentifyJS
 
