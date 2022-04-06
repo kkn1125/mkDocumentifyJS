@@ -1,0 +1,5 @@
+#!/usr/env/bin sh
+
+npm init -y
+
+npm i -D jest babel-jest @babel/core @babel/preset-env jsdom

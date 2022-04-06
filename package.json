@@ -1,0 +1,26 @@
+{
+  "name": "mkdocumentifyjs",
+  "version": "1.0.0",
+  "description": "![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/kkn1125/mkDocumentifyJS?color=violet&include_prereleases&label=release&style=for-the-badge)",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --coverage --watch --verbose false"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://kkn1125@github.com/kkn1125/mkDocumentifyJS.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kkn1125/mkDocumentifyJS/issues"
+  },
+  "homepage": "https://github.com/kkn1125/mkDocumentifyJS#readme",
+  "devDependencies": {
+    "@babel/core": "^7.17.8",
+    "@babel/preset-env": "^7.16.11",
+    "babel-jest": "^27.5.1",
+    "jest": "^27.5.1",
+    "jsdom": "^19.0.0"
+  }
+}
