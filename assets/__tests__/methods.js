@@ -14,7 +14,7 @@
  *              start: '2022.04.06',
  *              end: '2022.04.30',
  *          },
- *          author: 'kkn1125 ohoraming',
+ *          author: ['kkn1125', 'ohoraming'],
  *          param: {
  *              name: '',
  *              type: '',
@@ -30,12 +30,15 @@
  * 
  * # doc tag
  * 
+ * ji
  * @function
- * @var
  * @param
- * @returns
  * @see
  * @since
+ * 
+ * nam
+ * @var
+ * @returns
  * @author
  * @desc
  */
