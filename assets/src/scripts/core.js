@@ -1,9 +1,31 @@
+function Store () {
+    this.alerts = function (func) {
+        console.log(this);
+        // func();
+    }
+
+    this.calls = function (func) {
+        console.log(this)
+        // func();
+    }
+}
+
 const Documentify = (function () {
     function Controller () {
         let models;
 
         this.init = function (model) {
             models = model;
+
+            // document.body.addEventListener('click', this.firstCall);
+            new Store().calls(this.firstCall);
+        }
+
+        this.firstCall = function () {
+            console.log(this)
+            new Store().alerts(this.myname);
+            this.myname();
+            models.firstCall();
         }
     }
 
