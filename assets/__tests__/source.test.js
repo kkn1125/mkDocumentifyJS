@@ -1,4 +1,4 @@
-import {parsedParagraph, re, Syntax} from './source';
+import {FinallyParsedParagraph, re, Syntax} from './source';
 import * as sample from './__comments/sample';
 
 describe('소스 테스트', () => {
@@ -8,7 +8,7 @@ describe('소스 테스트', () => {
     });
 
     test('파싱 개수 테스트', () => {
-        let parsedA = parsedParagraph(sample.c);
+        let parsedA = FinallyParsedParagraph(sample.c);
         expect(parsedA.length).toBe(3);
         expect(parsedA[0].length()).toBe(2);
         expect(parsedA[1].length()).toBe(5);

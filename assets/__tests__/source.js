@@ -59,7 +59,7 @@ const ReturnOfTheLine = function ([$1, tag, $2, type, desc]) {
     this.desc = desc;
 }
 
-const tagCollections = function () {
+const TagCollections = function () {
     return {
         AuthorOfTheLine: [],
         ParamOfTheLine: [],
@@ -71,14 +71,12 @@ const tagCollections = function () {
     }
 }
 
-const tagCollector = (origin, obj) => {
-    origin[obj.constructor.name].push(obj);
+const TagCollector = (collectedTags, convertedLine) => {
+    collectedTags[convertedLine.constructor.name].push(convertedLine);
 }
 
-const tagCollecting = (collectedTags, line) => tagCollector(collectedTags, line);
-
 const FnMatchingTagName = {
-    // '': DescOfTheLine,
+    '': DescOfTheLine,
     undefined: DescOfTheLine,
     var: MemberOfTheLine,
     member: MemberOfTheLine,
@@ -101,7 +99,8 @@ const Syntax = {
     // 통과
     TagAuthor: /\b(?!@)(author)\s+([^\<\>\n]+)?(\<.+\>)?/,
     // 통과!
-    TagDesc: /@(description|desc)(\s*.+)|(^[^@\*\s])(.+)/,
+    TagDesc: /\b(?!@)(description|desc)(\s+.+)/,
+    TagDesc2: /^[^@].+/,
     // 통과!
     TagMember: /@(var|member)(\s+\{(.+)\})?(\s+\w+)?/,
     // 통과
@@ -117,36 +116,65 @@ const Syntax = {
     AllTags: /@(\w+)(\s+\{(.+)\})?(\s+[\.\w\[\]]+)?(\s\-\s)?(.+)?/,
 }
 
-const divideParagraph = (target) => target.match(re(Syntax.Paragraph, 'g'));
+const DivideSourceToParagraph = (target) => target.match(re(Syntax.Paragraph, 'g')).filter(paragraph => !paragraph.startsWith(`/**!`));
 
-const lineMatchRegExp = line => line.match(Syntax.ParamTagRegex)
+const LineMatchRegExp = line => line.match(Syntax.ParamTagRegex)
     || line.match(Syntax.FunctionTagRegex)
     || line.match(Syntax.SinceTagRegex)
     || line.match(Syntax.TagAuthor)
     || line.match(Syntax.TagDesc)
+    || line.match(Syntax.TagDesc2)
     || line.match(Syntax.TagMember)
     || line.match(Syntax.TagReturns);
 
-const parseLineWithRegExp = line => {
-    const matched = lineMatchRegExp(line);
-    return matched?new FnMatchingTagName[matched[1]](matched):null;
-}
-const removeAstric = paragraph => paragraph.replace(Syntax.RemoveAstric, '\n');
-const splitParagraph = filteredParagraph => filteredParagraph.split('\n');
-const emptyFilter = filteredParagraph => filteredParagraph.filter(x=>x);
+const ConvertLineToObject = noAstricLine => {
+    const matched = LineMatchRegExp(noAstricLine);
 
-const convertedParagraph = paragraph => {
-    return emptyFilter(splitParagraph(removeAstric(paragraph))).map(parseLineWithRegExp);
+    if(matched && matched.length==1) {
+        matched.unshift(undefined);
+        matched.unshift(undefined);
+    }
+    console.log(matched)
+    return matched ? new FnMatchingTagName[matched[1]](matched) : null;
 }
 
-const parsingParagraph = paragraph => {
-    const collectedTags = tagCollections();
-    emptyFilter(convertedParagraph(paragraph)).forEach(tagCollecting.bind(this, collectedTags));
+const AstrictToNewLine = paragraphWithAstric => paragraphWithAstric.replace(Syntax.RemoveAstric, '\n');
+
+const DivideParagraphToLine = filteredParagraph => filteredParagraph.split('\n');
+
+const RemoveEmptyLine = filteredParagraph => filteredParagraph.filter(line => line);
+
+/**
+ * 최종적으로 객체로 변환된 문단.
+ * @param {string} paragraph astric을 가진 문단
+ * @returns 
+ */
+const ConvertedParagraph = paragraphWithAstric => {
+    const noAstrictLine = AstrictToNewLine(paragraphWithAstric);
+    const dividedParaph = DivideParagraphToLine(noAstrictLine);
+    return RemoveEmptyLine(dividedParaph).map(ConvertLineToObject);
+}
+
+/**
+ * 문단 파싱
+ * @param {string} paragraphWithAstric 아스트릭 있는 문단
+ * @returns {ParagraphTagSet} 문단 객체
+ */
+const ParsingParagraph = paragraphWithAstric => {
+    const collectedTags = TagCollections();
+    RemoveEmptyLine(ConvertedParagraph(paragraphWithAstric)).forEach(TagCollector.bind(this, collectedTags));
     return new ParagraphTagSet(collectedTags);
 }
 
-const parsedParagraph = jsStrings => {
-    return divideParagraph(jsStrings).map(parsingParagraph);
+/**
+ * 최종적으로 모든 자바스크립트 주석을 파싱해서 객체화한 문단을 담은 배열을 반환
+ * @param {string} jsSource 자바스크립트 원문
+ * @returns {ParagraphTagSet[]} 문단 객체 배열
+ */
+const FinallyParsedParagraph = jsSource => {
+    return DivideSourceToParagraph(jsSource).map(ParsingParagraph);
 }
 
-export {re, ParagraphTagSet, AuthorOfTheLine, ParamOfTheLine, FunctionOfTheLine, MemberOfTheLine, DescOfTheLine, SinceOfTheLine, ReturnOfTheLine, tagCollections, tagCollector, tagCollecting, FnMatchingTagName, Syntax, divideParagraph, lineMatchRegExp, parseLineWithRegExp, removeAstric, splitParagraph, emptyFilter, convertedParagraph, parsingParagraph, parsedParagraph};
+const result = FinallyParsedParagraph(sample.c);
+
+export {re, ParagraphTagSet, AuthorOfTheLine, ParamOfTheLine, FunctionOfTheLine, MemberOfTheLine, DescOfTheLine, SinceOfTheLine, ReturnOfTheLine, TagCollections, TagCollector, FnMatchingTagName, Syntax, DivideSourceToParagraph, LineMatchRegExp, ConvertLineToObject, AstrictToNewLine, DivideParagraphToLine, RemoveEmptyLine, ConvertedParagraph, ParsingParagraph, FinallyParsedParagraph};
