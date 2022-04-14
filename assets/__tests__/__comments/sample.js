@@ -1,4 +1,4 @@
-const sampleA = `/**!
+const a = `/**!
  * mkDocumentifyJS v1.0.0 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
@@ -1049,7 +1049,7 @@ const Documentify = (function () {
     }
 })();`;
 
-const sampleB = `/**!
+const b = `/**!
  * mkDocumentifyJS v1.0.0 (https://github.com/kkn1125/mkDocumentifyJS)
  * Copyright 2021 Authors (https://github.com/kkn1125/mkDocumentifyJS/graphs/contributors) kkn1125, ohoraming
  * Licensed under MIT (https://github.com/kkn1125/mkDocumentifyJS/blob/main/LICENSE)
@@ -1123,7 +1123,7 @@ function Model(a){
    return View;
 }`
 
-const sampleC = `/**
+const c = `/**
  * 문서화의 모든 이벤트를 제어하는 기능 담당하는 객체
  * @function Controller
  */
@@ -1172,4 +1172,4 @@ function Controller() {
      */
 }`
 
-export {sampleA, sampleB, sampleC};
+export {a, b, c};
