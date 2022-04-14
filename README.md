@@ -37,6 +37,12 @@
 1. 상수 - 대문자 (UPPER_CASE)
 2. 변수 - camelCase (lowerCamelCase)
 
+[clean-code-javascript-ko](https://github.com/qkraudghgh/clean-code-javascript-ko)
+[코딩 스타일](https://namu.wiki/w/%EC%BD%94%EB%94%A9%20%EC%8A%A4%ED%83%80%EC%9D%BC)
+[협업하기 좋은 코딩 스타일이란?](https://velog.io/@oh930428/%ED%98%91%EC%97%85%ED%95%98%EA%B8%B0-%EC%A2%8B%EC%9D%80-%EC%BD%94%EB%94%A9-%EC%8A%A4%ED%83%80%EC%9D%BC%EC%9D%B4%EB%9E%80)
+[As a JS Developer, This Is What Keeps Me Up at Night](https://www.toptal.com/javascript/es6-class-chaos-keeps-js-developer-up)
+[[Agile] 애자일 방법론과 스크럼, 스프린트](https://hanseul-lee.github.io/2020/11/29/20-11-29-Agile/)
+
 -----
 
 ```json
