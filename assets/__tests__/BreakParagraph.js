@@ -104,13 +104,3 @@ export const getLines = function (paragraphs) {
 export const convertBlockLines = function (string) {
     return getBlocks(string).map(getLines).filter(emptyList);
 }
-
-export const testObj = function (text) {
-    const arr = text.match(re.paramLine);
-    return arr.map(setObj);
-}
-
-function setObj (line, idx, arr) {
-    const [origin, tag, $2, type, name, $5, $6, desc] = line.match(re.param);
-    return abstractTagInfo({origin, tag, type, name, desc});
-}
