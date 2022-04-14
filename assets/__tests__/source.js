@@ -3,44 +3,20 @@ import * as sample from './__comments/sample.js';
 
 const re = (regexp, flags) => new RegExp(regexp, flags);
 
-const Syntax = {
-    Paragraph: /\/\*\*\s*[\s\S]+?\s*\*\//gm,
-    StartsWithComment: /\s*\*\s*([\s\S]+)?/gm,
-    Variable: /@(var|member)\s*(\{(\w+)?\}\s*)?([\s\S]+)?/i,
-    EachLine: /\n/gm,
-
-    TagReturns: /\b(?!@)(return)s?(\s+\{(.+)\})?(\s+[\w]+)?/g,
-    // 통과
-    TagAuthor: /\b(?!@)(author)\s+([^\<\>\n]+)?(\<.+\>)?/g,
-    // 통과!
-    TagDesc: /@?(desc|description)?(.+)?/g,
-    // 통과!
-    TagMember: /@(var|member)(\s+\{(.+)\})?(\s+\w+)?/g,
-    // 통과
-    ParamTagRegex: /@(param|arg|argument)(\s+\{(.+)\})?(\s+[\.\w\[\]]+)?(\s\-\s)?(.+)?/g,
-    // 통과!
-    FunctionTagRegex: /@(function)\s*([\w]+)?/g,
-    // 통과!
-    SinceTagRegex: /@(since)\s+(.+)/g,
-    // 통과!
-    See: null,
-
-    RemoveAstric: /\B(\/\*\*|\s*\*\s+|\s*\*\/)/g,
-    AllTags: /@(\w+)(\s+\{(.+)\})?(\s+[\.\w\[\]]+)?(\s\-\s)?(.+)?/,
-}
-
+/* istanbul ignore next */
 /**
  * 한 문단의 모든 태그를 보여 줌
  * @param {object} tags
  */
-const ParagraphTagSet = function ({AuthorOfTheLine, ParamOfTheLine, FunctionOfTheLine, MemberOfTheLine, DescOfTheLine, SinceOfTheLine, ReturnOfTheLine}) {
-    this.function = FunctionOfTheLine;
-    this.authors = AuthorOfTheLine||[];
-    this.sinces = SinceOfTheLine||[];
-    this.params = ParamOfTheLine||[];
-    this.descs = DescOfTheLine||[];
-    this.members = MemberOfTheLine||[];
-    this.returns = ReturnOfTheLine||[];
+const ParagraphTagSet = function (tagSet) {
+    this.function = tagSet.FunctionOfTheLine||[];
+    this.authors = tagSet.AuthorOfTheLine||[];
+    this.sinces = tagSet.SinceOfTheLine||[];
+    this.params = tagSet.ParamOfTheLine||[];
+    this.descs = tagSet.DescOfTheLine||[];
+    this.members = tagSet.MemberOfTheLine||[];
+    this.returns = tagSet.ReturnOfTheLine||[];
+    this.length = () => Object.values(tagSet).reduce((p,c)=>p+c.length,0);
 }
 
 const AuthorOfTheLine = function ([$1, tag, author, email]) {
@@ -67,9 +43,9 @@ const MemberOfTheLine = function ([$1, tag, $2, type, memberName]) {
     this.memberName = memberName;
 }
 
-const DescOfTheLine = function ([$1, tag='desc', desc]) {
+const DescOfTheLine = function ([$1, tag='desc', desc1, $2, desc2]) {
     this.tag = tag;
-    this.desc = desc;
+    this.desc = desc1||desc2;
 }
 
 const SinceOfTheLine = function ([$1, tag, version]) {
@@ -83,7 +59,25 @@ const ReturnOfTheLine = function ([$1, tag, $2, type, desc]) {
     this.desc = desc;
 }
 
-const TagTypes = {
+const tagCollections = function () {
+    return {
+        AuthorOfTheLine: [],
+        ParamOfTheLine: [],
+        FunctionOfTheLine: [],
+        MemberOfTheLine: [],
+        DescOfTheLine: [],
+        SinceOfTheLine: [],
+        ReturnOfTheLine: [],
+    }
+}
+
+const tagCollector = (origin, obj) => {
+    origin[obj.constructor.name].push(obj);
+}
+
+const tagCollecting = (collectedTags, line) => tagCollector(collectedTags, line);
+
+const FnMatchingTagName = {
     // '': DescOfTheLine,
     undefined: DescOfTheLine,
     var: MemberOfTheLine,
@@ -97,51 +91,62 @@ const TagTypes = {
     desc: DescOfTheLine,
 };
 
-const Categorizing = function () {
-    return {
-        AuthorOfTheLine: [],
-        ParamOfTheLine: [],
-        FunctionOfTheLine: [],
-        MemberOfTheLine: [],
-        DescOfTheLine: [],
-        SinceOfTheLine: [],
-        ReturnOfTheLine: [],
-    }
+const Syntax = {
+    Paragraph: /\/\*\*\s*[\s\S]+?\s*\*\//gm,
+    StartsWithComment: /\s*\*\s*([\s\S]+)?/gm,
+    Variable: /@(var|member)\s*(\{(\w+)?\}\s*)?([\s\S]+)?/i,
+    EachLine: /\n/gm,
+
+    TagReturns: /\b(?!@)(return)s?(\s+\{(.+)\})?(\s+[\w]+)?/,
+    // 통과
+    TagAuthor: /\b(?!@)(author)\s+([^\<\>\n]+)?(\<.+\>)?/,
+    // 통과!
+    TagDesc: /@(description|desc)(\s*.+)|(^[^@\*\s])(.+)/,
+    // 통과!
+    TagMember: /@(var|member)(\s+\{(.+)\})?(\s+\w+)?/,
+    // 통과
+    ParamTagRegex: /@(param|arg|argument)(\s+\{(.+)\})?(\s+[\.\w\[\]]+)?(\s\-\s)?(.+)?/,
+    // 통과!
+    FunctionTagRegex: /@(function)\s+([\w]+)?/,
+    // 통과!
+    SinceTagRegex: /@(since)\s+(.+)/,
+    // 통과!
+    See: null,
+
+    RemoveAstric: /\B(\/\*\*|\s*\*\s+|\s*\*\/)/g,
+    AllTags: /@(\w+)(\s+\{(.+)\})?(\s+[\.\w\[\]]+)?(\s\-\s)?(.+)?/,
 }
 
-const categorized = (origin, obj) => {
-    origin[obj.constructor.name].push(obj);
+const divideParagraph = (target) => target.match(re(Syntax.Paragraph, 'g'));
+
+const lineMatchRegExp = line => line.match(Syntax.ParamTagRegex)
+    || line.match(Syntax.FunctionTagRegex)
+    || line.match(Syntax.SinceTagRegex)
+    || line.match(Syntax.TagAuthor)
+    || line.match(Syntax.TagDesc)
+    || line.match(Syntax.TagMember)
+    || line.match(Syntax.TagReturns);
+
+const parseLineWithRegExp = line => {
+    const matched = lineMatchRegExp(line);
+    return matched?new FnMatchingTagName[matched[1]](matched):null;
+}
+const removeAstric = paragraph => paragraph.replace(Syntax.RemoveAstric, '\n');
+const splitParagraph = filteredParagraph => filteredParagraph.split('\n');
+const emptyFilter = filteredParagraph => filteredParagraph.filter(x=>x);
+
+const convertedParagraph = paragraph => {
+    return emptyFilter(splitParagraph(removeAstric(paragraph))).map(parseLineWithRegExp);
 }
 
-const a = sample.sampleC.match(re(Syntax.Paragraph, 'g'));
+const parsingParagraph = paragraph => {
+    const collectedTags = tagCollections();
+    emptyFilter(convertedParagraph(paragraph)).forEach(tagCollecting.bind(this, collectedTags));
+    return new ParagraphTagSet(collectedTags);
+}
 
-let result = a.map(문단스 => {
-    let convert = 문단스.replace(Syntax.RemoveAstric, '\n');
-    let converted = convert.split('\n').filter(x=>x).map(줄=>{
-        const converted = 줄.match(Syntax.ParamTagRegex)
-        ||
-        줄.match(Syntax.FunctionTagRegex)
-        ||
-        줄.match(Syntax.SinceTagRegex)
-        ||
-        줄.match(Syntax.TagAuthor)
-        ||
-        줄.match(Syntax.TagDesc)
-        ||
-        줄.match(Syntax.TagMember)
-        ||
-        줄.match(Syntax.TagReturns);
-        if(converted) {
-            let tagName = converted[1];
-            console.log(tagName)
-            return new TagTypes[tagName](converted);
-        }
-        return null;
-    });
-    const category = Categorizing();
-    converted.forEach((l)=>categorized(category,l));
-    
-    return new ParagraphTagSet(category);
-});
+const parsedParagraph = jsStrings => {
+    return divideParagraph(jsStrings).map(parsingParagraph);
+}
 
-console.log(result)
+export {re, ParagraphTagSet, AuthorOfTheLine, ParamOfTheLine, FunctionOfTheLine, MemberOfTheLine, DescOfTheLine, SinceOfTheLine, ReturnOfTheLine, tagCollections, tagCollector, tagCollecting, FnMatchingTagName, Syntax, divideParagraph, lineMatchRegExp, parseLineWithRegExp, removeAstric, splitParagraph, emptyFilter, convertedParagraph, parsingParagraph, parsedParagraph};
