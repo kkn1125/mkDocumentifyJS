@@ -17,10 +17,11 @@
   },
   "homepage": "https://github.com/kkn1125/mkDocumentifyJS#readme",
   "devDependencies": {
-    "@babel/core": "^7.17.8",
+    "@babel/core": "^7.17.9",
     "@babel/preset-env": "^7.16.11",
     "babel-jest": "^27.5.1",
     "jest": "^27.5.1",
     "jsdom": "^19.0.0"
-  }
+  },
+  "keywords": []
 }
