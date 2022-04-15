@@ -3,7 +3,7 @@ export const DescCard = params => {
         return `<div class="text-muted">
             ${desc}
         </div>`
-    }).join('');
+    }).join('<br>');
 
     return `<div>
         ${descRows}

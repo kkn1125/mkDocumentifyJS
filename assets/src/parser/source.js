@@ -1,10 +1,9 @@
 import * as sample from '../../__tests__/__comments/sample.js';
 import { FnCard } from '../templates/function.js';
-import { MemberCard } from '../templates/member.js';
 import { ParamCard } from '../templates/param.js';
 import { DescCard } from '../templates/desc.js';
 import { InfoCard } from '../templates/info.js';
-import { MemberCard } from '../templates/member.js';
+import { MemberTypeCard, MemberNameCard } from '../templates/member.js';
 
 const re = (regexp, flags) => new RegExp(regexp, flags);
 
@@ -92,6 +91,7 @@ const FnMatchingTagName = {
     returns: ReturnOfTheLine,
     author: AuthorOfTheLine,
     desc: DescOfTheLine,
+    description: DescOfTheLine,
 };
 
 const Syntax = {
@@ -139,7 +139,7 @@ const ConvertLineToObject = noAstricLine => {
         matched.unshift(undefined);
         matched.unshift(undefined);
     }
-    
+    console.log(matched)
     return matched ? new FnMatchingTagName[matched[1]](matched) : null;
 }
 
@@ -185,15 +185,16 @@ const FinallyParsedParagraph = jsSource => {
  */
 const CreateTemplate = ({members, function: functions, sinces, params, returns, authors, descs}) => {
     const descT = DescCard(descs);
-    const memberT = MemberCard(members);
+    const memberTT = MemberTypeCard(members);
+    const memberNT = MemberNameCard(members);
     const infoT = InfoCard(authors, sinces);
     const paramT = ParamCard(params);
     const fnT = FnCard(functions, returns);
-    return `${descT}${memberT}${fnT}${paramT}${infoT}`;
+    return `${descT}${memberTT}${memberNT}${fnT}${paramT}${infoT}`;
 }
 
-const result = FinallyParsedParagraph(sample.c);
-console.log(result);
+// const result = FinallyParsedParagraph(sample.c);
+// console.log(result);
 
-console.log(result)
-export {re, ParagraphTagSet, AuthorOfTheLine, ParamOfTheLine, FunctionOfTheLine, MemberOfTheLine, DescOfTheLine, SinceOfTheLine, ReturnOfTheLine, TagCollections, TagCollector, FnMatchingTagName, Syntax, DivideSourceToParagraph, LineMatchRegExp, ConvertLineToObject, AstrictToNewLine, DivideParagraphToLine, RemoveEmptyLine, ConvertedParagraph, ParsingParagraph, FinallyParsedParagraph, CreateTemplate, result};
+// console.log(result)
+export {re, ParagraphTagSet, AuthorOfTheLine, ParamOfTheLine, FunctionOfTheLine, MemberOfTheLine, DescOfTheLine, SinceOfTheLine, ReturnOfTheLine, TagCollections, TagCollector, FnMatchingTagName, Syntax, DivideSourceToParagraph, LineMatchRegExp, ConvertLineToObject, AstrictToNewLine, DivideParagraphToLine, RemoveEmptyLine, ConvertedParagraph, ParsingParagraph, FinallyParsedParagraph, CreateTemplate};
