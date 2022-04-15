@@ -1,6 +1,10 @@
 import * as sample from '../../__tests__/__comments/sample.js';
 import { FnCard } from '../templates/function.js';
+import { MemberCard } from '../templates/member.js';
 import { ParamCard } from '../templates/param.js';
+import { DescCard } from '../templates/desc.js';
+import { InfoCard } from '../templates/info.js';
+import { MemberCard } from '../templates/member.js';
 
 const re = (regexp, flags) => new RegExp(regexp, flags);
 
@@ -135,6 +139,7 @@ const ConvertLineToObject = noAstricLine => {
         matched.unshift(undefined);
         matched.unshift(undefined);
     }
+    
     return matched ? new FnMatchingTagName[matched[1]](matched) : null;
 }
 
@@ -151,8 +156,8 @@ const RemoveEmptyLine = filteredParagraph => filteredParagraph.filter(line => li
  */
 const ConvertedParagraph = paragraphWithAstric => {
     const noAstrictLine = AstrictToNewLine(paragraphWithAstric);
-    const dividedParaph = DivideParagraphToLine(noAstrictLine);
-    return RemoveEmptyLine(dividedParaph).map(ConvertLineToObject);
+    const divideParagraph = RemoveEmptyLine(DivideParagraphToLine(noAstrictLine));
+    return RemoveEmptyLine(divideParagraph).map(ConvertLineToObject);
 }
 
 /**
@@ -179,11 +184,16 @@ const FinallyParsedParagraph = jsSource => {
  * @param {ParagraphTagSet} pts
  */
 const CreateTemplate = ({members, function: functions, sinces, params, returns, authors, descs}) => {
+    const descT = DescCard(descs);
+    const memberT = MemberCard(members);
+    const infoT = InfoCard(authors, sinces);
     const paramT = ParamCard(params);
     const fnT = FnCard(functions, returns);
-    return `${fnT}${paramT}`;
+    return `${descT}${memberT}${fnT}${paramT}${infoT}`;
 }
 
 const result = FinallyParsedParagraph(sample.c);
+console.log(result);
 
+console.log(result)
 export {re, ParagraphTagSet, AuthorOfTheLine, ParamOfTheLine, FunctionOfTheLine, MemberOfTheLine, DescOfTheLine, SinceOfTheLine, ReturnOfTheLine, TagCollections, TagCollector, FnMatchingTagName, Syntax, DivideSourceToParagraph, LineMatchRegExp, ConvertLineToObject, AstrictToNewLine, DivideParagraphToLine, RemoveEmptyLine, ConvertedParagraph, ParsingParagraph, FinallyParsedParagraph, CreateTemplate, result};
