@@ -1,6 +1,9 @@
 import * as sample from '../../__tests__/__comments/sample.js';
 import { FnCard } from '../templates/function.js';
 import { ParamCard } from '../templates/param.js';
+import { DescCard } from '../templates/desc.js';
+import { InfoCard } from '../templates/info.js';
+import { MemberCard } from '../templates/member.js';
 
 const re = (regexp, flags) => new RegExp(regexp, flags);
 
@@ -179,11 +182,15 @@ const FinallyParsedParagraph = jsSource => {
  * @param {ParagraphTagSet} pts
  */
 const CreateTemplate = ({members, function: functions, sinces, params, returns, authors, descs}) => {
+    const descT = DescCard(descs);
+    const memberT = MemberCard(members);
+    const infoT = InfoCard(authors, sinces);
     const paramT = ParamCard(params);
     const fnT = FnCard(functions, returns);
-    return `${fnT}${paramT}`;
+    return `${descT}${memberT}${fnT}${paramT}${infoT}`;
 }
 
 const result = FinallyParsedParagraph(sample.c);
+console.log(result);
 
 export {re, ParagraphTagSet, AuthorOfTheLine, ParamOfTheLine, FunctionOfTheLine, MemberOfTheLine, DescOfTheLine, SinceOfTheLine, ReturnOfTheLine, TagCollections, TagCollector, FnMatchingTagName, Syntax, DivideSourceToParagraph, LineMatchRegExp, ConvertLineToObject, AstrictToNewLine, DivideParagraphToLine, RemoveEmptyLine, ConvertedParagraph, ParsingParagraph, FinallyParsedParagraph, CreateTemplate, result};
