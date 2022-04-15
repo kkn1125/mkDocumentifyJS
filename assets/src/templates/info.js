@@ -3,13 +3,15 @@ export const InfoCard = (authors, [sinces]) => {
         return `<span>${author}</span><br>`;
     }).join('');
 
-    return `<dl class="row">
-        <dt class="col-sm-3">Author: </dt>
-        <dd class="col-sm-9">${authorRows}</dd>
+    const authorCard = authors.length>0?`<dt class="col-sm-3">Author: </dt>
+    <dd class="col-sm-9">${authorRows}</dd>`:'';
+    
+    const version = sinces?`<dt class="col-sm-3">Since: </dt>
+    <dd class="col-sm-9">${sinces.version}</dd>`:'';
+
+    return authorCard && version? `<dl class="row">
+        ${authorCard}
+        ${version}
     </dl>
-    <dl class="row">
-        <dt class="col-sm-3">Since: </dt>
-        <dd class="col-sm-9">${sinces.version}</dd>
-    </dl>
-    `;
+    `:'';
 }

@@ -8,8 +8,8 @@ export const ParamCard = params => {
             <td>${desc}</td>
         </tr>`;
     }).join('');
-
-    return `<div>
+    return parameterRows.length>0?
+    `<div class="my-5">
         <div>Parameters:</div>
         <table class="table">
             <thead class="text-center">
@@ -23,5 +23,6 @@ export const ParamCard = params => {
                 ${parameterRows}
             </tbody>
         </table>
-    </div>`;
+    </div>`:
+    '';
 }
