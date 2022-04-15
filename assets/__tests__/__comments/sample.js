@@ -1134,6 +1134,11 @@ function Controller() {
 
     /**
      * Controller를 초기화하는 메서드
+     * @author kimson
+     * @author Jane Smith <jsmith@example.com>
+     * @since 1.0.1
+     * @member {number} foo
+     * @member {number} bar
      * @function
      * @function init
      * @param {model} model 초기화 시점에 Model객체를 상속합니다.
