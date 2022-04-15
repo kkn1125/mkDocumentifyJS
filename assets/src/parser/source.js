@@ -1,5 +1,6 @@
-import * as module from './BreakParagraph.js';
-import * as sample from './__comments/sample.js';
+import * as sample from '../../__tests__/__comments/sample.js';
+import { FnCard } from '../templates/function.js';
+import { ParamCard } from '../templates/param.js';
 
 const re = (regexp, flags) => new RegExp(regexp, flags);
 
@@ -16,7 +17,7 @@ const ParagraphTagSet = function (tagSet) {
     this.descs = tagSet.DescOfTheLine||[];
     this.members = tagSet.MemberOfTheLine||[];
     this.returns = tagSet.ReturnOfTheLine||[];
-    this.length = () => Object.values(tagSet).reduce((p,c)=>p+c.length,0);
+    this.length = () => Object.values(tagSet).reduce((p,c) => p + c.length, 0);
 }
 
 const AuthorOfTheLine = function ([$1, tag, author, email]) {
@@ -134,7 +135,6 @@ const ConvertLineToObject = noAstricLine => {
         matched.unshift(undefined);
         matched.unshift(undefined);
     }
-    console.log(matched)
     return matched ? new FnMatchingTagName[matched[1]](matched) : null;
 }
 
@@ -175,6 +175,15 @@ const FinallyParsedParagraph = jsSource => {
     return DivideSourceToParagraph(jsSource).map(ParsingParagraph);
 }
 
+/**
+ * @param {ParagraphTagSet} pts
+ */
+const CreateTemplate = ({members, function: functions, sinces, params, returns, authors, descs}) => {
+    const paramT = ParamCard(params);
+    const fnT = FnCard(functions, returns);
+    return `${fnT}${paramT}`;
+}
+
 const result = FinallyParsedParagraph(sample.c);
 
-export {re, ParagraphTagSet, AuthorOfTheLine, ParamOfTheLine, FunctionOfTheLine, MemberOfTheLine, DescOfTheLine, SinceOfTheLine, ReturnOfTheLine, TagCollections, TagCollector, FnMatchingTagName, Syntax, DivideSourceToParagraph, LineMatchRegExp, ConvertLineToObject, AstrictToNewLine, DivideParagraphToLine, RemoveEmptyLine, ConvertedParagraph, ParsingParagraph, FinallyParsedParagraph};
+export {re, ParagraphTagSet, AuthorOfTheLine, ParamOfTheLine, FunctionOfTheLine, MemberOfTheLine, DescOfTheLine, SinceOfTheLine, ReturnOfTheLine, TagCollections, TagCollector, FnMatchingTagName, Syntax, DivideSourceToParagraph, LineMatchRegExp, ConvertLineToObject, AstrictToNewLine, DivideParagraphToLine, RemoveEmptyLine, ConvertedParagraph, ParsingParagraph, FinallyParsedParagraph, CreateTemplate, result};
