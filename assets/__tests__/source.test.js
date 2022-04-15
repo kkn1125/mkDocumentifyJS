@@ -1,4 +1,4 @@
-import {FinallyParsedParagraph, re, Syntax} from './source';
+import {FinallyParsedParagraph, re, Syntax} from '../src/parser/source';
 import * as sample from './__comments/sample';
 
 describe('소스 테스트', () => {
