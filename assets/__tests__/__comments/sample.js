@@ -1072,7 +1072,6 @@ const b = `/**!
  * @var {any} o
  * @returns {string} qweqwe
  * @example
- * type() === null
  */
 function test(o){
    let tmp = o;
@@ -1082,7 +1081,7 @@ function test(o){
 /**
  * @function 
  * @param {string} test 설명
- * @returns 
+ * @returns {object}
  */
 function graphEditor(test){
    return test.toString();
@@ -1107,8 +1106,8 @@ function graphEditor(test){
  */
 
 /**
- * @function Model A collection of graph-related functions
- * @var {View} function of 
+ * @function Model2 A collection of graph-related functions
+ * @var {View} function2 of 
  */
 
 /**
@@ -1133,13 +1132,26 @@ function Controller() {
     let userOptions = null;
 
     /**
+     * 여기는 멤버
+     * @author kimson
+     * @author Jane Smith <jsmith@example.com>
+     * @since 1.0.1
+     * @member {int}
+     */
+
+    /**
+     * 여기는 멤버
+     * @author kimson
+     * @author Jane Smith <jsmith@example.com>
+     * @since 1.0.1
+     * @member {string} memberName
+     */
+
+    /**
      * Controller를 초기화하는 메서드
      * @author kimson
      * @author Jane Smith <jsmith@example.com>
      * @since 1.0.1
-     * @member {number} foo
-     * @member {number} bar
-     * @function
      * @function init
      * @param {model} model 초기화 시점에 Model객체를 상속합니다.
      * @param {object} ui 초기화 시점에 Ui객체를 상속합니다.
@@ -1148,34 +1160,26 @@ function Controller() {
      */
 
     /**
-     * @param
-     * @param ui
-     * @param - qweqweqwe
-     * @param {type} iur qweq weqwe qwe
-     * @param {type} qwe - qweq wewq
-     * @param {type} - qweqwe wq
-     * @param {type}
-     * @param {type} iur
-     * @param iur - qwe axd
-     * @param iur qwe axd
-     * @since 1.0.1
-     * @since
-     * @author oho <oho@naver.com>
-     * @author oho
-     * @author
      * qwertw efgse rthgrted hrty
-     * @desc qweqwe
-     * @var {type} name
-     * @member {type} name
-     * @member {type}
-     * @member name
-     * @member 
-     * @member
-     * @return
-     * @return qweqweqwe
-     * @returns {qwe}
-     * @returns {qwe} qweqwe
+     * @function 
+     * @param {int} iur qweq weqwe qwe
+     * @param {string} qwe - qweq wewq
+     * @since 1.0.1
+     * @author oho <oho@naver.com>
+     * @returns {int} qweqwe
      */
-}`
+
+    
+     /**
+      * 여기는 멤버
+      * @author ohoraming
+      * @author
+      * @since 1.0.1
+      * @member {string} testName
+      */
+ 
+}`;
 
 export {a, b, c};
+
+
