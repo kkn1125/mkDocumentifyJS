@@ -1,51 +1,5 @@
 import * as sample from '../../__tests__/__comments/sample.js';
-
-/**
- * (태그명 + 내용)이 있을 경우에만 걸러지도록! 한줄씩 보는거임!
- * @member {object} Syntax                      정규식 네임스페이스
- * @member {regexp} Syntax.Paragraph            문단 정규식
- * @member {regexp} Syntax.StartsWithComment    시작이 주석인지
- * @member {regexp} Syntax.Variable             member 정규식
- * @member {regexp} Syntax.EachLine             줄바꿈 정규식
- * @member {regexp} Syntax.TagReturns           return 정규식
- * @member {regexp} Syntax.TagAuthor            author 정규식
- * @member {regexp} Syntax.TagDesc              desc 정규식
- * @member {regexp} Syntax.TagDesc2             desc 태그 정규식
- * @member {regexp} Syntax.TagMember            member 정규식
- * @member {regexp} Syntax.ParamTagRegex        param 정규식
- * @member {regexp} Syntax.FunctionTagRegex     function 정규식
- * @member {regexp} Syntax.SinceTagRegex        since 정규식
- * @member {regexp} Syntax.See                  see 정규식 아직 안씀
- * @member {regexp} Syntax.RemoveAstric         * 제거
- * @member {regexp} Syntax.AllTags              모든 태그들
- */
-const OldSyntax = {
-    EachLine: /\n/gm,
-    StartsWithComment: /\s*\*\s*([\s\S]+)?/gm,
-
-    Paragraph: /\/\*\*\s*[\s\S]+?\s*\*\//gm,
-    Variable: /@(var|member)\s*(\{(\w+)?\}\s*)?([\s\S]+)?/i,
-    TagReturns: /(?!@)(return)s?(\s\{(.+)\})?(\s+[\w]+)?/,
-    // 통과2
-    TagAuthor: /(?!@)(author)([^\<\>\n]+)(\<.+\>)?/,
-    // 통과2
-    TagDesc: /(?!@)(description|desc)\s(.+)/,
-    // 통과2
-    TagDesc2: /[^@\s].+/,
-    // 통과2
-    TagMember: /(?!@)(var|member)(\s+\{(.+)\})?(\s+\w+)?/,
-    // 통과
-    ParamTagRegex: /@(param|arg|argument)(\s+\{(.+)\})?(\s+[\.\w\[\]]+)?(\s\-\s)?(.+)?/,
-    // 통과!
-    FunctionTagRegex: /@(function)\s+([\w]+)?/,
-    // 통과!
-    SinceTagRegex: /@(since)\s+(.+)/,
-    // 통과!
-    See: null,
-
-    RemoveAstric: /\B(\/\*\*|\s*\*\s+|\s*\*\/)/g,
-    AllTags: /@(\w+)(\s+\{(.+)\})?(\s+[\.\w\[\]]+)?(\s\-\s)?(.+)?/,
-}
+import { convertLineToObject, convertParagraphToLines, convertSourceToParagraph, filterEmptyLine, removeStar } from "./module/utils.js";
 
 const Parser = (function () {
     const re = (regexp, flags='') => new RegExp(regexp, flags);
@@ -67,6 +21,7 @@ const Parser = (function () {
      * 1. /**!는 제외
      * 2. 별 제거한 문단으로 처리
      * 3. 별 제거로 생긴 줄 바꿈 및 공백 처리 제거
+     * 4. 줄 단위 배열화
      * @function FirstModel
      */
     function FirstModel () {
@@ -77,95 +32,77 @@ const Parser = (function () {
             sources = source;
         }
 
+        this.convertSourceToParagraph = convertSourceToParagraph;
+        this.removeStar = removeStar;
+        this.convertParagraphToLines = convertParagraphToLines;
+        this.filterEmptyLine = filterEmptyLine;
+
         this.startParsing = function () {
-            /** 별 제거 */
-            this.removeAstric();
+            /**
+             * 변수명 : 명사
+             * 1. 형용사+이름[+타입]
+             */
 
             /** 문단 배열화 */
-            this.convertSourceToParagraph();
+            const PARAGRAPHS = this.convertSourceToParagraph(sources);
+
+            /** 별 제거 */
+            const CLEANED_PARAGRAPHS = this.removeStar(PARAGRAPHS);
+
+            /** 별 제거된 문단배열을 줄단위로 2차배열 생성 */
+            const TWO_D_PARAGRAPHS = this.convertParagraphToLines(CLEANED_PARAGRAPHS);
 
             /** 공백, 줄 바꿈 제거 */
-            this.removeWhiteSpace();
+            const CLEANED_TWO_D_PARAGARAPHS = this.filterEmptyLine(TWO_D_PARAGRAPHS);
 
             /** 중간처리기에 위임 - 파싱된 소스를 넘겨주면서 */
-            this.endParsing();
+            this.endParsing(CLEANED_TWO_D_PARAGARAPHS);
         }
 
-        this.endParsing = function () {
+        this.endParsing = function (paragraphs) {
+
             /** 소스 넘기기 */
-            seconds.startParsing(sources);
+            seconds.startParsing(paragraphs);
         }
     }
 
-    // '': DescOfTheLine
-
-    // desc: [],
-    // author: [],
-    // function: [], .length == 0
-    // desc: [],
-
-    // members = [{
-    //     tag: qwe,
-    //     type: wqe,
-    //     name: qwe,
-    //     common: {
-    //         desc: desc,
-    //         see: null,
-    //         author: author
-    //     }
-    // }];
-    // methods = [];
-
-
     /**
      * 중간처리 - 데이터에 대한 가공
-     * 1. 줄 단위 배열화
-     * 2. 태그 객체화 - tagName && 속성 한 가지 반드시 존재😎 예외: @desc 태그없는 desc
-     * 3. 내용 없는 tagName 의 undefined, null 등의 처리
+     * 1. 태그 객체화 - tagName && 속성 한 가지 반드시 존재😎 예외: @desc 태그없는 desc
+     * 2. 내용 없는 tagName 의 undefined, null 등의 처리
      */
     function SecondModel () {
-        let sources, thirds;
-
-        // const Matching = {
-        //     // member
-        //     member: DescOfTheMember,
-            
-        //     // fn
-        //     function: DescOfTheFunction,
-        //     param: DescOfTheParam,
-        //     returns: DescOfTheReturns,
-            
-        //     // common
-        //     '': DescOfTheLine,
-        //     desc: DescOfTheDesc,
-        //     author: DescOfTheAuthor,
-        //     since: DescOfTheLine,
-        //     see: DescOfTheSee,
-        // }
+        /**
+         * @member {String}
+         */
+        let thirds;
 
         this.init = function (third) {
             thirds = third;
         }
 
+        this.convertLineToObject = convertLineToObject;
+
         /**
-         * 전처리기에서 받아온 별이 없는 문단 배열
+         * 전처리기에서 받아온 별이 없는 문단 2차배열
          * @param {array<string>} source
+         * 
+         * @todo convertLineToObject 부터 작업해야 함
          */
-        this.startParsing = function (source) {
-            sources = source;
+        this.startParsing = function (paragraphs) {
 
-            /** 문단 배열을 줄단위로 2차배열로 변환 */
-            this.convertParagraphToLine();
+            const CONVERTED_PARAGRAPHS = this.convertLineToObject(paragraphs);
 
-            /** 태그 객체화 */
-            this.convertLineToObject();
-
-            /** third에 위임 */
-            this.endParsing();
+            this.endParsing(CONVERTED_PARAGRAPHS);
         }
 
-        this.endParsing = function () {
-            thirds.startParsing(sources);
+        /**
+         * third에 위임
+         * @function endParsing
+         * @param {Object[][]} paragraphs
+         */
+        this.endParsing = function (paragraphs) {
+            thirds.startParsing(paragraphs);
         }
     }
 
@@ -200,19 +137,64 @@ const Parser = (function () {
      * ex) <li id="kimson-6" data-parent="parentMethod"></li>
      */
     function ThirdModel () {
-        let views, sources;
+        let views;
         this.init = function (view) {
             views = view;
         }
+        
+        // const members = [];
+        // const methods = [];
+        // const result = {
+        //     members: [],
+        //     methods: [],
+        // }
+        this.startParsing = function (sources) {
 
-        this.startParsing = function (source) {
-            sources = source;
+            /**
+             * 멤버와 메서드 분류한 배열
+             * @function fnAndMemberObject
+             * @returns {Object}
+             * 
+             * @example
+             * // {
+             * //   members: [
+             * //     {
+             * //       since:,
+             * //       author:,
+             * //       see:,
+             * //       source:,
+             * //       member: {name, type},
+             * //       member:,
+             * //     }, ...
+             * //   ],
+             * //   methods: []
+             * // }
+             */
+            const MEMBER_AND_FN_OBJECT = this.separateMemberAndFn(sources);
 
-            /** 멤버와 메서드 분류한 배열 */
-            this.FnAndMemberObject();
-
-            /** 데이터 속성 소문자로 (정렬 위함) */
-            this.makeDataNameToLowerCase();
+            /**
+             * 데이터 속성 소문자로 (정렬 위함)
+             * @function makeDataNameToLowerCase
+             * @param {Object} MEMBER_AND_FN_OBJECT
+             * @returns {Object}
+             * 
+             * @example
+             * // {
+             * //   members: [
+             * //     {
+             * //       since:,
+             * //       author:,
+             * //       see:,
+             * //       source:,
+             * //       member: {name, type},
+             * //       member:,
+             * //       dataname: qweqwe,     // +
+             * //     }
+             * //   ],
+             * //   methods: []
+             * // }
+             */
+            const DATANAME_OBJECT = this.makeDataNameToLowerCase(MEMBER_AND_FN_OBJECT);
 
             /** 아이디 = 이름-번호 */
             this.makeIdNameDashNumber();
@@ -265,8 +247,8 @@ const Parser = (function () {
     }
 })();
 
-const initOptions = {};
+// const initOptions = {};
 
-const JSParser = Parser.init();
+// const JSParser = Parser.init();
 
-new JSParser(initOptions).parser('jssource').render('#app');
+// new JSParser(initOptions).parser('jssource').render('#app');

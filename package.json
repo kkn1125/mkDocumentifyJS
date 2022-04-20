@@ -4,7 +4,7 @@
   "description": "![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/kkn1125/mkDocumentifyJS?color=violet&include_prereleases&label=release&style=for-the-badge)",
   "main": "index.js",
   "scripts": {
-    "test": "jest --coverage --verbose false"
+    "test": "jest --watchAll --coverage --verbose false"
   },
   "repository": {
     "type": "git",

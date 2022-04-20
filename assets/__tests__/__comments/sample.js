@@ -1164,7 +1164,7 @@ function Controller() {
      * @function 
      * @param {int} iur qweq weqwe qwe
      * @param {string} qwe - qweq wewq
-     * @since 1.0.1
+     * 
      * @author oho <oho@naver.com>
      * @returns {int} qweqwe
      */
@@ -1174,6 +1174,7 @@ function Controller() {
       * 여기는 멤버
       * @author ohoraming
       * @author
+      * 
       * @since 1.0.1
       * @member {string} testName
       */
